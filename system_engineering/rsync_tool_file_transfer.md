@@ -122,6 +122,91 @@
   需要两边主机都安装rsync
 
 
+## rsync 数据处理过程
+
+### 术语
+- client, role, 源主机
+- server, role, 对象主机, 连接建立以后, 即clinet 是发送方, server 是接收方
+- daemon, role & process, 等待client连接的进程
+- remote shell, role & set of process, 对象主机端的一个和多个进程,来提供连接
+- sender, role & process, 一个进程来读取 src 文件 并进行同步
+- receiver, role & process, 一个进程在ds, 接收数据并落盘
+- generator, process, 一个来识别文件变更和文件层面的一些管理工作
+
+### 主要流程
+client 建立与 server process 的连接, pipe 或者 socket
+
+mode 1 (non-daemon),   
+  如果是non-daemon server端, 首先 fork 一个 remote shell,  
+  client 端和 server 端的通讯通过 pipe 使用 remote shell,  
+  直到确认网络间没有数据传送,  
+  在这个模式下, server 的参数通过 command line 进行解析, 然后启动一个remote shell  
+mode 2 (daemon),  
+  直接通过socket 进行通讯, 
+  
+因为sender 和 receiver 在连接初期, 两边使用支持的最高协议版本进行协商, 最终使用最低支持的level.
+
+### File list
+
+包括 pathname, ownership, mode, permissons, size, modtime; 
+指定了 --checksum 的话, 还包括 checkums.
+
+首先sender 会建立filelist, 然后传送给 receiver,
+然后根据相对的路径进行排序.
+收到file list后 ,fork出来一个generator
+
+rsync 用pipline 组织数据流:  
+generator -> sender -> receiver
+
+每个操作都使用单独进程, 数据是单向的.
+
+generator 比较file list, 如果 --delete 指定, 会先找出需要删除的文件.  
+然后, generator 将遍历list,   
+通常场景: 比较更改时间和大小  
+校验码场景:  会进行校验码的比较,后面会解释该算法, 默认是时间和大小.
+
+### sender
+读取 generator 产生的 file index 和 checksum, 包括为文件 block 建立hash table,
+接着就是循环 [校验算法](# 一些算法)
+
+简单来讲, 就是 src 文件按块进行匹配, 把不匹配的块,该块的偏移和接收端的块的大小,
+按这种方式, 即使同一个文件块的发送顺序不一样,对最后的结构不会有影响,
+
+比较: 
+- 使用校验算法比较占用cpu时间, 但节省带宽, 适用那种文件变更少的场合.
+- 使用默认,即时间和大小, 对单个文件来讲,就不是增量方式了.
+
+### receiver
+
+接收端会根据 index number 读取数据, 然后打开文件,并创建临时文件.  
+接收端读取非匹配块和匹配的块, 最终重新组合成一个文件,这里有两点:  
+1. 收到非匹配块, 被写入临时文件
+2. 收到匹配块儿, 按偏移量进行寻找, 将该块写入临时文件
+按这种方式, 把各个块组合成一个临时文件,  
+文件重建后, 会再跟发送端的检验码进行校验; 校验不符, 删除临时文件,重建.
+默认只会重试一次, 之后再有问题, 就会出错误报告.  
+最终加上文件所有者,权限和时间等信息, 然后替代基础文件.
+
+
+接收端主要是从基础文件复制到临时文件, 主要消耗磁盘 IO, 
+要注意大文件的处理, 数据是随机进行读, 
+如果读写超过磁盘缓存的限制, 会有所谓"寻找风暴",进一步损伤性能
+
+### 协议
+
+数据作为字节流被传输
+
+例如, 发送一个文件列表, 就是发送列表中的每一条, 发送结束就是一个NULL字节,
+每一条都是变长字符串, 被NULL终结.
+
+每个版本的协议表现不完全一致.
+
+所以很难进行文档化.
+
+### 文档参考
+
+参考[how rsync works](https://rsync.samba.org/how-rsync-works.html)
+
 ## 一些算法
 
 其核心是rolling checksum算法, 在备份领域经常使用.
@@ -142,7 +227,10 @@ d，对比算法：
         3，如果没查到不用计算强，算法往后setp 1个字节，取源文件的第二个块做弱计算。
 
         4，根据以上，找出源文件相邻两次匹配中的文本字符，就是需要往目标同步的文件内容了。
+
 ```
+
+### 文档参考
 [参考算法](https://rsync.samba.org/tech_report/tech_report.html)
 [陈皓-rsync算法解析](https://coolshell.cn/articles/7425.html)
 
