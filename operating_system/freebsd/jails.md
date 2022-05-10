@@ -94,7 +94,55 @@
     
     ip 地址不确定怎么配置, 后面再补充.
     参考: https://www.chinafreebsd.cn/article/5e9d356c7cb5c
+
+### 网络
+
+    开启pf
+    ```
     
+    # cp /usr/share/examples/pf/pf.conf /etc/pf.conf
+    
+    # service pf start                                                              # service pflog start
+    
+    pfctl -e ; pfctl -f /etc/pf.conf
+    
+    
+    # sysctl net.inet.ip.forwarding=1
+    # sysctl net.inet6.ip6.forwarding=1
+    # sysrc gateway_enable=yes
+    # sysrc ipv6_gateway_enable=yes
+
+    ```
+    
+    if_bridge(4) and if_epair(4).
+    ```
+    # ifconfig bridge create
+    bridge0
+    # ifconfig epair create
+    epair0a
+    # ifconfig bridge0 addm rm0
+    # ifconfig epair0a mtu 1450
+    # ifconfig bridge0 addm epair0a
+    
+    ```
+
+### 其他配置
+
+    允许ping: 
+      sysctl security.jail.allow_raw_sockets=1
+      
+      
+    其他:
+    security.jail.set_hostname_allowed: 1
+    security.jail.socket_unixiproute_only: 1
+    security.jail.sysvipc_allowed: 0
+    security.jail.enforce_statfs: 2
+    security.jail.allow_raw_sockets: 0
+    security.jail.chflags_allowed: 0
+    security.jail.jailed: 0
+
+
+
 ### 第三方配置工具
     
     sysutils/ezjail

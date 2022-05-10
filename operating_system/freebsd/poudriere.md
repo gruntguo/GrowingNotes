@@ -71,7 +71,9 @@
 
 
   ```
-  poudriere testport -j 11amd64 -p local -o net/netcat
+  # poudriere testport -j 11amd64 -p local -o net/netcat
+  
+  # poudriere testport -j 11amd64 -p local -o sysutils/lsof
   ```
 
 ## build
