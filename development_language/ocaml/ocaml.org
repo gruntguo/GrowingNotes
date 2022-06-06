@@ -1,0 +1,1361 @@
+* ocaml
+
+** 基础
+
+*** 环境
+
+	
+	opam
+	opam init
+	eval $(opam env)
+	opam switch
+	opam switch create 4.13.1
+	opam install base utop
+
+
+	opam install core async yojson core_extended \
+    core_bench cohttp-async async_graphics \
+    cryptokit menhir
+
+**** opam basic
+	 opam list -a         # List the available packagesa
+     opam install lwt     # Install LWT
+     opam update          # Update the package list
+     ...
+     opam upgrade         # Upgrade the installed packages to their latest version
+
+	
+**** editor setup for emacs
+	 opam install tuareg ocp-indent merlin
+	 opam install user-setup
+	 opam user-setup install
+
+	 opam install ocamlformat
+
+*** 包
+	Base: 基本包
+	Core: 基于base的扩展
+	Core_kernel: Core 的子集,  Core_kernel 2022 被移除
+
+	
+	
+   
+*** 命令式&函数式
+	使用单分号建立操作序列， 函数式编程不需要
+
+	<exp1>;
+	<exp2>;
+	...
+	<expN>;  等价于
+
+	let () = <exp1> in
+	let () = <exp2> in
+	...
+	<expN>
+
+*** 变量
+
+	let , 作用域 ， 模块
+	let in ， 作用域， in
+
+	内部作用域可以遮掩外部的
+
+	let 绑定是不可变的
+	
+*** 类型
+	unit 只有一个可能的值，记为(), 类似于void
+
+	float Float.of_int
+
+	 '_a   弱多态， 说明可用于单个类型， 一旦ocaml 得到线索，就会把弱多态转化为具体类型
+
+	 值限制
+
+*** prefix vs infix
+
+	List.map ~f:((+) 3) [4;5;6] ;;
+	 
+*** 数组
+	可变
+	
+	nrs = [| 1; 2; 3|]
+	nrs.(2) <- 4;; (*修改第3个*)
+
+	<array_expr>.(<index.expr>)  获取元素
+	<- 设置元素
+
+*** 字符串
+	字符串实际上就是通常用于文本数据的字节数组
+	使用string 取代 Char.t array
+	Char.t array 使用1个字（8个字节）， string 使用1个字节
+
+	<string_expr>.[<index_expr>]
+	<string_expr>.[<index_expr>] <- <char_expr>
+
+*** 大数组
+	Bigarray.t 是个句柄， 对应OCaml 堆外存储的一个内存块，主要用于与C Fortran交互
+
+*** 引用
+	ref expr
+	!refcell
+	refcell : = expr
+
+	#+begin_src ocaml
+	  # let x = ref 1
+	  # !x
+	  - : int = 1
+	  # x := !x + 1
+	  - : unit = ()		 
+	  # !x		 
+	  - : int = 2
+	  
+	#+end_src
+
+*** 列表 list
+	基本特性:
+	  不可变
+	  数据类型要一致
+
+	[] 空表是多态的
+
+	创建
+	  :: 
+	  右结合
+	  1 :: 2 :: 3 :: [] 
+	[] 为列表语法糖
+
+	@
+	[1;2;3]@[2;3;4]
+	非常数时间函数
+	
+	List.iter
+	List.map
+
+	使用 as 来减少一次分配
+
+	#+begin_src
+
+let rec destutter = function
+  | [] as l -> l
+  | [_] as l -> l
+  | hd :: (hd' :: _ as tl) ->
+    if hd = hd' then destutter tl
+    else hd :: destutter tl
+;;
+
+let rec destutter = function
+  | [] | [_] as l -> l
+  | hd :: (hd' :: _ as tl) ->
+    if hd = hd' then destutter tl
+    else hd :: destutter tl
+;;
+
+	#+end_src
+
+
+
+
+**** 关联列表
+
+	 [("one",1);("two",2);("three",3)]
+	 List.Assoc.find ~equal:String.equal
+	 List.Assoc.add ~equal:String.equal
+
+	 
+
+**** 双向链表
+	 Doubly_linked
+	 
+*** option
+
+	表示一个值可能有或没有
+	None 和 Some用来建立可选值
+
+	None
+	Some(x)
+	
+
+*** 记录
+
+	type <record-name> =
+	{ <field> : <type> ;
+	<field> : <type>;
+	...
+	}
+
+	注： 记录字段必须以小写开头
+	
+	type point2d = { x : float; y: float};;
+
+	点记法
+	p.x p.y
+
+	多类型结合，使用变体(variant)类型
+
+	可变：  mutable
+
+	ref:
+	   let x = { contents = 0} ;;
+	    - : int ref = { contents = 0}
+
+	   let x = ref 0 （ 即 {contents = 0}）
+	   !x 得到一个ref的内容
+	   x := !x + 1
+
+	标签参数：
+
+	(.) 的两种用法， 第一个访问记录字段， 第二个访问模块内容
+
+**** 首类字段，filedslib 扩展语法
+	记录类型声明末尾， 有一个with fields
+	with fields 
+	
+**** functional update
+	 只更新一部分字段
+	 
+	 { <record> with <field> = <value>;
+	     <field> = <value>;
+		 ...
+	 }
+	  
+**** 变体
+
+	 #+begin_src ocaml
+	   type <variant> =
+	   | <Tag> [ of <type> [* <type>]...]
+	   | <Tag> [ of <type> [* <type>]...]
+	 #+end_src
+
+	 使用 * 号分割变体的参数
+
+	 使用变体来构建递归的数据结构
+
+***** enbedded record
+	  
+	 
+***** 多态变体
+	  多态变体不需要额外的声明
+	  使用反引号`
+
+	  let three = `Int 3
+	  let four = `Float 4
+	  let nan = `Not_a_number
+	  [three,four,nan]
+
+	  窄化， 加个 # 前缀
+
+	  :> 子类型转化（多态变体，对象）
+	     对象的强制转换， 依赖不可变的
+	    
+	  
+*** error
+	Result
+
+
+	Error
+
+	bind
+
+	let%
+
+	Option.both
+	
+*** 异常	
+	exn 异常的类型为exn
+	exn 在类型系统中是一个特例
+	    开放定义， 永远不会有一个完备匹配
+
+	#raise
+	- : exn -> 'a = <fun>
+	  返回值为'a, 因为raise 不返回
+
+	使用 with sexp
+
+	exception Wrong_date of Date.t with sexp
+
+
+	
+**** 异常辅助函数
+	 failwith
+	     let failwith msg = raise (Failure msg)
+
+**** assert
+
+	 assert false : 异常一定触发
+	 assert 可以捕获断言处的行号和字符偏移量
+
+**** 异常处理
+
+	 #+begin_src
+	 try <expr> with
+	 | <pat1> -> <exp1>
+	 | <pat2> -> <exp2>
+	 #+end_src
+
+	 protect ~f:  ~finally:
+
+	 栈回溯： Exn.backtrace
+	 core默认开启，
+	 编译时，corebuild 可以设置 OCAMLRUNPARAM = 空 来关闭栈回溯
+	 代码中 Backtrace.Exn.set_recording false 关闭栈回溯
+	 
+	 
+*** Monad
+	>>= 中缀形式的bind了
+	  
+	  
+*** 循环
+	for i=0 to 3 do ... done
+	for i=3 downto 0 do ... done
+	上界和下界是包含的
+	循环变量i ， 在循环作用域不可变， 局部， 循环外不可引用
+	
+
+	while do done
+	incr i
+	decr i
+	   
+*** 函数
+	等价：
+	  let plusone= (fun x -> x + 5)
+	  let plusone x = x + 5
+
+	等价： 
+	(fun x -> x +1) 7;;
+	let x = 7 in x +1 ;;
+
+**** 柯里化：
+	let abs_diff x y = abs(x - y)
+	let abs_diff = (fun x -> (fun y -> abs (x - y)));;
+	let abs_diff = (fun x y -> abs (x -y));;
+	let abs_diff (x,y) = abs (x - y);;
+
+**** function
+	 
+	#+begin_src ocaml
+	  function：
+	  let some_or_zero = function
+	  | Some x -> x
+	  | Nome -> 0
+	  
+	  (* 等价于 *)
+	  
+	  let some_or_zero num_opt =
+		match num_opt with
+		| Some x -> x
+		| None -> 0
+	  
+	  (* 结合 *)
+	  
+	  let some_or_default default = function
+		| Some x -> x
+		| None -> default
+		  
+	#+end_src
+	match 表达式优先级低， 需要在两边加上 begin...end, 也可以用小括号
+***** as 子句，when字句
+	 -> 实际会分配一个新的列表元素
+	 使用as 不会新分配
+	 
+	 when 会有时对匹配产生警告， 编译器难以确定是否都匹配了所有
+	 能用match时，不用when
+	 
+	
+**** 标签参数
+
+	let ratio ~num ~demon = float num /. float demon
+	ratio ~num:3 ~demon:10
+
+	标签双关：  如果标签名和变量名重名， 可以省略冒号后面的文本
+
+	let num = 3 in
+	let demon = 5 in
+	raito ~num ~demon;;
+
+	标签函数作为参数传入时， 需要保证标签参数顺序一致
+
+**** 可选参数
+	 let concat ?sep x y =
+	   let sep = match sep with None -> "" | Some x -> x in
+	   x ^ sep ^ y
+
+	 等价于
+
+	 let concat ?(sep="") x y = x ^ sep ^ y ;;
+
+	 可选参数会失去明确性，模块内部使用的函数， 尽量避免可选参数;
+	 尽量在模块接口 和 mli 中使用
+
+	 部分应用函数时， 可选参数会被擦除;
+	 擦除规则： 可选参数后面定义的第一个位置上的参数一旦传入，就会被擦除
+	 
+*** 函数顺序调用管道
+    |> 左结合
+	^> 右结合
+
+*** 惰性
+	lazy 关键字声明
+	lazy.force 调用时计算
+	lazy_state 实际上是一个包含lazy_state的ref
+
+*** 备忘
+	memoization，  记住函数结果， 下次调用时， 直接返回结果;
+
+	递归结 recursive knot
+	
+*** 格式化字符串
+
+	let fmt : ('a,'b,'c) format =
+	  "%i is an integer, %F is a float, \"%s\" is a string\n";;
+	
+*** 接口
+	签名中的值:
+	val <identifier> : <type>
+
+*** module
+
+	module <name> : <signature> = <implementation>
+
+	module type xxx = sig ... end
+	module yyy = struct ... end
+
+	module aaa : xxx = yyy
+	
+**** 打开模块
+
+     局部打开:	 
+	   let open Int64 in 。。。
+
+	   更简洁的方式
+	   Float.O.(of_int x / of_int y)
+	   Int64.()
+
+	   #+begin_src ocaml 
+		 let module C = Counter in
+		 C.xxx
+		 let print_median m =
+		 let module C = Counter in
+		 match m with
+		 | C.Median string -> printf "True median:\n   %s\n" string
+		 | C.Before_and_after (before, after) ->
+		 printf "Before and after median:\n   %s\n   %s\n" before after
+ 	   #+end_src
+
+	   include 扩展一个模块
+
+	   module type of 获得一个模块的签名
+
+**** include
+	 module Interval = struct ... end
+	 
+	 module Extended_interval = struct
+	 include Interval
+	 ...
+	 end
+
+**** functor
+	 module F (X : X_type) : Y_type = struct
+	 ...
+	 end
+	 
+     模块到模块的函数，可以用来解决以下问题：
+	 - 依赖性注入
+	 - 模块自动扩展
+	 - 实例化模块包含状态： 模块有多个实例，每个实例有独自可变的状态
+
+     共享约束：
+	 <Module_type> with type <type1> = <type1'> and type <type2> = <type2'>
+
+	 破坏性替代：
+	 <Module_type> with type <type> := <type'>
+
+**** 首类模块
+	 （module <Module> : <Module_type>)
+
+	 #+begin_src ocaml
+	   module type X_int = sig val x : int end
+	   module Three : X_int = struct let x = 3 end
+	   let three = (module Three : X_int)
+	 #+end_src
+
+	 #+begin_src ocaml
+	   module Four = struct let x =  4 end
+	   let numbers = [ three; (module Four)]
+     #+end_src
+
+	 可以由匿名模块创建首类模块
+	 #+begin_src ocaml
+	   let numbers = [ three; (module struct let x = 4 end)]
+	 #+end_src
+
+	 访问一个首类模块内容：
+	 （val <first_class_module> : <Module_type>)
+	 #+begin_src ocaml
+	   module New_three = (val three : X_int);;
+	   New_three.x
+	   
+	 #+end_src
+
+	 
+***** 共享约束
+	  <Module_type> with type <type> = <type'>
+	  <Module_type> with type <type> = <type'> and <type2> = <type2'>
+	  #+begin_src ocaml
+	  module Make_interval(Endpoint : Comparable)
+	      : (Interval_intf with type endpoint = Endpoint.t)
+	  #+end_src
+
+ 	  破坏性替代： 转换一个现有的签名来创建一个新签名
+	  <Module_type> with type <type> := <type'>
+
+
+	  include xxx with t:=t
+
+***** 变化性标注
+
+	  variance annotations
+
+	  + 表示协变性, covariant
+	  - 表示抗变性
+	  
+**** 局部抽象类型
+	 locally abstract type
+	 对于任何函数，可以为引入一个全新类型的类型名a声明为一个伪参数，形式为 type a
+
+**** 其他
+	 eta-expansion in lambda calculus and is sometimes referred under this name
+
+	 #+begin_src ocaml
+	 # let not_id = (fun x -> x) (fun x -> x);;
+	 val not_id : '_weak4 -> '_weak4 = <fun>
+	 
+	 # let id_again = fun x -> (fun x -> x) (fun x -> x) x;;
+	 val id_again : 'a -> 'a = <fun>
+	 #+end_src
+
+*** sexp
+	#require "ppx_jane" ;;
+	[@@deriving sexp]
+
+	#+begin_src ocmal
+	type some_type = int * string list [@@deriving sexp] ;;
+	type some_type = int * string list
+	val some_type_of_sexp : Sexp.t -> some_type = <fun>
+	val sexp_of_some_type : some_type -> Sexp.t = <fun>
+	sexp_of_some_type (33, ["one"; "two"]) ;;
+    - : Sexp.t = (33 (one two))
+	Core.Sexp.of_string "(44 (five six))" |> some_type_of_sexp ;;
+    - : some_type = (44, ["five"; "six"])
+
+
+    let l = [(1,"one"); (2,"two")];; ;;
+    val l : (int * string) list = [(1, "one"); (2, "two")]
+    List.iter l ~f:(fun x ->
+      [%sexp_of: int * string ] x
+      |> Sexp.to_string
+    |> print_endline);;
+    ;;
+  (1 one)
+  (2 two)
+  - : unit = ()
+    #+end_src
+
+*** sexp format
+	非常重要的一章， 简述了如何创建一个项目，要多次浏览。
+	
+	xxx.scm
+	Sexp.load_sexp "xxx.scm"
+
+	ppx_sexp_conv
+
+	[@sexp_opaque]
+	[@sexp.list]
+	[@sexp.option]
+	[@default xxx]  [@sexp_drop_default.equal]
+	
+      [@sexp_drop_default.compare] if the type supports [%compare]
+      [@sexp_drop_default.equal] if the type supports [%equal]
+      [@sexp_drop_default.sexp] if you want to compare the sexp representations
+      [@sexp_drop_default f] and give an explicit equality function ([f = Poly.(=)] corresponds to the old behavior)
+
+	
+	
+*** platform
+	dune init proj hello --ppx ppx_inline_test --inline-tests
+	$ cd hello
+	$ opam switch create .
+	$ eval $(opam env)
+
+
+	opam switch list-available : to get a set of versions
+
+	$ echo 'let greeting = "Hello World"' > lib/msg.ml
+	$ echo 'val greeting : string' > lib/msg.mli
+	  最终的模块名，Hello.Msg
+	  C-like
+	  By default, dune exposes libraries as wrapped under a single module,
+	  ocamlfind list ，查找安装的
+
+	dune build
+	dune exec -- bin/main.exe
+	dune exec -- hello
+
+	  
+**** doc
+	 opam install odoc
+	 dune odoc
+	 
+**** format
+	 $ echo 'version=0.20.1' > .ocamlformat
+	 $ opam install ocamlformat.0.20.1
+
+	 ocamlformat --help 
+	 dune build @fmt
+	 dune promote        跟test一样， format 只会更改_build下面的文件，
+	                     如果更改是想要的，使用promote 来进行更新
+
+**** generate opam file
+	 使用dune 自动生成
+
+	 dunu-project
+	 (lang dune 2.9)
+
+	 https://github.com/marketplace/actions/set-up-ocaml
+
+	 $ opam dune-lint
+	 $ opam lint
+
+	 
+	 $ opam install dune-release
+	 $ git clean -dxf
+	 $ git diff
+
+	 $ dune-release tag
+	 $ dune-release
+
+**** git clean	 
+	 n ：显示将要被删除的文件
+	 d ：删除未被添加到 git 路径中的文件（将 .gitignore 文件标记的文件全部删除）
+	 f ：强制运行
+	 x ：删除没有被 track 的文件
+
+*** ffi
+
+**** basic	
+	foreign function interface
+
+	$ brew install libffi     # for macOS users
+	$ opam install ctypes ctypes-foreign
+	$ utop
+	# require "ctypes-foreign" ;;
+
+
+	open Ctypes
+
+	type window = unit ptr
+	let window : window typ = ptr void
+
+	open Foreign
+
+	let initscr =
+	foreign "initscr" (void @-> returning window)
+	
+	dlsym 查找
+	@-> 为c 参数列表增加参数， returning指定返回类型来结束参数列表
+
+	#+begin_src ocaml
+	  let newwin =
+		foreign "newwin"
+	      (int @-> int @-> int @-> int @-> returning window)
+	  
+	  let endwin =
+	    foreign "endwin" (void @-> returning void)
+	#+end_src
+
+	ocaml-print-intf ncurses.ml
+	得出mil
+	   ocaml-print-intf    --          Display human-readable OCaml interface from a compiled .cmi
+
+	或者：
+	corebuild -pkg ctypes.foreign ncurses.inferred.mli
+	cp _build/ncurses.inferred.mli .
+
+	corebuild -pkg ctypes.foreign -lflags -cclib, -lncurses hello.native
+
+*** Memory Representation of Values
+	值的内存表示
+
+**** 块和值
+	 声明时不占内存， let 绑定时分配新的内存块
+
+**** 整数和指针
+	 最低位非0, 值为整数， 0 为指针（字对齐，低位是0）
+	 bool, int, 空表， unit, 没有构造器的变体，都是映射为这个整数表示
+	 整数是未装箱的运行时值，可以直接存储
+
+	 两种指针：
+	 1. 指向ocaml 值的指针， 需要gc跟踪
+	 2. 指向系统堆中C值的指针，不需要gc跟踪
+
+**** 元组，记录，数组
+	 Obj.is_block (Obj.repr(1,2,3));;   -> true
+	 Obj.is_block (Obj.repr 1);;   -> false
+
+	 Obj.repr 获取任何Caml 值的运行时表示
+
+	 
+**** 浮点和数组
+
+	 浮点存储为双精度
+
+	 Obj.tag （Obj.repr 1.0);;
+	 Obj.double_tag;;
+
+	 浮点数装箱在一个单独的内存块中，比整数效率低。故提供了只包含float的记录和数组
+
+**** 变体和列表
+
+**** 多态变体
+	 
+**** 字符串
+
+	 String_tag （252）大于No_scan_tag, 说明该块对回收器不是透明的。
+	 
+**** 定制堆块
+	 
+**** bigarray
+
+*** gc
+	ocaml 运行时是一个c 库，提供了一些例程，可以从运行的ocaml 程序调用。
+	这个运行时库管理一个堆 heap
+
+	定期扫描时， 从一组根root 开始
+	gc 维护了一个有向图， 堆块是节点，
+
+**** 世代垃圾回收
+	 堆的划分主要是以下俩内存区：
+	 - 固定大小的次堆， minor heap, 大多数块都是初始化分配的
+	 - 更大的可变大小的主堆， major heap, 维护生存时间更长的块
+
+**** 设置次堆大小：
+	 64位平台， 通常是2M
+	 Core 会增加到 8M
+	 OCAMLRUNPARAM的 s=<words> 参数覆盖这个值
+
+	 Gc.set 来改变该值
+
+	 let c = Gc.get();;;
+	 Gc.tune ~minor_heap_size:(262144 * 2)() ;;
+
+**** 主堆
+	 通过标记清扫垃圾回收算法来清理
+
+	 - Mark 阶段会扫描块图， 在块首标记存活
+	 - sweep 扫描chunk, 标识之前没有标记的死亡的块
+	 - compact 重新将存活的块分配到一个新分配的堆，防止碎片
+
+	 也会世界停止，标记清扫递增运行，避免停太久
+
+	 大于256 个字的值（64 平台上的2k），是一个例外， 直接在主堆分配。
+
+
+	 
+**** 分配策略
+	 下一合适分配
+	 第一合适分配
+
+	 通过 Gc.allocation_policy 字段设置堆的分配策略，0 是下一合适， 1是第一合适
+
+	 Gc.major_slice 0 触发gc回收
+	 Gc.full_major
+
+*** The compiler frontend
+
+**** 过程概述
+
+	 源代码 -> 解析和预处理camlp4语法扩展
+	 解析树（无类型AST） -> 类型推断和检查
+	 类型化树 -> 模块和类的模式匹配编译消除
+	 Lambda  ->  Cmm  -> 编译码
+	         ->  字节码 -> 解释码
+
+
+	 js_of_ocaml : 转换为js
+	 OCamlCC: 转换为c
+	 native code ： 可执行
+
+	 
+**** ocamldoc
+	 可生成HTML页面，LaTeX和pdf， unix 手册
+	 甚至可以生成模块依赖图， 使用graphviz查看
+
+**** ppx
+
+	 - attributes
+	 - extension nodes
+	 
+***** Extension attribute
+
+    a single [@ binds to expressions and individual type definitions.
+    a double [@@ binds to blocks of code, such as module definitions, type declarations or class fields.
+    a triple [@@@ appears as a standalone entry in a module implementation or signature, and are not tied to any specific source code node.
+
+
+	@@@warning
+
+	@@deprecated to indicate that it should not be used in new code
+
+	@warn_on_literal_pattern attribute indicates that the argument
+	to the type constructor should not be pattern matched upon
+	with a constant literal
+
+	https://ocaml.org/manual/attributes.html
+
+***** extension node
+	  general syntax ：
+	    [%id expr]
+
+**** static type checking
+
+	 
+	 automatic type inference
+       An algorithm that calculates types for a module without requiring manual type annotations 
+	 module system
+       Combines software components with explicit knowledge of their type signatures 
+	 explicit subtyping
+       Checks for objects and polymorphic variants 
+
+
+***** Displaying Inferred Types from the Compiler
+	  ocamlc -i typedef.ml
+
+***** Type Inference
+	  OCaml type inference is based on the Hindley-Milner algorithm,
+
+
+**** 文件与模块之间的映射
+
+	 ocamlc -where
+	 
+	 ocamlc -c typedef.ml
+	 ocamlobjinfo typedef.cmi
+
+	 
+***** 打包模块
+
+	  .cmo 字节码文件
+	  .cmx 原生代码文件
+	  .cmi 已编译接口列表
+
+	  -pack 参数进行打包，
+	  会生成全新的.cmo(或 .cmx),以及包含输入模块的cmi
+
+	  原生代码打包，必须有 -for-pack 参数， 指定最后打包的名字
+
+      使用dune 更加方便：
+
+	  #+begin_src ocaml
+		(library
+		   (name hello)
+		   (modules a b))
+		(executable
+		   (name test)
+		   (libraries hello)
+		   (modules test))
+	  #+end_src
+
+
+**** 类型化语法树
+
+	 cmt， cmti
+
+	 The cmt files are particularly useful for IDE tools to
+	 Match up OCaml source code at a specific location to the
+	 inferred or external types
+	 
+*** The compiler backend
+
+	- lamda
+	- 字节码 ocamlc 和 ocamlrun 解释器
+	- ocamlopt 代码生成器， 原生（native）代码调试和性能测试
+	
+**** 无类型 lamda 形式	
+	  
+	 
+	 
+	 
+	 
+	
+	 
+	 
+	
+	
+*** 扩展 
+	
+	Note that rather than declaring a type and using [@@deriving hash] to invoke ppx_hash, we use [%hash], a shorthand for creating a hash function inline in an expression.
+
+	
+	
+** GADTs
+
+   varying return type
+   capturing the unknown
+   Abstracting computational machines
+   Narrowing the possibilities
+   A completion-sensitive option type
+   A completion-sensitive request type
+   Type distinctness and abstraction
+   Narrowing without GADTs
+
+	
+** 类 和 对象
+
+   class xxx : object ... end
+
+   类的类型与常规类型(int,string等)是分开的, 
+
+   使用new 来实例化
+
+   类的定义还定义了一个对象类型, 等价于:
+   type isstack = < pop:int option; push:int->unit >
+
+   {<  >} 生成当前对象的一个副本，
+
+   “+” 表示协变性
+   “-” 表示抗变性
+   
+*** 类型量词
+
+	'b. 读做"对于所有的'b".
+	  直接用在方法名后面, 说明方法参数必须使用一个fun或function表达式
+
+*** 继承
+
+	#+begin_src ocaml
+	class double_stack init = object
+	  inherit [int] stack init as super
+
+	  method push hd =
+	    super#push (hd * 2)
+	end;;
+	#+end_src
+
+*** 开放递归
+	允许一个对象的方法调用这个类的其他方法。
+	
+	
+*** 私有方法
+
+*** 二值化方法
+	binary method
+	取self类型对象为参数的方法
+	
+    注: 可以使用 (self:'self)来得到当前对象的类型
+
+*** 初始化方法
+	let（） = 实例化前执行，无法调用类对象的方法
+	initializer 可以调用类对象的方法
+	
+*** 虚类和方法
+	
+*** 多重继承
+	继承就像是文本包含, 如果一个名字有多个定义, 那么最后一个定义胜出.
+	 
+** 常用标准库函数
+
+*** 操作符
+   ^/  等同Filename.concat
+   
+*** i/o
+	In_channel.input_line
+	In_channel.stdin
+
+*** String
+
+	String.split
+	String.concat
+
+*** core_bench
+
+*** list
+
+	
+	
+	List.map
+	List.map2_exn
+	List.fold
+	List.reduce
+	List.filter
+	List.filter_map
+	List.rsplit2
+	List.partition_tf
+	List.append
+	List.concat
+	List.concat_map
+	List.Assoc.find
+
+*** Fn 模块
+	Fn.id
+
+*** blang
+	boolean language
+
+** 数据结构
+
+*** 关联列表
+
+	使用 关联列表 实现键值对
+	List.assoc
+
+	线性时间的扫描
+	
+*** 映射
+
+	String.map
+
+	type t = (string, int, String.comparator_witness) Map.t
+
+*** hashtable
+	线性时间
+	扩容时有开销
+	
+	
+*** 异步 Async
+	Differed.t
+
+	bind  return
+
+	>>=   是 Deferred.bind 的中缀操作符
+
+	return 返回一个 Differed.t
+
+	>>|   Deferred.map,  bind + return
+
+	还可以使用 Let_syntax
+
+	#+begin_src ocmal
+	
+	#require "ppx_let" ;;
+
+	let count_lines filename =
+	let%bind text = Reader.file_contents filename in
+	return (List.length (String.split text ~on:'\n'))
+	;;
+	#+end_src
+
+**** ivar & upon
+
+	 Ivar.create
+	 Ivar.read
+	 Ivar.fill
+
+	 Scheduler.go ,  
+
+
+	 never_return
+
+       never_returns (Scheduler.go ())
+
+**** Pipe
+	 A Pipe is an asynchronous communication channel
+
+	 You can think of it as a consumer/producer queue,
+	 that uses deferreds for communicating when the pipe is ready to be read from or written to
+
+	 Deferred.never
+
+	 Pipe.transfer
+
+**** error handling in async
+
+	 try/with only captures exceptions
+	   that are thrown by the code executed synchronously within it
+
+	 使用async 提供的try_with
+	   
+	 #+begin_src
+	 let handle_error () =
+	 try_with (fun () -> maybe_raise ())
+	 >>| function
+     | Ok ()   -> "success" |
+     | Error _ -> "failure" |
+     ;;
+    #+end_src
+
+**** Monitors
+
+	  inspired by the error-handling mechanism in Erlang of the same name
+	  monitor是底层的东西， 通常不会使用
+	  #+begin_src
+	  let blow_up () =
+      let monitor = Monitor.create ~name:"blow up monitor" () in
+      within' ~monitor maybe_raise
+      ;;
+      #+end_src
+	  The Monitor.detach_and_get_error_stream call
+	     is a particularly important one
+
+
+	  Deferred.any takes a list of deferreds
+
+**** choice & choose
+
+
+**** In_thread
+
+	 
+	  
+** opam 库
+   textwrap : 包装长文本
+   uri:
+   yojson:
+   cohttp:
+
+*** uri
+
+	#+begin_src ocmal
+	 let base_uri Uri.of_string "http://api.duckduckgo.com/?format=json" in
+     Uri.add_query_param base_uri ("q", [ query ])
+	#+end_src
+
+*** Yojson
+
+	Yojson.Safe.from_string json
+
+	ydump:
+	    Pretty-printed JSON
+
+*** atd
+	
+	Adjustable Type Definitions
+
+	ATD is the OCaml library providing a parser for the ATD language
+	and various utilities. ATD stands for Adjustable Type Definitions
+	in reference to its main property of supporting annotations
+	that allow a good fit with a variety of data formats.
+	
+	auto gen json parser
+
+	atdgen -i github.atd
+	atdgen -j github.atd
+
+	
+*** cohttp	
+
+	Cohttp_async.Client.get (query_uri word) >>= fun(_, body) ->
+	Cohttp_async.Body.to_string body >>| fun string ->
+	(word, get_definition_from_json string)
+
+	#require "cohttp-async" ;;
+	Cohttp_async.Client.get ;;
+
+	Cohttp_async.Client.get ~interrupt
+	当interrput is determined, 会关闭client connection
+
+	
+*** Wrapper module
+	Wrapper module is from textwrap package
+
+*** Deferred.all
+	Deferred.all to wait for all the results. 
+	#+bigin_src ocmal
+	(* Run many searches in parallel, printing out the results after they're all
+   done. *)
+	let search_and_print words =
+	Deferred.all (List.map words ~f:get_definition) >>| fun results ->
+	List.iter results ~f:print_result
+
+	(* Run many searches in parallel, printing out the results as you go *)
+	let search_and_print words =
+	Deferred.all_unit
+    (List.map words ~f:(fun word -> get_definition word >>| print_result))
+
+	#+end_src
+
+*** Mutex & Nano_mutex
+	Mutex: standard library
+	Nano_Mutex: more efficient
+	  creating a Nano_mutex.t is 20 times faster than creating a Mutex.t
+	  and acquiring the mutex is about 40 percent faster
+	
+*** patdiff
+
+*** lambdasoup
+	#+begin_src
+    let get_href_hosts soup =
+    Soup.select "a[href]" soup
+    |> Soup.to_list
+    |> List.map ~f:(Soup.R.attribute "href")
+    |> Set.of_list (module String)      
+
+let%expect_test _ =
+  let example_html = {|
+    <html>
+      Some random <b>text</b> with a
+      <a href="http://ocaml.org/base">link</a>.
+      And here's another
+      <a href="http://github.com/ocaml/dune">link</a>.
+      And here is <a>link</a> with no href.
+    </html>|}
+  in
+  let soup = Soup.parse example_html in
+  let hrefs = get_href_hosts soup in
+  print_s [%sexp (hrefs : Set.M(String).t)]
+	#+end_src
+
+
+*** Quoted strings
+	#+begin_src
+	{|This is a quoted string|} ;;
+    - : string = "This is a quoted string"
+
+    {xxx|This is how you write a {|quoted string|}|xxx} ;;
+    - : string = "This is how you write a {|quoted string|}"
+	#+end_src
+
+*** unicode
+	sedlex ： https://github.com/ocaml-community/sedlex
+	uutf   ： https://erratique.ch/software/uutf
+	
+*** odig
+
+	[[https://erratique.ch/software/odig][odig link]]
+
+    [[https://erratique.ch/software/odig/doc/manual.html][manual]]
+	
+*** ocaml-print-intf
+	opam install ocaml-print-intf
+	根据 .ml 生成 .mli 
+	
+** 解析
+   ocmalyacc
+   menhir
+
+
+** 编译
+
+   ocmalc xxx.ml -, xxx.byte
+   ocmalfind ocamlc -linkpkg -thread -package core xxx.ml -o xxx.byte
+
+   ocamlfind ocamlopt -linkpkg -package base -package stdio freq.ml -o freq
+   
+*** call ncurses
+	corebuild -pkg ctypes.foreign -lflags -cclib,-lncurses hello.native
+	
+   
+*** 编译器警告
+	ocaml -warn-help
+
+*** flag
+	-syntax  指示ocamlfind为编译器命令行增加-pp标志
+	         这个标志指示编译器在解析阶段运行这个预处理器
+
+*** 字节码和原生代码
+
+	无类型中间 lambda 代码
+	字节码 ocamlc 编译器
+	ocamlrun 解释器
+	ocamlopt 代码生成器
+*** 中间文件
+    | 扩展名 | 用途                                |
+    |--------+-------------------------------------|
+    | .ml    | 模块源文件                          |
+    | .mli   | 接口源文件                          |
+    | .cmi   | 从.mli编译的模块接口                |
+    | .cmo   | 已编译字节码                        |
+    | .cma   | 字节码对象文件库打包到一个文件      |
+    | .o     | c 源文件编译的对象文件              |
+    | .cmt   | 模块实现的类型化抽象语法树          |
+    | .cmti  | 接口抽象语法树                      |
+    | .annot | 显示typed的老式标注文件,已被cmt取代 |
+
+** 顶层环境
+
+   #warnings "+9"
+
+** 值的内存表示
+
+   块字(block word)的最低位
+     非0, 这个值是一个整数
+	 是0, 是一个指针
+
+   包装器块(wrapper block)
+
+   block 是堆的基本分配单元, 包括一个字的首部(32 或 64)
+
+   块大小  -- color -- tag byte -- value [0] -- value [1] --
+   22 或54    2位       8位
+
+   color 用来跟踪标记清扫回收过程中的状态
+   
+   
+   
+   Obj.repr , 获取任何 Caml 值的运行时表示
+   Obj.is_block, 检查最低位, 
+   
+** 垃圾回收
+
+** idiomatic 示例
+
+*** error
+	Or_error.error_s
+	[%message "Something went wrong" (a:string) (b: string * int list)]
+
+*** file
+
+	In_channel.with_file filename ~f:()
+	In_channel.fold_lines
+
+*** let_syntax
+
+*** command
+
+	Command.basic
+
+    - required *arg* will return *arg* and error if not present
+    - optional *arg* with return *arg* option
+    - optional_with_default *val* *arg* will return *arg* with default *val* if not present
+    - listed *arg* will return *arg* list (this flag may appear multiple times)
+    - no_arg will return a bool that is true if the flag is present
+
+**** install completion
+	 env COMMAND_OUTPUT_INSTALLATION_BASH=1 dune exec -- ./md5.exe
+
+	
+** 其他框架
+
+*** irmin
+	Irmin is a key-value store based on the same principles as Git.
+	This means that for existing Git users it provides many familiar features:
+	branching/merging, history and the ability to restore to any previous state.
+
+** ref
+
+   real world:
+     https://dev.realworldocaml.org/files-modules-and-programs.html
+
+   ocaml std :
+     https://ocaml.org/api/Array.html#VALiter
+
+   core jane street :
+     https://ocaml.janestreet.com/ocaml-core/latest/doc/index.html#name-r
+
+   manual :
+	 https://ocaml.org/manual/index.html
+
+   chinese:
+     https://www.ocaml.org/learn/tutorials/index.zh.html
+
+   janestreet
+     https://blog.janestreet.com/growing-the-hardcaml-toolset-index/
+
+   ocaml pro:
+     https://www.ocamlpro.com/blog
+
+   sample :
+     http://pleac.sourceforge.net/pleac_ocaml/index.html
+
+   github monthly update:
+     https://github.com/trending?l=ocaml&since=monthly
+	 
+        

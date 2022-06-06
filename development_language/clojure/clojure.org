@@ -1,0 +1,1316 @@
+#+SEQ_TODO: TODO(T!) | DONE(D@) CANCELED(C@/!)
+#+SEQ_TODO: DeepDive(b) Sample(k)| FIXED(f)
+#+PROPERTY: P_ALL 1 2 3 4 
+#+STARTUP: logdrawer
+#+COLUMNS: %25ITEM %10TAGS %PRIORITY %TODO %10P(level)
+
+* 学习
+
+** doc
+   (use 'clojure.repl)
+   (doc map)
+  
+** 基本语法
+
+*** 数字
+	- 十六进制: 0xff
+	- 八进制: 0开头, 040表示32
+	- 任意进制: BrN, N为数字,B为进制, (2r111)表示二进制的7
+
+*** 冒号
+	:name      关键字
+	::kw       当前命名空间关键字
+	::alias/kw 特定明名空降关键字
+	
+*** 正则
+
+	#"字符串"
+	#"(p|h)ail"
+	
+*** 注释
+	;
+	#_
+
+*** 空格和逗号
+	逗号就是空格
+
+*** 匿名函数
+
+	#( ... )
+
+	#(Math/pow %1 %2)
+	
+*** 集合字面量
+	'(a b :name 12.5)
+	['a 'b :name 12.5]
+	{:name "chas" :age 31}
+	#{2 3 4}
+
+*** 其他语法糖
+	'  quote     阻止求值
+	#()          匿名函数
+	#'           var 求值为var的本身
+	@            引用类型前加个@得到引用指向的值
+	` ~ ~@       宏定义特殊语法
+	^            元数据
+
+*** 命名空间
+	所有代码在命名空间被求值
+
+	引用类型 var, 是可修改的内存地址, 通过 def 来定义, def 只作用于当前命名空间
+
+	\*ns*
+	(ns foo)
+
+	java.lang 中的类默认被引入所有命名空间中
+
+*** 代码块
+	do   
+	
+*** 解引用
+
+	@xxx
+	
+*** 逗号和空格
+
+	[2, 3, 4]  等于  [2 3 4]
+	( +, 1, 2)  等于  ( + 1 2)
+*** let
+	创建新的作用域并绑定
+
+	下划线: 表示对返回值不关心,只求值
+
+	本地绑定不可变
+
+*** 组合函数
+
+	comp
+	
+*** 偏函数
+
+	partial
+
+*** 反转真值
+
+	complement 接受返回真值的函数, 返回相反的真值
+
+*** 约束
+	前置和后置函数
+	:pre
+	:post
+
+	关闭 (set! *assert* false)
+
+*** 私有函数
+    defn-
+
+*** 反qute 拼接
+
+*** auto-gensym
+	`potion#
+	
+*** java 互操作
+**** 构造
+	 (java.util.Hashmap. {"foo", 42, "bar"})
+	 (.-x (java.awt.Point. 10 20))
+	 (let [origin ()])
+
+	
+**** gaoji
+	
+	proxy      实现java接口
+	gen-class  
+
+	definterface
+
+*** java数组
+
+	构建原生数组的函数
+	boolean-array
+	double-array
+	long-array
+	byte-array
+	float-array
+	object-array
+	char-array
+	int-array
+	short-array
+
+	into-array 会根据第一个元素的结果确定数组类型
+	to-array 和 to-array-2d 可以创建与java.lang.Object异构的数组
+	
+**** proxy
+
+	 
+	 
+**** 访问静态成员
+
+**** 创建实例
+	 (new java.awt.Point 0 1)
+	 (java.util.HashMap. {"foo" 45 "bar" 33})  跟上点表示调用构造函数
+
+	 clojureScript一样, 命名空间为js
+	 (js/Data.)
+
+	 访问实例变量, 点和连线符号
+	 (.-x (java.awt.Point. 10 23 ))
+	 访问实例方法, 点
+	 (.divide (java.math.BigDecimal. "33") 3M)
+
+	 set! 设置实例属性
+
+	 .. 调用链
+
+	 doto宏,
+	    求值第一个参数, 然后将结果作为之后函数的第一个参数
+
+	 reify, deftype,
+	 proxy
+
+**** java方法串联
+	使用..
+
+*** 命名空间
+
+**** 创建
+	 (ns foo.bar)
+	   ns 可自动获得包的映射集合, java.lang 和 clojure.core
+	 
+     (in-ns 'a)创建并切换
+	   in-ns, 没有clojure.core；   可以使用 (clojure.core/refer 'clojure.core)
+
+	 create-ns 只能创建java类映射  
+**** 加载
+	 (ns foo.bar
+	 (:require [clojure.set] :as s]))
+
+	 :refer  创建映射　:rename 重命名
+
+	 :import 使用未限定的java类
+
+**** 其他函数
+
+	 ns-map 得到绑定的map
+	 find-ns
+	 intern  在命名空间查找符号, 有返回, 无就创建
+
+	 
+*** 真值
+
+	除了 false 和 nil, 都是真
+
+**** java 的布尔对象
+
+	 需要使用 Boolean/valueOf
+
+**** nil 和 false
+	 使用 nil? 进行判断
+
+**** nill
+
+	 使用 seq 判断序列,  作为终止条件
+
+	 
+*** 解构
+
+	- 顺序解构
+	  list,vector,seq
+	  java.util.List 的实现
+	  java数组
+	  字符串
+	  
+	- map解构
+	  hash-map, array-map, 记录类型
+	  java.util.Map对象
+	  get方法支持的对象,  vector ,字符串, 数组
+
+	(let [{:keys [f-name m-name]} guy-name-map])
+	:or  设置默认值
+
+	:str , :syms 不常用
+	
+	
+	& 剩下的
+	  剩余集合如果是偶数, 顺序结构把剩下的当作map
+	:as 所有的
+	:or  默认map
+
+
+	
+
+*** 数字后缀
+	N  BigInt
+	M  BigDecimal
+
+**** 自动提升
+	 (inc' k)
+	 inc' dec' +' -' *'
+**** 溢出检测
+	 unchecked-dec unchecked-multiply
+
+	 或用set! 把 \*unchecked-math* 设置成真值
+
+*** 相等
+	identical?   对象相同
+	=            深度比较, 类似于java.lang.Object.equals
+	==           数字等值
+	
+** 宏
+
+*** 调试
+	macroexpand-1    扩展一次
+	macroexpand      扩展直到顶级形式不是宏
+	macroexpand-all  达到嵌套扩展
+
+*** 语法糖
+	`    语法引述     syntax quote
+	                  语法引述将无命名空间的符号求值为其所在命名空间的符号(sysmbol)。
+
+	~    反引述       unquote
+	
+	~@   编接引述     splicing-unquote
+	                  内容解开, 自动加入到列表里
+
+	~'x  强制使用没有命名空间限定的符号作为 let 中绑定的名字
+
+	(gensym) 产生一个不会冲突的名字,
+	         语法糖: 以 # 号结尾的符号都会自动扩展 x#
+			 自动 gensym, 只能保证在同一个语法引述里产生的符号是一样的
+
+	
+	
+*** 问题
+
+**** 名字冲突
+	(gensym) 产生一个不会冲突的名字,
+	         语法糖: 以 # 号结尾的符号都会自动扩展 x#
+			 自动 gensym, 只能保证在同一个语法引述里产生的符号是一样的
+	
+**** 重复求值问题
+
+	 参数出现多次, 有副作用的参数
+			 
+*** 常见用法 和 模式
+	- 如果宏需要指定本地绑定, 那么把绑定指定在一个vector中
+	- 定义var的宏名字以def开头
+	- 把var的名字作为第一个参数
+	- 每个宏只定义一个var
+	- 不要在宏中实现复杂的行为
+
+*** 隐藏参数
+	&env 和 &form
+	
+	
+** 调试
+
+(.printStackTrace *e)
+
+   
+** 数据结构
+
+   Clojure 中, 几乎所有的数据结构都是通过树来实现的
+   hashmap 使用 hash array mapped trie
+   vector 使用 array mapped hash trie
+   hashset 使用 hashmap来实现
+   set 和 map 使用红黑树的持久化版本
+
+*** 精度
+	
+	提升: 发生上溢时, clojure能够检测到
+
+	提供一类不受控的整型和长整型算数运算
+
+	保存精度, 可以使用有理数
+	 numerator 和 denominator 抽出分子和分母
+**** 高精度
+	 M 字面量 
+	 
+*** 关键字
+	自我求值
+
+*** 列表
+
+**** 基本操作	
+	(first v)
+	(second v)
+	(last v)
+	(nth v 2 ) 列表中第n位
+	(v 2 ) vector 本身也是函数
+	(.get v 2) 实现了java.util.List接口, 可以使用.get
+
+	(conj [1 2 3 ] 4)  连接
+
+	
+**** 解构
+	 (let [[x & rest] v ] rest)
+
+	 原始绑定: :as
+
+	 map解构, 原生hash-map, array-map,java.util.Map 对象
+
+	 (let [{a :ina} m] (+ a 12))
+
+	 :as  保持原始值
+	 :or  取不到值时的默认值
+	 :keys :strs :syms
+
+*** vector
+
+	当作栈:
+	  conj pop peek, 对应栈的push pop
+**** vec 的一些函数
+	 peek , 返回最后一个,vec 的last
+***** into
+	 向 中添加
+***** vector
+	  创建
+***** vector-of
+***** 查找
+	  |                    | nth                   | get     | vec 当作函数 |
+	  |--------------------+-----------------------+---------+--------------|
+	  | vector nil         | 返回nil               | 返回nil | 异常         |
+	  | 索引越界           | 未找到或异常          | 返回nil | 异常         |
+	  | 支持not found 实参 | 是,(nth [] 9 :whoops) | 是      | 否           |
+
+***** assoc
+	  更改某一项
+	  
+***** 嵌套
+	  assoc-in
+	  get-in
+	  update-in
+
+***** sebvec
+	  高效获取一个片段
+	  
+*** list
+	cons vs conj
+	可当作栈,  peek pop
+	
+
+*** 持久化队列
+
+	clojure.lang.PersistentQueue/EMPTY
+
+*** 持久化 set
+
+	set是其元素的函数
+	(#{:a :b :c :d} :c)   
+
+**** set的库
+	clojure.set 命名空间
+	clojure.set/intersection: 交集
+	clojure.set/union: 并集
+	clojure.set/difference: 补集
+
+*** map
+
+	可以直接当函数, 相当于 get
+
+	(apply hash-map [:a 1 :b 2])
+	(zipmap [:a :b] [1 2])
+
+	array-map , 可以保证插入顺序
+
+	hash-map
+
+*** 关系型数据结构 associative 接口
+	map 和 vec 都可以看作关系型集合, 对 vec , key是数组下标
+	assoc, dissoc, get
+	contains?, 是否包含 key
+	find , 返回键值对, 不包含 key, 返回 nil； 与get有所区别
+	nth 月界时, 抛出异常, 而不是nil
+	
+	
+*** 序列　Sequence
+
+	序列是其他结合的一个顺序视图.
+
+	(seq "Clojure")
+	;= (\C \l \o \j \u \r \e)
+	
+	(seq {:a 5 :b 7})
+	;= ([:a 5] [:b 6])
+
+	注意:许多跟序列打交道的函数都对参数隐式调用seq
+	(map str "Clojuere)
+	;= ("C" "l" "o" "j" "u" "r" "e")
+	(set "Prog")
+	;= #{\g \o \P \r}
+
+	序列不是列表．
+　　　　列表保存长度，　序列不保存，　可能是无限的．
+    序列内容可能是惰性的.
+
+	序列通常是从一个集合生成而来, 通过cons 和 list* 直接创建, 编写宏的时候用的最多.
+
+
+	惰性序列,  需要时再调用函数计算, 且只计算一次.
+
+	通过 lazy-seq 来创建一个惰性序列.
+
+    头保持: 保持了对一个序列的引用, 那么序列中的元素就不会被垃圾回收.
+    
+*** stack
+	列表和vector都可以当作栈来使用
+	conj, pop, peek
+
+*** set
+	set 接口需要 disj 来移除元素
+
+*** 有序集合 sorted	
+	只有map和set实现了sorted接口
+	rseq , 常量时间内, 反序一个集合
+	subseq, 返回集合某一区间
+	rsubseq, 反序返回某一区间
+
+	sorted-map 和 sorted-set 来创建有序
+
+*** 比较器
+	所有函数都实现了比较器接口, java.util.Comparator
+	
+	
+
+*** 分支
+	if 非nil false 都是true
+
+**** 建立在if上的宏或函数
+	如果 想在 false 时返回nil ,最好使用when
+
+	cond 类似其他语言中的else if
+
+	if-let when-let,  条件为true时, 值绑定到这个本地绑定
+
+*** 循环
+	loop 和	recur
+
+	loop 接受一个隐式的let绑定
+
+	recur 会把程序控制权转到上下文里, 最近的loop中
+	recur 不消耗堆栈空间
+
+	函数也可以建立 loop 头
+
+	recur 很底层, 可以使用以下:
+	  - doseq
+	  - dotimes
+	  - map
+	  - reduce
+	  - for
+	  
+**** rest vs. next
+
+*** 无限序列
+
+	iterate 惰性
+
+*** meta
+
+	^{} 元数据
+	更新元数据, 可以使用with-meta(全部替换), vary-meta(更新函数替换)
+
+	(def ^:private everyting 23) 等价于 
+	(def ^{:private} everyting 23)
+
+*** 正则
+
+	#"an example pattern"
+
+	re-seq 返回惰性seq, 包括字符串中的所有匹配
+	  (re-seq #"\w+" "one-two/three")
+	  (re-seq #"\w*(\w)+" "one-two/three")
+
+	matcher
+
+	  
+** 常用函数 和 库
+
+**** array
+***** aset
+***** into-array
+
+
+**** juxt
+
+	 juxt ,  接受一组函数和参数, 把各个函数计算后的结果作为vec返回
+	 apply,  把参数当作vec 传给函数
+
+**** comp
+
+	 类似pipe
+	 (def xxx (comp str - +))
+	 返回一陀函数, 依次从右边开始求值
+
+	 (->  x  f1 f2) 将x作为f1的第一个参数, 以此类推 
+	 (->> x  f1 f2) 将x作为f1的最后一个参数
+**** memoize
+
+	 缓存
+
+**** repeatedly
+
+**** 过滤
+	 filter
+	 remove
+	 
+**** mod  rem
+
+	 求余数
+
+**** core.memoize	
+
+	 
+**** conj
+	 
+	 连接, conjoin
+
+	 into 连接并
+
+	 cons, 添加一个参数,在第二个之前
+
+**** string
+
+	 str: 字符串串联
+
+**** list
+	 (nth lst n) , 返回list中的第n个元素
+
+	 conj 添加元素, 构建的list为同构；cons 只能保证是序列
+
+
+
+**** do
+	 dorun:  保持返回值
+	 doall:  关注副作用
+
+**** split-with	 
+	 (split-with neg? (range -5 5))
+	 给定一个谓词, 返回两个序列, 一个满足的, 一个不满足的
+
+**** allociative
+	 assoc,     向集合添加
+	            (assoc a :c 0)  往map中加
+				assoc-in
+	 dissoc,    移除
+	 get,       从集合中找出制定key和value, nil问题
+	            get-in
+	 find,      返回键值对
+	 contains,  是否包括某个key
+
+	 some,      是否包括值
+	 
+**** 栈
+	 conj
+	 pop
+	 peek
+
+**** set
+	 disj,  移除记录
+
+**** fnil 
+	 返回给参数加上默认值的函数
+
+**** postwalk
+	 对form里面的每个元素, 执行给定的匿名u函数
+	 
+
+***** 有序集合
+
+	  rseq ,     反序
+	  subseq,    返回区间
+	  rsubseq,   反序
+
+	  sorted-map
+	  sorted-set
+
+	  集合也是函数
+	  集合的key,也可以是函数(vector 的下标是数字,所以不能这么用)
+
+**** comp
+	 接受一系列函数作为输入, 返回匿名函数
+
+**** completement
+	 接受返回真值的函数, 返回相反的真值
+
+**** reduce
+	 (reduce conj coll source)
+	 
+	 areduce
+
+**** list vector
+
+	 list ,  单向链表, 只对链表头支持高效访问和修改
+	 vector, 类似数组, 支持高效随机访问
+
+**** 易变集合
+	 conj!
+	 transient,   变成易变
+	 persistent!,  把易变变成持久性,  这时会使易变集合不可用
+
+	 只有vector , 无序map , 无序set有易变版本
+
+	 检测是否易变集合:
+	    (instance? clojure.lang.IEditableCollection coll)
+	 
+**** set
+	 #{}
+	 无法包括重复元素
+	 (hash-set :a :b :c :d)
+	 
+**** map
+
+	 group-by : 根据一个函数把集合分组
+	 update-in
+
+	 rand-map
+**** 正则
+	 re-seq
+
+**** interpose
+
+**** take-while
+
+	 take-while:
+	   返回惰性序列；直到假, 返回之前真的东西
+
+	 drop-while:
+	   丢掉为真的, 返回后面一坨
+
+**** TODO defrecord
+	 
+**** walk
+	 clojure.walk
+	 walk/prewalk
+
+**** core.logic
+	 clojure.core.logic
+
+	 (logic/run* [x y]
+	   (logic/== x y))
+	 ;;=>  ([_0 _0])
+
+	 _0   逻辑变量
+	   
+**** slurp
+	  Opens a reader on f and reads all its contents, returning a string.
+	  See clojure.java.io/reader for a complete list of supported arguments.
+
+**** with-meta
+	 #+begin_src clojure
+	   user=> (with-meta [1 2 3] {:my "meta"})
+	   [1 2 3]
+	   user=> (meta (with-meta [1 2 3] {:my "meta"}))
+	   {:my "meta"}
+	 #+end_src
+**** every?
+	 ;; 使用方式：(every? pred coll)
+	 ;; Returns true if (pred x) is logical true for every x in coll, else false.
+	 ;; 如果coll中的每一项对于断言/决策都为真，则返回逻辑真，否则返回假
+ 
+	 (println (every? #(pos? %) [1 2 3]))
+	 ;; => true
+	 (println (every? #(pos? %) [1 2 -3]))
+	 ;; => false
+
+
+
+** 多线程
+
+   delay &  deref
+            dedef 由接口clojure.lang.IDeref
+            语法糖@
+   延迟执行, 解引用时才求值
+   realized? 检查delay的值是否获取到了
+
+   future  在新线程里执行
+           通过解引用获取这个值(@), 阻塞当前线程
+		   后续访问会返回已经计算好的值
+		   是java.util.concurrent.Future的对象
+
+   promise  deliver
+           promise的区别在于, 创建时不用指定值;
+		   创建时是一个空的容器, 后面通过deliver被填充
+		   
+
+   agent
+
+   atoms
+
+   ref
+
+   swap!
+   compare-and-set!
+   reset!
+
+   add-watch
+
+   :validator
+		   
+*** pmap pcalls pvalues
+
+
+*** 状态和标识
+	clojure 中可以有四个引用类型可以用来表示标识,var ref agent atom
+	
+	修改元数据要用alter-meta!
+
+**** 校验器	
+	 atom, ref, agent 可以在创建时指定一个 :validator
+	 其他引用类型可以关联一个 :set-validator!
+
+*** 软件事务内存 STM
+	广义讲,  STM(软件事务内存)是任何对并发修改一系列内存的行为进行协调的方法
+
+
+	dosync
+
+	commute
+
+	ref-set
+
+	ref-history-count ref-history-history
+
+	ensure 避免 write skew (引用的值, 当前事务不修改, 在其他地方被修改)
+
+	使用 io! 宏来执行io操作
+
+*** var	
+	alter-var-root
+
+*** agent
+	不进行协调, 异步应用类型, 对一个agent的状态修改,不影响别的
+	两个特点:
+	- 安全利用agent进行你个I/O以及其他副作用操作
+	- agent是STM感知, 安全用在事务重试场景
+
+	  
+	agent 使用 send 和 send-off 进行更新
+	      send 适用于无阻塞, send-off 适用于有阻塞,比如i/o
+
+	await 用来等待改线程上的agent的action都求值结束.
+	await-for 等待时, 提供了一个超时时间
+	agent-error 获取已经挂掉的 agent 的异常
+
+	restart-agent, 重启 agent
+	    :clear-agents 参数可以清除阻塞在上面的action
+
+	:error-mode 
+	    :fail (默认) 和 :continue (忽略该错误, 继续执行其他agent)
+	:error-handler (fn [the-agent exception])
+
+	set-error-handler!
+	set-error-mode! 
+
+	:fail , 默认模式
+
+	  动作函数必须有一个实参
+
+	  agent-error  可以查看已停止的agent的error信息
+
+	  失败后,需要重新启动agent
+
+	  (restart-agent log-agent 2500 :clear-actions true)
+
+	:continue, 略过异常动作
+	  :error-handler 如果指定了, 那么 agent 的模型就是 :continue
+	  set-error-handler!
+	  set-error-mode!
+
+	agent 在一个事务内可重试, 针对有副作用的 action, 但结果在事务成功提交后执行一次
+
+	agent 的不好时机, 轮询时, 或是不需要维护一个值的时候,
+	  可以使用 java 的 executor (比如:dothreads! ), 有些时候可以使用future
+
+    atom 的时机, 适合比较并交换(compare-and-swap CAS)的自旋(spin)操作
+
+*** locking
+
+	
+
+*** ret 和 stm
+
+	(ref x)  建立可变的引用
+	deref 或 @ , 解引用
+
+	ref-set  改变引用指向的内容
+	必须包含在 dosync 中,   与alter一致, 参数不同
+
+	(dosync(alter x conj "heal the world"))
+	  alter接受一个更新函数, 函数在更新时调用, 传入当前状态值, 并返回新的状态值
+
+	commute 是alter的变形,  要求update-function 是可交换的, 性能更好
+
+	validator, 约束
+
+	ensure,  保证不出现写偏序
+
+*** atom
+
+	Ref适用的场景是系统中存在多个相互关联的状态，他们需要一起更新，
+	因此需要通过dosync做事务包装。
+	但是如果你有一个状态变量，不需要跟其他状态变量协作，这时候应该使用Atom了。
+	可以将一个Atom和一个Ref一起在一个事务里更新吗？
+	这没办法做到，如果你需要相互协作，你只能使用Ref。
+	Atom适用的场景是状态是独立，没有依赖，它避免了与其他Ref交互的开销，
+	因此性能会更好，特别是对于读来说。
+
+	swap! 更新状态值, 类似与alter
+	(compare-and-set! atom oldValue newValue)  当有oldValue时, 更新成新Value
+
+	atom 非常适合缓存
+	
+
+*** 并行
+
+	pvalues
+	pmap
+	pcalls
+
+*** fold
+	clojure.core.reducers/fold
+	
+*** type hint
+	默认clojure调用java都是通过反射，加入type hint之后编译的字节码就跟java编译器的一致	
+
+
+	
+** var
+  #'x  是 (var x) 的语法糖,  获取对象, 而不是值
+
+  私有var
+
+  (def ^:private everyting 32)
+  (def ^:{:private true} everyting 32)
+
+  alter-var-root
+***  常量
+
+	(def ^:const everyting 32)  指向常量的引用,都不是在运行时求值, 编译时值已定
+*** 修改
+	(def x 0)
+	(alter-var-root #'x inc)
+
+	with-redefs 临时修改, 离开作用域时, 变成之前状态
+
+*** 前置声明
+
+	def 但未绑定,  可以用 declare 进行声明
+
+*** dynamic  
+	默认的 var 是 static, 可标记为 per-thread
+    def ^:dynamic x
+
+*** read-eval
+
+*** with-local-vars
+
+*** 动态作用域    
+	doall  map 是惰性的, 有时候需要用 doall 包起来
+	bound-fn
+
+** 协议
+
+   defprotocol
+
+*** 特点
+
+   协议的命名使用驼峰风格
+   协议最后会被编译为 JVM 的接口
+   协议的参数无法解构
+
+   不支持 &more 剩余参数
+
+*** 实现协议
+
+   extend
+   extend-type
+   extend-protocol
+
+*** 定义自己的类型
+	defrecord 和 deftype
+
+	必须用 :import , 不能仅仅用 :require :use
+
+
+	(defrecord Point [x y])
+	(deftype Point [x y])
+
+	二者都会定义一个新的Java 类
+	类型的名字使用驼峰, 而非小写加横线
+	定义的每个字段都是java.lang.Object
+	记录类型允许在运行时添加字段
+	record 类型用来表示应用级别的数据
+	type   用来表示底层的类型, 比如, 要实现新的数据解构, 使用deftype
+	
+	(defrecord NamedPoint [^String name ^long x ^long y])
+
+	(NamedPoint/getBasis)  获取
+   
+**** record 的特性
+
+	 值语义:
+	        1, 意味着记录不可变, 
+	        2, 如果两个类型所有对应字段相等, 那么记录本身也相等
+
+	 实现了关系型数据解构的接口:
+            对 map 操作的函数, 都可以用在记录类型上
+
+	 可在运行时动态添加字段:
+	     (assoc (Point. 3 4))
+		 从记录类型去掉一个字段的话, 返回的就不是记录类型了, 而是被降级成一个普通的map
+		 增加时返回仍是记录类型
+		 注:  运行时添加的字段被保存在一个单独的 hashmap 里, 并没有真的被加到底层的那个java类上
+		 
+	 元数据支持
+	        
+
+	 clojure reader 的支持:
+            可以通过clojure reader直接读入一个record 类型
+	 额外的, 方便的构造函数, 在创建实例时可以添加一些额外元数据和额外字段
+	 
+	 repl用特殊形式打印 record:
+	 #user.Point{:x 3, :y 4, :z 5}    记录字面量
+
+	 
+     构造函数和工厂函数
+	     构造函数接受两个额外参数, 一个是额外字段的map ,一个是meta 的map
+         在其他语言中想写进构造函数中的逻辑, 在clojure里面都应该写到工厂函数里
+	 deftype 和 defrecord 都会隐式增加一个工厂函数 ->MyType  
+                            还有一个隐式的工厂函数  map->Point {:x 3, :y 4}
+
+		 隐式工厂 (->Point 3 4) 和 (map->Point {:x 3 :y 4})
+		 还可以通过 create 来访问: (Point/create {:x 3, :y 4, :z 5}
+
+	 todo: getbasis
+
+**** type	 
+	 deftype 是最底层的定义形式, defrecord只是对deftype的包装宏
+	 
+	 由deftype 定义的, 普通的字段访问, 只能通过Java 互操作的语法
+
+	 deftype 定义的类型, 没有实现关系型数据的接口.
+
+	 不可修改的字段, 会被编译成Java 类里面, public final 字段
+	 可修改的字段有两种类型, volatile 和 synchronized
+	 把字段定义为可修改, 要加上 ^:valatile-mutable 或 ^:unsynchronized-mutable
+	 
+*** 实现协议
+	内联实现 extend* 实现
+	
+**** 内联实现	
+
+*** reify
+	一个对象实现了一个协议, 实例中需要更改一个方法时, 用这个创建实例
+
+	也可以接受内联实现
+	对应匿名内部类
+	
+
+
+	特点:
+	- 不支持方法动态更新
+	- 只能实现协议, java接口, 以及object的方法；不能继承
+
+*** 协议自省
+	extenders  extends?  satisfies?
+
+    extenders
+      哪些类实现了Java 接口x
+	extends? 
+	  如果一个类型扩展了一个协议, 返回true
+	satisfies? 这个是clojure中的 instance?
+	  如果实例扩展了某个协议, 返回true
+
+** 多重方法      
+   协议引入了多重转发, 多重方法可基于参数类型之外的其他内容进行转发.
+
+*** 多重方法的基础   
+	defmulti 创建 和  defmethod 实现
+
+**** 层级	
+	 derive 
+	   定义层级关系
+	   派生是传递性的
+
+	 isa?
+	   
+	 make-hierarchy
+
+	 prefer-method 
+
+*** 内省多重方法
+	
+	remove-method, remove-all-methods, prefers, methods, get-method
+
+	class 和 type 通常返回相同的值, 除非元数据上有 :type
+
+** 项目	
+
+*** 命名空间   
+	in-ns 转移到其他命名空间
+	refer 映射,  把其他命名空间的var 映射到当前空间
+	    :exclude :only :rename
+	require 载入, 可建立别名 :as
+	use     触发隐性使用refer, 不需要限定即可使用其他命名空间的var
+	
+	import  引入类的全名； java.lang 包里的所有类默认被引进每个命名空间
+
+	ns 定义命名空间
+
+*** 源文件组织规则
+	一个 ns 一个文件
+	ns 文件的名字用下划线
+	每个命名空间以完整的 ns 形式开始
+	避免循环依赖
+	避免单节段的命名空间
+
+*** classpath
+	JVM 查找用户自定义函数库和资源时, 所搜索的路径
+	
+	
+	
+	
+
+
+
+	 
+	   
+** 异常
+
+   ex-info
+   ex-data
+
+
+** 常用库
+
+*** 文件
+   nlurp  读
+
+** lein
+
+lein search $TERM   
+
+lein new my-proj
+
+lein jar 
+lein uberjar
+
+lein compile
+
+lein pom
+
+lein deps
+
+*** 提前编译
+
+	:aot :all
+
+	*warn-on-reflection*
+   
+**** 类	
+	 - 匿名类 
+         reify
+	     proxy
+     - 具名类
+         deftype defrecord
+	     gen-class
+
+**** 注解
+
+** repl
+
+*** 倒入
+(reload-file "xxx")
+
+** 设计模式
+
+*** 依赖注入
+	defprotocol  defrecord
+	extend-protocol
+
+*** 策略模式
+
+	写个分发函数...
+
+*** 责任链
+	
+	reduce
+
+	ring
+
+*** AOP
+
+** 测试
+
+*** 框架
+
+clojure.test
+
+Midje
+
+*** 断言
+
+is
+
+thrown-with-msg?
+
+thrown?
+
+*** deftest
+
+*** test-ns-hook
+
+*** fixture
+
+** 数据库
+
+建立一个spec
+
+(def db-spec {:classname "org.sqlite.JDBC"
+              :subprotocol "sqlite"
+			  :subname "test.db"})
+
+(jdbc/with-connection db-spec
+  (jdbc/create-table :authors
+    [:id " "]
+	...
+))
+
+*** 连接池
+	c3p0
+	
+*** 库	
+	
+	korma
+    
+	toucan
+
+** web
+
+   Ring  基础的请求和应答
+   Compojure, Moustache 路由
+   Enlive, Hiccup  模板
+
+   Luminus web框架
+
+
+** 常用库
+
+*** 库
+   
+**** mount
+	 状态机
+
+**** cprop
+	 load edn
+	 env/config
+
+**** 数据库
+	 conman 使用 HikariCP (连接池 组件)
+
+**** cheshire
+     clojure-json had really nice features (custom encoders), 
+     but was slow; clj-json had no features, but was fast. 
+	 Cheshire encodes JSON fast, with added support for more 
+     types and the ability to use custom encoders.
+
+**** http-kit
+
+**** clj-http
+	 客户端
+	
+	 支持异步
+
+**** compojure
+	
+**** struct
+	 validation library for Clojure(Script)
+
+**** conman 
+	 Luminus database connection management and SQL query generation library
+
+
+**** org.clojure/algo.generic
+	 各种类型运算
+
+**** data.priority-map
+	 不同于 sort map, 这个是按 value 排序的 map
+
+**** org.clojure/core.cache
+	 cache protocol
+	 defcache macro 
+     implementations of some basic caching strategies:	
+     - First-in-first-out (FIFOCache)
+     - Least-recently-used (LRUCache)
+     - Least-used (LUCache -- sometimes called Least Frequently Used)
+     - Time-to-live (TTLCacheQ)
+     - Naive cache (BasicCache)
+     - Naive cache backed with soft references (SoftCache)
+	  
+	 implemestions of lirs(缓存算法)
+
+	 使用 clojure.core.cache.wrapped , 封装好的原子
+
+	
+**** org.clojure/java.classpath
+
+
+**** cheshire	
+	 json
+
+**** clj-time
+
+**** clj-wallhack
+	 java protect & private fields
+
+**** com.draines/postal
+	 mail lib
+
+**** clj-antlr
+	 astlr语法分析
+
+**** io.netty/netty-all
+	 异步网络库
+
+**** slingshot
+	 Enhanced throw and catch for Clojure
+	
+**** spootnik/kinsky
+	 kafka client
+
+**** amazonica
+     - Test output is pretty printed.
+     - Equality assertions are also diffed.
+
+**** com.novemberain/langohr
+	 RabbitMQ client
+
+**** jackson
+	 com.fasterxml.jackson.core/jackson-core
+	 com.fasterxml.jackson.core/jackson-databind
+
+*** plug in
+	
+**** lein-codox
+	 文档
+
+**** lein-difftest
+
+**** lein-ancient
+	 检查过期依赖
+
+**** lein-rpm
+     A Leiningen plugin to create an RPM from build output. 
+	 At the moment it only works with Leiningen 2.
+
+**** org.apache.maven/maven-plugin-api
+	 
+**** cemerick.pomegranate 	 
+
+**** clojure.java.io
+
+** clojure lang
+
+*** locking
+monitor-enter
+monitor-exit

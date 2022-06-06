@@ -1,0 +1,123 @@
+* 内存子系统
+
+** 物理内存页
+   物理内存通过页 page 来管理， vm_page_t structure
+
+   page state：
+   - wired :: 在线
+   - active :: 活动
+   - inactive :: 去活
+   - cache :: 缓存
+   - free :: 自由
+
+   除了在线状态， 页都被放在 *双向链表* 里面.
+
+   为了 page coloring， 缓存页和自由页使用更复杂的队列管理，每种状态对应多个队列;
+   队列根据 L1 and L2 cache 来进行对应, 当需要新页面时，
+   把一个按L1， L2 缓存对齐的页面分配给vm object.
+
+   page 包含引用计数, 可以被一个忙计数(busy count)锁定,
+   VM system(虚拟内存系统)实现了 "ultimate locked", 使用 PG_BUSY bit位.
+
+   通常,  每个paging 队列都使用 LRU;
+
+   最初一个page 处于 wired | active
+   在线时, 关联某处的页表, 
+   VM 通过扫描一个较活动队列(LRU)来确定页的 age,
+   用于将其移动到较不活动的队列中;
+   缓存中的页仍与VM object 关联, 但可以被立即使用;
+   在 free 队列中的页时真正未使用的, freebsb 尽量不会把页放进来,
+   但必须保持一定数量以响应中断.
+
+*** 缓存信息结构体
+
+    vm_object_t
+    实现楼统一的"虚拟内存对象".
+    由于文件系统使用相同的VM对象管理内核数据--文件缓存, 所以缓存解构一致.
+
+    VM对象可以被shadowed, 可以放在其他内存对象的顶端;
+    例如, swap-backed VM 对象, 放在file vm 对象顶端,
+    用来实现 MAP-PRIVATE 的 mmap操作, 包括 copy-on-write, 以派生出地址空间
+
+    注: 一个 vm_object_t 只能与一个 VM 对象关联.
+
+*** 文件系统输入/输出
+
+    vnode VM 对象, 要维护自己的 clean/drity 信息, 不依赖与文件系统的清理.
+
+    文件系统缓存, struct buf 或 bp
+
+    当文件系统要对一个 VM 对象的一部分操作时, 通常会映射到 buf 上,
+    并将 buf 中的页 映射到 KVM(内核虚拟内存)上.
+
+    
+*** 映射页表
+
+    物理页表解构从 VM 系统中分离出来,
+    各进程的页表可脱离进程重建(on the fly), 通常是一次性的.
+
+    特殊的页表,如(managing KVM)常常是被永久分配的.
+
+    通过vm_map_t 和 vm_entry_t, 将虚拟内存中 vm_objects 的各地址范围关联起来.
+    页表被直接从 vm_map_t / vm_entry_t / vm_object_t 中,有层次的合成出来.
+
+    当页表被调用时, 一个 vm_page_t 结构体, 可以被链接到几个 pmaps.
+
+*** KVM 存储映射
+
+    内核使用 KVM 存放各种各样的解构体.
+
+    与 Linux 不同的是, FreeBSD 不将所有物理内存映射到 KVM中, 
+    也就是说, 在32 位平台上, 可以管理超过4GB的内存.
+    事实上, 如果 MMU 有足够的能力, 理论上可以在 32 位平台管理最多 8TB的内存.
+
+    管理KVM 主要时分区, ( zone allocator ).
+
+    ```
+    查看内存 zone
+    vmstat  -m
+    ```
+
+*** 调整 VM system
+
+    主要调整 maxusers, NMBCLUSTERS 两个配置项.
+    
+    编译选项:
+      /usr/src/sys/i386/conf/CONFIG_FILE
+
+    内核配置选项描述:
+    /usr/src/sys/i386/conf/LINT
+
+    maxusers:  一般 10-128,  过度增加会导致系统从可用的kvm中溢出
+
+    NMBCLUSTERS: 1024 - 4096
+
+    NBUF: 决定系统可用来映射文件系统I/O缓存的 kvm 数量.
+      系统可自动调节
+
+    缺省不被优化: 可以使用内核配置文件 makeoptions
+
+    #+begin_src
+    一般使用 -g , 除非能够应付由此产生的大内核(7mb)
+    
+    makeoptions      DEBUG="-g"
+    makeoptions      COPTFLAGS="-O -pipe"
+    ```
+    #+end_src
+
+    在UFS/FFS 上尽量使用soft updates
+    /usr/src/sys/ufs/ffs/README.softupdates
+
+    配置足够多的交换空间, 每个物理盘一个
+    "工作" 磁盘上, 两倍于内存, 内存 crash dump,
+
+    
+    
+    
+    
+
+
+
+   
+  
+

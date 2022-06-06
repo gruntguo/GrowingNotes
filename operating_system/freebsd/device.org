@@ -1,0 +1,124 @@
+* device driver
+
+** KLD
+
+   - kldload , 加载新的内核模块
+   - kldunload
+   - kldstat, 列举当前加载的模块
+
+*** make file
+
+    #+begin_src makefile
+      SRCS=skeleton.c
+      KMOD=skeleton
+
+      .include   <bsd.kmod.mk>		
+    #+end_src
+
+    #+begin_src
+        # kldload -v ./skeleton.ko
+    #+end_src
+    
+*** 访问设备
+
+    /dev/MAKEDEV 可以创建大多数设备的节点.
+    mknod 创建静态节点
+
+    安装 echo:
+      mknod /dev/echo c 33 0
+
+    The mknod utility is deprecated on modern FreeBSD systems
+
+*** ISA 设备
+
+    参考 ep 和 aha 驱动
+    
+    Industry Standard Architecture:工业标准体系结构.
+    是为PC/AT电脑而制定的总线标准，为16位体系结构，
+    只能支持16位的I/O设备，数据传输率大约是16MB/S。也称为AT标准
+
+    PnP，全称Plug-and-Play，译文为即插即用
+
+**** Device_t 指针
+
+     Device_t是为设备结构而定义的指针类型
+
+**** 配置文件与自动配置期间识别和探测的顺序
+
+     敏感(sensitive)是一种资源请求，
+     它指示必须在所有非敏感设备之前探测设备.
+
+**** 资源
+
+     ...
+
+**** 总线内存映射
+
+     大致两种情况:
+       - 内存位于设备卡上, 与主存来回拷贝数据
+       - 内存为计算机主存
+
+     ...
+
+**** DMA
+
+     ...
+
+**** xxx_isa_probe
+
+     ...
+
+**** xxx_isa_attach     
+     
+     ...
+
+**** xxx_isa_shutdown
+
+     ...
+
+**** xxx_intr
+     
+     当收到来自特定设备的中断时就会调用中断处理函数。ISA总线不支持
+     中断共享（某些特殊情况例外），因此实际上如果中断处理函数被调用，
+     几乎可以确信中断是来自其设备。
+
+*** PCI 设备
+
+*** SCSI 设备
+
+    ncr : /sys/pci/ncr
+    sym : /sys/dev/sym/sym_hipd.c
+    aic7xxx : /sys/dev/aic7xxx/aic7xxx.c
+
+    cam : /sys/cam/*
+
+*** CAM    
+    cam, common access method, 以类scsi 的方式寻址 I/O 总线
+
+    - 外围设备模块, 磁盘,磁带,CD-ROM 等驱动程序
+    - SCSI 接口模块(SIM), 连接到 I/O 总线,如scsi 和ide, 的主机总线适配程序
+
+      CCB代表“CAM Control Block”
+
+*** USB
+
+*** New Bus
+
+*** 声音子系统
+
+    pcm , 声音驱动程序的中心.
+
+**** 文件
+
+     公共 ioctl 接口定义:
+       /usr/src/sys/sys/soundcard.h
+     其他接口:
+       /usr/src/sys/dev/sound
+
+     pcm/目录中保存着中心代码，
+     而isa/和pci/目录中有
+     ISA和PCI板的驱动程序
+
+*** PC card
+
+    

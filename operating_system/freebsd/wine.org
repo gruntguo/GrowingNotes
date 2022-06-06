@@ -1,0 +1,5 @@
+# wine introduction on FreeBSD
+
+## wine intro
+  wine 是一个兼容层, 可以使windows 程序跑在其他系统上
+  
