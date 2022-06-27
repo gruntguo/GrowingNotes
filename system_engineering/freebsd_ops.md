@@ -1,28 +1,29 @@
 # FreeBSD 常用工具
   记录freebsd 常用的管理工具, 使用时可以速查
   
-  
+
 ## file
   
   - [net](#Net)
 
-<<<<<<< HEAD
-
-=======
   cpdup
 
 ## dev
-  pciconf: 查看pci bus
+  pciconf: 查看pci bus  例: pciconf -lv
   devinfo: 查看设备树?
 
 ## sys
   fstat: 查看文件打开状态
   sysctl: 查看/设置 kernel状态
 
+## boot
+
+	disable-module
+	
+
 ## system utils
 
 ### date
-    
     
     # tzsetup
     
@@ -35,7 +36,6 @@
   
 ## vnc
   pkg install wayvnc
->>>>>>> ed56af8dd0d4d354f836756ad44fc699bb6b06ea
 
 ## Net
   
@@ -110,7 +110,6 @@
   
 
 ## disk
-
 
     gpart create -s GPT ada1  
     gpart add -t freebsd-ufs -a 1M ada1  
@@ -493,3 +492,25 @@
 ## mac
 
     
+## desktop
+
+### i3
+
+
+https://unixsheikh.com/tutorials/how-to-setup-freebsd-with-a-riced-desktop-part-3-i3.html
+
+https://www.qluoman.top/2021/06/15/freebsd-13%E7%AC%94%E8%AE%B0%E6%9C%ACi3wm%E6%A1%8C%E9%9D%A2%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AEv2/
+
+
+## tools
+
+sysutils/monit 
+net-mgmt/observium 
+sysutils/webmin
+net-mgmt/nagios
+net-mgmt/zabbix32-server
+sysutils/munin-master
+net-mgmt/cacti
+net-mgmt/netdata
+
+https://www.logicmonitor.com/infrastructure-monitoring
