@@ -553,3 +553,4 @@ ZFS 三个主要目标:
     
 ### 其他参考    
     [ZFSTuningGuide](https://wiki.freebsd.org/ZFSTuningGuide)
+    openzfs手册(https://docs.oracle.com/cd/E56344_01/html/E54077/zfs-1m.html)
