@@ -248,8 +248,46 @@
 	  - 
 		  
 		  
-*** 	
-   
+*** 管控 Middleware
+
+**** entpy point
+	 'hadetect = middlewared.scripts.hadetect:main',
+     'middlewared = middlewared.main:main',
+     'midclt = middlewared.client.client:main',
+     'midgdb = middlewared.scripts.gdb:main',
+     'sedhelper = middlewared.scripts.sedhelper:main',
+
+***** hadetect
+	  非开源功能
+
+***** sedhelper
+
+	  sedutil 相关, sedutil-cli 管理加密盘?
+	  
+***** midclt
+	  middleware client
+
+	  sub command,
+		call
+		  -jp job print
+		ping
+		waitready,  call core.ping
+		subscribe, 订阅一个事件
+		sql, 执行sql
+
+	   wsclient, websocket client
+	      DDPProtocol
+
+	   event, threading 库的event
+
+	   socket:
+	   ws+unix:///var/run/middlewared.sock
+
+
+***** midgdb
+	  packages: 'python3-dbg', 'python3-dev'
+	  comply with the TCG OPAL 2.00 standard
+	   
 ** TrueNas
 
    基于BSD 的版本;
@@ -312,5 +350,7 @@
 
 
 	
-
+** Nas
+   其他可折腾的nas:
+   https://post.smzdm.com/p/a5kl9ql8/
 	

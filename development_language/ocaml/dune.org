@@ -1,0 +1,63 @@
+* Dune
+
+** 术语
+   - package
+   - project
+   - root
+   - workspace
+   - installed world
+   - installation
+   - scope
+   - build context
+   - build context root
+   - alias
+   - environment
+   - build profile
+
+
+   通常包括以下文件:
+     - dune-project
+     - <package>.opam
+	 - dune
+	 
+  
+** quick start
+
+
+   #+begin_src ocaml
+	 init project
+	   dune init proj project_name
+	 
+	 build one file
+	   dune build _build/default/bin/prog.exe
+	 --verbose,  print targets
+	 
+   #+end_src
+
+*** Aliases
+
+	@ 开头的 targets,  表示aliases;
+	@@ non-recursively aliases
+	dune build @@dir/default
+
+	build-in:
+	  - default
+	  - install
+	  - runtest
+	  - doc-private
+	  - lint
+	  - all
+	  - check
+
+*** running test
+
+	dune build @runtest
+	dune test
+
+	dune build @foo/bar/runtest
+	dune test foo/bar
+
+*** distributing project
+
+	dune-release
+   
