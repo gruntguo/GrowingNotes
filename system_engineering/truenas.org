@@ -1,0 +1,356 @@
+* TrueNas
+
+  乱学记录
+  
+** 简介
+
+   前身是 FreeNAS, 免费的 NAS 服务器, 可以将一台pc 变成网络存储服务器;
+
+   软件基于 FreeBSD, Samba, 支持 CIFS(samba), FTP, NFS, Soft RAID(0,1,5);
+
+   提供web界面管理;
+
+
+   主要特点:
+     - 支持多种协议,
+	     CIFS，AFP，NFS，iSCSI，SSH，rsync，WebDAV，
+		 以及 FTP/TFTP 等文件共享和传输协议
+	 - 用户管理支持Active Directory 和 LDAP
+	 - 使用 openZFS, 故ZFS诸多功能都支持;
+	      存储池, 快照, 数据压缩, 去重(deduplcation)
+	 - 插件, bt, nextcloud, btsync, 媒体中心 等等
+	 - 邮件通知
+	 - 管理页面由 Django 开发
+	 - 支持安全的磁盘替换, 自动 ZFS 快照, ZFS 垃圾清理,计划任务等等
+	 - 多语言
+	 - BSD 系统的 BHYVE 虚拟机;
+
+   最小配置:
+     - 64 位cpu
+	 - 16G 启动设备
+	 - 16G 内存
+	 - 数据硬盘
+	 - NAS 专用盘, 例如,红盘狼盘等等
+	 - 一根网线
+   
+
+   Features:
+     [[file+sys:./img/TrueNAS_CORE_Software_Features_Half_Circle_Illustration_2022-980x573.webp][官网介绍]]
+
+    
+	 [[https://github.com/freenas/iocage-ix-plugins][插件]]
+
+** 组件
+
+   debian的instaler:
+   https://github.com/truenas/truenas-installer
+
+   ports:
+   https://github.com/truenas/ports
+
+   webui:
+   https://github.com/truenas/webui
+
+   smart cli wapper:
+   https://github.com/truenas/py-SMART
+
+   collector:
+   https://github.com/truenas/usage-collector
+
+   middleware:
+   This is the master branch of freenas
+   https://github.com/truenas/middleware
+
+   zettarepl:
+   a cross-platform ZFS replication solution
+   https://github.com/truenas/zettarepl
+
+   build:
+   https://github.com/truenas/scale-build
+   
+*** 文档
+   https://github.com/truenas/documentation
+
+   hugo serve
+   localhost:1313
+   hugo server --bind "0.0.0.0" -b "http://ip:1313"
+
+** TrueNas SCALE
+
+   TrueNas 超融合架构, 包括linux containers 和 vm;
+   提供了集群和scale out 的能力
+
+   SCALE 是以下的首字母
+    - Scaled-Out ZFS
+    - Converged
+    - Active-Active
+    - Linux Containers
+    - Easy to Manage
+
+   scaled-out:
+   OpenZFS and Gluster combine to enable scale-out ZFS capabilities
+   with excellent stability and very efficient compression and snapshots. 
+
+*** python 库
+
+	aiohttp_wsgi
+    aiohttp_wsgi-0.10.0.dist-info
+    api_jwt_2-1.3.2.dist-info
+    api_jwt.py
+    asyncssh
+    asyncssh-2.11.0.dist-info
+    babel
+    Babel-2.10.3.dist-info
+    bcrypt-3.2.2-py3.9-linux-x86_64.egg
+    build
+    build-0.8.0.dist-info
+    coloredlogs-15.0.1-py3.9.egg
+    Crypto
+    cryptography-37.0.2-py3.9-linux-x86_64.egg
+    docutils
+    docutils-0.17.1.dist-info
+    easy-install.pth
+    flask_jwt
+    Flask_JWT-0.3.2.dist-info
+    genshi
+    Genshi-0.7.5.dist-info
+    greenlet
+    greenlet-1.1.2.dist-info
+    humanfriendly-10.0-py3.9.egg
+    isodate-0.6.1-py3.9.egg
+    jsonschema-4.6.0-py3.9.egg
+    jwt
+    jwt-1.3.1.dist-info
+    mako
+    Mako-1.2.0.dist-info
+    middlewared
+    middlewared-0.0.0.egg-info
+    packaging
+    packaging-21.3.dist-info
+    paramiko-2.11.0-py3.9.egg
+    pep517
+    pep517-0.12.0.dist-info
+    __pycache__
+    pycrypto-2.6.1.dist-info
+    pycryptodome-3.14.1.dist-info
+    pygments
+    Pygments-2.10.0.dist-info
+    PyJWT-2.4.0.dist-info
+    PyNaCl-1.5.0-py3.9-linux-x86_64.egg
+    pyparsing
+    pyparsing-3.0.9.dist-info
+    pyrsistent-0.18.1-py3.9-linux-x86_64.egg
+    pytz
+    pytz-2022.1.dist-info
+    setproctitle-1.2.3.dist-info
+    setproctitle.cpython-39-x86_64-linux-gnu.so
+    shadowsocks
+    shadowsocks-2.8.2.dist-info
+    sqlalchemy
+    SQLAlchemy-1.4.37.dist-info
+    tomli
+    tomli-2.0.1.dist-info
+    vboxapi
+    vboxapi-1.0.egg-info
+    zettarepl-0.0.0-py3.9.egg
+
+*** TrueNAS-SCALE.update
+
+	- 安装脚本
+	- rootfs
+
+**** 安装脚本
+
+	 truenas_install
+
+	 基本操作系统, debian
+
+	 工具及相关:
+	  - sgdisk,  partation table
+	  - db, sqlite,
+	  - db_path, data/freenas-v1.db
+	  - serial-getty, 串口设置
+	  - data/user-services.json,  启动其他服务
+	  - gpart, freebsd 使用?
+	  - GPT, 支持
+	  - zpool set bootfs={dataset_name}
+	  - truenas-grub.py, /mnt/truenas-rootfs/usr/local/bin/truenas-grub.py
+	  - /usr/local/etc/default/grub
+	  - "grub-probe", "--device", f"/dev/{device}", "--target=fs_uuid"
+	  - "zfs", "set", "truenas:12=1",  zfs var 设置, 不懂?
+	  - "zfs", "destroy", "-r", f"{pool_name}/grub"
+	  - "zfs", "create", "-o", "mountpoint=legacy", f"{pool_name}/grub"
+	  - "mount", "-t", "zfs", f"{pool_name}/grub", "/boot/grub"
+	  - "grub-mkconfig", "-o", "/boot/grub/grub.cfg"
+	  - bios-boot,
+		  "gpart", "modify", "-i", "1", "-t", "bios-boot", f"/dev/{disk}"
+	      "grub-install", "--target=i386-pc", f"/dev/{disk}"
+		efi,
+		  "umount", "/boot/efi"
+		  "mount", "-t", "msdosfs", get_partition(disk, 1), "/boot/efi"
+		  "grub-install", "--target=x86_64-efi", "--efi-directory=/boot/efi", "--removable"
+	  - config zectl:
+		ZFS boot environment manager for Linux.
+		https://github.com/truenas/zectl
+	  - "zpool", "get", "-H", "-o", "value", "bootfs", pool_name
+	  - zfs list
+	  - "zfs", "create",                                              
+        "-o", "mountpoint=legacy",                                    
+        "-o", f"truenas:kernel_version={manifest['kernel_version']}", 
+        "-o", "zectl:keep=False",                                     
+        dataset_name,
+	  - "mount", "-t", "zfs", dataset_name, root
+	  - "unsquashfs",                                     
+                  "-d", root,                                       
+                  "-f",                                             
+                  "-da", "16",                                      
+                  "-fr", "16",                                      
+                  os.path.join(src, "rootfs.squashfs")
+	  - /mnt/truenas-rootfs/etc/machine-id           systemd id
+		/mnt/truenas-rootfs/var/lib/dbus/machine-id  dbus id,
+		删除id
+		systemd-machine-id-setup 生成新的id
+	  - 使用rsync, 同步需要安装的文件
+	  - /data/first-boot
+		/data/truenas-eula-pending
+	  - /mnt/truenas-rootfs/etc/netcli
+		安装脚本
+		  freenas-v1.db
+		  vlan, nic, lagg interface, default 等信息
+		  reset root passwd
+	  - mount sysfs devfs procfs
+		mount zfs boot/grub
+		"zpool", "set", f"bootfs={dataset_name}", pool_name
+	  - /usr/local/bin/truenas-initrd.py
+		zfs default
+		update modules
+		    "etc/initramfs-tools/modules",
+			    vfio                          
+                vfio_iommu_type1              
+                vfio_virqfd                   
+                vfio_pci ids={','.join(pci_ids)}           
+            "etc/modules",                    
+            "etc/modprobe.d/kvm.conf",
+			    options kvm ignore_msrs=1
+            "etc/modprobe.d/nvidia.conf",
+			    softdep nouveau pre: vfio-pci     
+                softdep nvidia pre: vfio-pci      
+                softdep nvidia* pre: vfio-pci 
+            "etc/modprobe.d/vfio.conf"
+			/etc/initramfs-tools/update-initramfs.conf
+			gpu相关?
+	  - /usr/local/bin/
+		truenas-grub.py, 更新grub
+	  - update-initramfs,
+		Create & Update initramfs
+	  - update-grub, 更新grub
+	  - /sys/firmware/efi,  efi 相关, 看不懂
+	  - 
+		  
+		  
+*** 管控 Middleware
+
+**** entpy point
+	 'hadetect = middlewared.scripts.hadetect:main',
+     'middlewared = middlewared.main:main',
+     'midclt = middlewared.client.client:main',
+     'midgdb = middlewared.scripts.gdb:main',
+     'sedhelper = middlewared.scripts.sedhelper:main',
+
+***** hadetect
+	  非开源功能
+
+***** sedhelper
+
+	  sedutil 相关, sedutil-cli 管理加密盘?
+	  
+***** midclt
+	  middleware client
+
+	  sub command,
+		call
+		  -jp job print
+		ping
+		waitready,  call core.ping
+		subscribe, 订阅一个事件
+		sql, 执行sql
+
+	   wsclient, websocket client
+	      DDPProtocol
+
+	   event, threading 库的event
+
+	   socket:
+	   ws+unix:///var/run/middlewared.sock
+
+
+***** midgdb
+	  packages: 'python3-dbg', 'python3-dev'
+	  comply with the TCG OPAL 2.00 standard
+	   
+** TrueNas
+
+   基于BSD 的版本;
+   
+   
+*** iso
+
+	发布信息:
+	  TrueNAS-MANIFEST.json
+
+	3个核心packages:
+	  - base-os
+	  - freebsd-pkgdb
+	  - freenas-pkg-tools
+
+		
+*** boot
+	loader:
+	https://www.freebsd.org/cgi/man.cgi?query=loader&sektion=8&format=html
+
+	ficl:
+	http://ficl.sourceforge.net/index.html
+	
+	device.hints:
+	https://people.freebsd.org/~amdmi3/handbook/device-hints.html
+	https://nixdoc.net/man-pages/FreeBSD/man5/device.hints.5.html
+
+	src:
+	https://github.com/freebsd/freebsd-src/tree/main/stand
+
+	lua?:
+	https://wiki.freebsd.org/SummerOfCode2014/LuaLoader
+	https://github.com/freebsd/freebsd-src/tree/main/stand/lua
+
+	boot 过程知识盲区,需要继续调研
+
+*** packages
+
+    文件夹有Manifest文件, 记录了release 信息和文件的校验码
+
+	db列表:
+        "/var/db/pkg/local.meta"
+        "/var/db/pkg/local.sqlite"
+        "/var/db/pkg/repo-local.sqlite"
+
+	tools 列表:
+	    "/usr/local/bin/freenas-install"
+        "/usr/local/bin/freenas-update"
+        "/usr/local/bin/freenas-verify"
+        "/usr/local/bin/manifest_util"
+        "/usr/local/lib/freenasOS/Configuration.py"
+        "/usr/local/lib/freenasOS/Exceptions.py"
+        "/usr/local/lib/freenasOS/Installer.py"
+        "/usr/local/lib/freenasOS/Manifest.py"
+        "/usr/local/lib/freenasOS/Package.py"
+        "/usr/local/lib/freenasOS/Train.py"
+        "/usr/local/lib/freenasOS/Update.py"
+        "/usr/local/lib/freenasOS/__init__.py"
+        "/usr/local/share/certs/iX-CA.pem"
+
+
+	
+** Nas
+   其他可折腾的nas:
+   https://post.smzdm.com/p/a5kl9ql8/
+	

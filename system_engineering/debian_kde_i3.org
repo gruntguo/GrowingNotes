@@ -1,0 +1,35 @@
+* Debian + KDE + i3
+
+** 安装
+
+*** gap
+
+	gaps inner 15
+	gaps outer 5
+
+*** touchpad
+	xorg.conf.d
+	
+	Section "InputClass"
+        Identifier "touchpad"
+		MatchIsTouchpad "on"
+		Driver "libinput"
+		Option "Tapping" "on"
+	EndSection
+	
+*** 输入法
+	fcitx5
+
+	emacs 输入法问题:
+	
+	export XMODIFIERS=@im=fcitx
+	export LC_CTYPE=zh_CN.UTF-8
+	export QT_IM_MODULE=fcitx
+	export GTK_IM_MODULE=fcitx
+
+
+	   
+** 常用软件
+
+   截图工具: spetacle
+   

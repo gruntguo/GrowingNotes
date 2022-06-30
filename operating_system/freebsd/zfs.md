@@ -20,6 +20,35 @@ ZFS 三个主要目标:
 
 ## ZFS 的特点
 
+###  pool
+###  vdev
+	可以是磁盘(/dev/ada0),   
+	文件(通常用来test),   
+	mirror, 由多块盘组成, 同时写  
+	RAID-Z,  3个level RAID-Z1,Z2,Z3  
+	Spare, pseudo-vdev  
+	Log, ZFS Intent Log (ZIL)   
+	Cache, 使用L2ARC  
+	Transaction Group (TXG),  block 操作的原子,  
+	    三个状态: Open, Quiescing, Syncing  
+	Adaptive Replacement Cache (ARC),  对比LRU, 包含4个队列  
+	    - Most Recently Used (MRU)  
+        - Most Frequently Used (MFU)  
+		以上两种分别包含 ghost 队列, 用来跟踪被驱逐的object, 阻止他们再次加入队列,  
+		可以提高命中率  
+	L2ARC, 相较于 ARC, 是second level cache, 经常使用cache vdev, 并使用ssd  
+	    可以加速deduplication,   
+	ZIL, 使用 ssd 加速同步写, 异步写不使用ZIL  
+	Dataset, 基本单位,   
+	scrub, 类似fsck  
+	Quota, Dataset Quota, Reference Quota, User Quota  
+	Dataset Reservation, Reference Reservation  
+	Resilver, 换盘时的流程
+	
+	
+		
+	
+
 ## Quick start
 
     ```
@@ -524,3 +553,4 @@ ZFS 三个主要目标:
     
 ### 其他参考    
     [ZFSTuningGuide](https://wiki.freebsd.org/ZFSTuningGuide)
+    openzfs手册(https://docs.oracle.com/cd/E56344_01/html/E54077/zfs-1m.html)
