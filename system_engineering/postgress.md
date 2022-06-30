@@ -1322,28 +1322,289 @@
 
 ### 数据库配置优化
 
+#### 内存
+
+    - shared_buffers: 
+    - work_mem
+    - maintence_work_mem
+    - autovacuum_work_mem
+    - temp_buffers
+    - wal_buffers
+    - huge_pages
+    - effective_cache_size
+    
+    
+    
+#### 大页内存
+
+    连接数很大的数据库, 强烈建议设置大页内存;
+    因为页表也占空间, 假设500个连接 , 500 * x 会是一个很大的数量级
+    9.4 版本后开始支持大页
+    
+    ```
+        cat /proc/meminfo |grep -i pagetables
+    ```
+    
+    打开大页:  huge_pages = try,  分配失败后, 使用普通内存  
+               huge_pages = on, 分配失败, 数据库启动失败
+               
+    /etc/sysctl.conf 中 , `vm.nr_hugepages = 10240`,  设置了 10240 * 2MB的内存, 大约20G
+    
+    ```
+    设置1GB的大页
+    
+    grubby --update-kernel=ALL --args="default_hugepagesz=1GB hugebagesz=1G hugepages=32"
+    
+    ```
+    大页一旦分配, 就不可以给系统用了, 可以与shared_buffer 一样或者稍大,不然就白白浪费了.
+    
+#### vacuum 的优化
+
+    vacuum_cost_delay 参数默认0, 开打时, 可以计算操作的代价,并在达到阈值时休眠.
+    
+    vacuum_cost_page_hit, vacuum_cost_page_miss, vacuum_cost_page_dirty 结合进行设置
+    
+    AutoVacuum, 一组设置参数: autovacuum_vacuum_cost_delay, autovacuum_vacuum_cost_limit
+    
+    autovacuum_max_workers, 默认3, 为work进程
+    
+    对于频繁更新的表, 应使用更小的fillfactor, 
+    
+    ```
+        alter table test01 set (fillfactor = 50)
+    
+    ```
+    
+    
+    阈值:  
+      autovacuum_vacuum_threshold:  
+      autovacuum_vacuum_scale_factor:  
+      
+      autovacuum_analyze_threshold:  
+      autovacuum_analyze_scale_factor:  
+      
+#### wal 优化
+
+    控制检查点发生的频率:
+      - max_wal_size
+      - checkpoint_timeout
+      
+    checkpoint_completion_target: 默认0.5, 
+    
+    group commit:
+      - commit_delay
+      - commit_siblings
+      - wal_level
+      - synchronous_commit
+      - full_page_writes
+      - wal_writer_delay
+      
+#### 最佳实践
+
+    - selinux & firewall
+    - ulimit
+    - XFS
+    - I/O, deadline
+    
+    
+## standby 数据库
+
+    warm standby server: 备库接受主库数据时, 不能提供只读服务
+    hot standby server: 备库接受主库数据时, 可以提供只读服务
+
+### PITR
+
+    PITR, point-in-Time Recovery,  
+    基础数据备份后, 通过不停重放wal使非一致的数据保持一致性
+    
+    WAL 传送到另一个数据库有两个方法:  
+      - 流复制 (9.x 开始提供)
+      - WAL日志归档
+      
+#### WAL 日志归档
+
+    把在线的已写完的WAL 日志复制出来.
+    
+    postgresql.conf 中, 通过设置 archive_mode 和 archive_command 进行
+    
+    ```
+    
+    archive_mode = on
+    archive_command = 'cp %p /backup/pgarch/%f'
+    
+    或者使用scp
+    
+    archive_command = 'scp %p postgres@x.x.x.x:/back/pgarch/%f'
+    
+    ```
+    
+    使用该方案, 会导致备库落后主库一个 WAL 日志文件;
+    落后的时间取决于主库生成一个完整WAL的时间
+    
+#### 流复制
+
+    主库一旦产生WAL日志, 马上会传递一份到备库;
+    
+    两种同步方式:  
+      - 同步
+      - 异步
+      
+    同步: 主库提交事务时, 会等到wal传递到备库完成后才返回; 数据保证一致
+    异步: 主库提交时,即刻返回, 备库落后主库一定时间, 该时间取决于网络延迟和备库的I/O
+    
+    9.2后,增加了级联复制功能, standby 数据库可以后面再级联一个 standby 数据库;
+    换句话说, 不必都从主库拉数据, 也可以从备库上拉数据;
+    
+    12 版本前, 通过 recovery.conf 来指示数据库启动在备库模式;
+    12 版本后, 把 recovery.conf 中的配置挪到了postgresql.conf中;
+    为了指示该数据库是备库, 在数据目录下有个 'standby.signal'的空文件
+    
+    hot_standby, 用来指示 hot 还是 warm;
     
       
+#### 热备
+
+    热备创建有两种方式:  
+      - 通过底层api
+      - 通过pg_basebackup
     
+##### 底层api
+
+    - 超级用户连接, 执行 'select pg_start_backup("label")'
+    - 执行备份,  tar 或 scp等工具, 不需要关闭数据库
+    - 'select pg_stop_backup()', 切换到下一个wal
+    - 把备份过程中产生的wal日志也复制到 备库中
+    
+    
+    pg_start_backup 主要做了两件事儿:
+      - 更改 XLogCtl -> Insert.forcePageWrites = true, 
+        相当于把变化的整个数据块儿都记录在wal中, 防止 一边写, 一边copy
+      - 强制发生一次 Checkpoint
+      
+##### pg_basebackup 工具
+
+    该工具使用流复制, 主库中的 `pg_hba.conf` 必须允许 replication 连接;
+    
+    理论上一个数据库可以被几个 replication 同时连接, 但为了不影响性能,最好是一个;
+    
+    
+    
+#### 异步流复制
+
+    过程:
+      - 配置副本 replication
+      - 生成基础备份
+      - 生成 standby.signal 文件
+      - 启动备库
+  
+    交换角色:
+      - 先停主, 再停备
+      - 原主库建立 standby.signal 文件
+      - 删除备库的 standby.signal 文件
+      - 启动原备库, 即现在的主库
+      - 启动原主库, 即现在的备库
+      
+    
+    故障切换 failover:
+      9.1 版本前, 在recovery.conf 中配置一个 trigger 文件;
+      当备库检查到该文件时, 就把自己激活为主库;
+      
+      9.1 版本后, 提供了命令 pg_ctlpromote 激活备库
+      
+      检测是否为主库:
+        select pg_is_in_recovery();
         
-    
+      9.5 之后, 提供了 pg_rewind 命令, 用于切换后, 把原主库变成备库;
       
+      
+#### 同步流复制
+
+    异步复制的缺点是, 主库挂了, 激活备库后会丢一些数据;
+    
+    同步复制要求 WAL 日志写入 Standby数据库后, commit 才能返回;
+    当 standby数据库 出问题时, 会导致主库 hang 住;
+    解决方案是, 启动两个 standby数据库;
+    
+    
+    配置:
+      主要配置 synchronous_standby_names, 该参数指定多个 standby 的名字, 逗号分割;
+      
+    9.6 前, 只允许一个 standby 的备库
+    9.6 后, 允许多个
+    10 开使, 可以使用 quorum 方式设置备库
+       ANY 2(s1, s2, s3)   只要两个成功即返回
+       
+    实战: 
+      查看同步状态, 
+        select applicaiton_name, client_addr, state, sync_priority,
+          sync_state from pg_stat_replication;
+        
+        
+#### 查看流复制情况
+
+    主库上可以查看视图: pg_stat_replication
+    备库上可以查看视图: pg_stat_wal_receiver
+    判断是主库还是备库: select pg_is_in_recovery
+   
+### 恢复配置
+
+    12 版本前, 有 recovery.conf 配置;  
+    12 之后, 合并到了 postgresql.conf 中;
+    
+    restore_command, 指定 standby 如何获取 wal 文件, 通常配置一个copy命令;  
+    archive_cleanup_command, 清理 standby 数据库机器上不需要的 wal 文件;  
+    recovery_end_command, 恢复完成后, 执行一个命令;  
+    
+    通常恢复持续进行, 如果需要让 standby 恢复到一个指定的点就暂停, 可用以下参数:
+    
+      - recovery_target
+      - recovery_target_name
+      - recovery_target_time
+      - recovery_target_xid
+      - recovery_target_inclusive
+      - recovery_target_timeline
+      - pause_at_recovery_target
+      
+    其他重要参数:
+      min_wal_size, 默认0, 表示不为 standby 保留wal;   
+      配置个64 表示为备库保留64个wal;  
+      
+### 逻辑复制      
+
+    不复制sql, 而是复制sql的结果, 即解析 wal 进行复制; 
+    
+    使用类似消息队列的 发布/订阅 模型;
+    
+    使用订阅复制槽技术, 可并行传输 wal;
+    
+    有以下应用场景:  
+      - 将多个数据库的数据合并到一个 数据仓库 的数据库中, 用于数据仓库的数据分析
+      - 不同大版本 pg 之间的数据复制, 辅助数据库跨大版本升级
+      - 捕获本机数据库的增量更新, 发送给指定数据库或通知应用
+      - 多个数据库之间, 共享部分数据
+      
+   
+## 高级架构
+
+### PgBouncer 
+    
+    轻量级连接池工具;
+    
+    使用 libevent 进行通信, c 语言编写, 每个连接仅消耗 2kb 内存;
+    
+    一些概念:
+    
+     - session,  会话级连接
+     - transaction, 事务级连接
+     - statement, 执行 sql 语句时的连接, 要求客户端强制使用 autocommit
+    
+         
      
-    
-    
-    
-      
-    
-        
-        
-    
-
+       
     
     
 
-
     
-      
       
     
 

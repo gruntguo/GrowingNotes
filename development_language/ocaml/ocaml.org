@@ -33,6 +33,7 @@
 	 opam install ocamlformat
 
 *** 包
+
 	Base: 基本包
 	Core: 基于base的扩展
 	Core_kernel: Core 的子集,  Core_kernel 2022 被移除
@@ -63,7 +64,18 @@
 	let 绑定是不可变的
 	
 *** 类型
-	unit 只有一个可能的值，记为(), 类似于void
+
+    基本类型:  
+    int         63-bit signed int on 64-bit processors, or 31-bit signed int on 32-bit processors
+    float       IEEE double-precision floating point, equivalent to C's double
+    bool        A boolean, written either 'true' or 'false'
+    char        An 8-bit character
+    string      A string (sequence of 8 bit chars)
+                string 不可变, 不是char的list, 有内部高效的表示
+
+    
+
+    unit 只有一个可能的值，记为(), 类似于void
 
 	float Float.of_int
 
@@ -71,6 +83,12 @@
 
 	 值限制
 
+     
+     `Foo,
+     
+     `Foo 42,
+     - : [> `Foo of int ] = `Foo 42
+     
 *** prefix vs infix
 
 	List.map ~f:((+) 3) [4;5;6] ;;
@@ -130,6 +148,12 @@
 	
 	List.iter
 	List.map
+    List.mem
+    List.for_all
+    List.find
+    List.filter
+    List.partition
+    
 
 	使用 as 来减少一次分配
 
@@ -152,20 +176,35 @@ let rec destutter = function
 
 	#+end_src
 
-
-
-
 **** 关联列表
 
 	 [("one",1);("two",2);("three",3)]
 	 List.Assoc.find ~equal:String.equal
 	 List.Assoc.add ~equal:String.equal
 
-	 
+     List.spilt
+     List.combine
+
+     
 
 **** 双向链表
 	 Doubly_linked
-	 
+
+**** point
+
+    #+begin_src ocaml
+      # type list = Nil | Cons of cell
+        and cell = { mutable hd : int; tl : list };;
+        type list = Nil | Cons of cell
+        and cell = { mutable hd : int; tl : list; }        
+
+      使用指针
+      # type 'a pointer = Null | Pointer of 'a ref;;
+    #+end_src
+
+    参考: https://www.ocaml.org/docs/pointers
+    
+
 *** option
 
 	表示一个值可能有或没有
@@ -173,7 +212,6 @@ let rec destutter = function
 
 	None
 	Some(x)
-	
 
 *** 记录
 
@@ -193,6 +231,8 @@ let rec destutter = function
 	多类型结合，使用变体(variant)类型
 
 	可变：  mutable
+
+            <- 赋值?
 
 	ref:
 	   let x = { contents = 0} ;;
@@ -260,7 +300,7 @@ let rec destutter = function
 
 	Option.both
 	
-*** 异常	
+*** 异常
 	exn 异常的类型为exn
 	exn 在类型系统中是一个特例
 	    开放定义， 永远不会有一个完备匹配
@@ -272,8 +312,6 @@ let rec destutter = function
 	使用 with sexp
 
 	exception Wrong_date of Date.t with sexp
-
-
 	
 **** 异常辅助函数
 	 failwith
@@ -303,17 +341,62 @@ let rec destutter = function
 *** Monad
 	>>= 中缀形式的bind了
 	  
-	  
+*** if
+    begin ... end,  括号的语法糖
+    
 *** 循环
 	for i=0 to 3 do ... done
+    
 	for i=3 downto 0 do ... done
-	上界和下界是包含的
-	循环变量i ， 在循环作用域不可变， 局部， 循环外不可引用
-	
 
-	while do done
-	incr i
-	decr i
+	- 上界和下界是包含的;
+	- 循环变量i ， 在循环作用域不可变， 局部， 循环外不可引用
+    - 循环内, 语句求职应返回 unit()
+
+    #+begin_src ocaml
+    let i = 1 in
+    do_next_job ();
+    let i = 2 in
+    do_next_job ();
+    let i = 3 in
+    do_next_job ();
+      ...
+    let i = n_jobs () in
+    do_next_job ();
+    ()    
+        
+    #+end_src
+	
+    while 不常用.
+
+    #+begin_src
+	while boolean-condition do expression done
+
+    incr i
+
+    decr i
+    #+end_src
+
+    List 的迭代:  
+
+      List.iter,  List.map, List.filter;
+
+      List.mem,
+
+      List.fold_left,  List.fold_right
+
+    #+begin_src ocaml
+
+      # let sum = List.fold_left ( + ) 0;;
+      val sum : int list -> int = <fun>
+      # let product = List.fold_left ( * ) 1;;
+      val product : int list -> int = <fun>
+      # sum my_list;;
+      - : int = 55
+      # product my_list;;
+      - : int = 3628800        
+        
+    #+end_src    
 	   
 *** 函数
 	等价：
@@ -388,6 +471,8 @@ let rec destutter = function
 
 	 部分应用函数时， 可选参数会被擦除;
 	 擦除规则： 可选参数后面定义的第一个位置上的参数一旦传入，就会被擦除
+
+     ?width :  ~width:(unwrap width)
 	 
 *** 函数顺序调用管道
     |> 左结合
@@ -420,6 +505,11 @@ let rec destutter = function
 	module yyy = struct ... end
 
 	module aaa : xxx = yyy
+
+    使用 toplevel 显示模块
+    #show List;;
+
+    
 	
 **** 打开模块
 
@@ -732,6 +822,31 @@ let rec destutter = function
 	定期扫描时， 从一组根root 开始
 	gc 维护了一个有向图， 堆块是节点，
 
+    #+begin_src
+      Gc.print_stat stdout
+
+      output:
+
+      minor_words: 115926165     # Total number of words allocated
+      promoted_words: 31217      # Promoted from minor -> major
+      major_words: 31902         # Large objects allocated in major directly
+      minor_collections: 3538    # Number of minor heap collections
+      major_collections: 39      # Number of major heap collections
+      heap_words: 63488          # Size of the heap, in words = approx. 256K
+      heap_chunks: 1
+      top_heap_words: 63488
+      live_words: 2694
+      live_blocks: 733
+      free_words: 60794
+      free_blocks: 4
+      largest_free: 31586
+      fragments: 0
+      compactions: 0
+
+      # Gc.set {(Gc.get ()) with Gc.verbose = 0x01}
+
+    #+end_src
+
 **** 世代垃圾回收
 	 堆的划分主要是以下俩内存区：
 	 - 固定大小的次堆， minor heap, 大多数块都是初始化分配的
@@ -880,14 +995,6 @@ let rec destutter = function
 	- ocamlopt 代码生成器， 原生（native）代码调试和性能测试
 	
 **** 无类型 lamda 形式	
-	  
-	 
-	 
-	 
-	 
-	
-	 
-	 
 	
 	
 *** 扩展 
@@ -910,12 +1017,18 @@ let rec destutter = function
 	
 ** 类 和 对象
 
+   参考: https://www.ocaml.org/docs/objects
+   
    class xxx : object ... end
 
    类的类型与常规类型(int,string等)是分开的, 
 
    使用new 来实例化
 
+   使用# 访问对象方法
+
+   :>  强制子类转化为父类类型
+   
    类的定义还定义了一个对象类型, 等价于:
    type isstack = < pop:int option; push:int->unit >
 
@@ -1015,11 +1128,69 @@ let rec destutter = function
 
 	type t = (string, int, String.comparator_witness) Map.t
 
-*** hashtable
+    module MyUsers = Map.Make(String)
+
+*** set
+
+    #+begin_src ocaml
+      module SS = Set.Make(String);;
+      let s = SS.empty;;
+
+      let s = SS.sigleton "hello";;
+
+      let s =
+      List.fold_right SS.add ["hello"; "world"; "community"; "manager";
+                              "stuff"; "blue"; "green"] s;;
+
+    #+end_src
+    
+*** hashtable                                                           
+
+    可变, mutable
+    
 	线性时间
 	扩容时有开销
-	
-	
+
+    #+begin_src
+    # let my_hash = Hashtbl.create 123456;;
+    123456 是初始化的大小, hash table 会自动扩张
+
+    # my_hash;;
+    - : ('_weak1, '_weak2) Hashtbl.t = <abstr>
+
+    _weak1, _weak2, 代表key 和 value, 下划线表明了, 一旦选择, 这个type就是固定的了;
+    
+
+    #+end_src
+
+    不同于set, 由于是可变的数据结构, 所以 以下code 没有意义, 返回值时 unit();
+
+    #+begin_quote
+      let my_hash = Hashtbl.add my_hash ...
+    #+end_quote
+
+    #+begin_src ocaml
+
+      # Hashtbl.add my_hash "h" "hello";
+        Hashtbl.add my_hash "h" "hi";
+        Hashtbl.add my_hash "h" "hug";
+        Hashtbl.add my_hash "h" "hard";
+        Hashtbl.add my_hash "w" "wimp";
+        Hashtbl.add my_hash "w" "world";
+        Hashtbl.add my_hash "w" "wine";;
+      - : unit = ()
+
+      # Hashtbl.find my_hash "h";;
+      - : string = "hard"
+
+      只返回最后一个
+      如果想要返回所有,
+
+      # Hashtbl.find_all my_hash "h";;
+      - : string list = ["hard"; "hug"; "hi"; "hello"]
+
+    #+end_src
+    
 *** 异步 Async
 	Differed.t
 
@@ -1226,7 +1397,11 @@ let%expect_test _ =
 *** ocaml-print-intf
 	opam install ocaml-print-intf
 	根据 .ml 生成 .mli 
-	
+
+*** weak
+
+    weak pointer, 会被垃圾回收, 相较于普通let 复制的pointer或引用
+    
 ** 解析
    ocmalyacc
    menhir
