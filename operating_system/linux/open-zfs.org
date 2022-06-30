@@ -61,6 +61,7 @@
       - zfs.sh, load module
       - zloop.sh, wapper to run ztest repeatedly
       - zfs-tests.sh, launch zfs test suite
+        
 
     
 ** 安装
