@@ -1,0 +1,87 @@
+* meson
+
+** meson 示例
+
+   初始化
+   meson init --name testproject
+
+   设置目录
+   meson setup 编译目录, 源码目录
+   meson setup builddir ./
+   meson builddir // setup 是默认命令, 可省略； meson.build 默认源码目录;
+
+   编译
+   meson compile -C builddir
+
+   使用ninja 编译
+   ninja -C builddir
+   
+   安装
+   meson install -C builddir
+
+   默认 /usr/local,  可以用 -prefix /your/prefix 指定 或者 DESTDIR 指定
+
+
+** ninja
+
+   手册: https://ninja-build.org/manual.html
+
+   基本与make 的一样, 设置目标, 执行该目标下的动作(action)
+   
+*** example
+
+    #+begin_src ninja
+
+      cflags = -Wall
+
+      rule cc    
+        command = gcc $cflags -c $in -o $out
+      rule c_link
+        command = gcc $ARGS -o $out $in
+        description = Linking target $out
+
+      build hello.o: cc hello.c
+
+      build hello: c_link hello.o
+
+    #+end_src
+
+    rule 的基本语法:
+      
+    
+    $in 代表了 build 中的 input文件,  例如: hello.c
+    $out 代表了 build 中的 output文件, 例如: hello.o
+
+    build 的基本语法:
+    
+    build outputs: rulename inputs
+
+*** 其他
+
+    phony 可以用来创建一些别名
+
+    #+begin_src
+    build foo: phony some/file/in/a/faraway/subdir/foo
+    #+end_src
+
+** meson
+
+   requirement:
+     - python3
+     - ninja
+
+   主要的流程: 
+   #+begin_src
+     $ cd /path/to/source/root
+     $ meson --prefix /usr --buildtype=plain builddir -Dc_args=... -Dcpp_args=... -Dc_link_args=... -Dcpp_link_args=...
+     $ meson compile -C builddir
+     $ meson test -C builddir
+     $ DESTDIR=/path/to/staging/root meson install -C builddir
+   #+end_src
+    
+
+*** extra tool   
+   开启web 查看依赖
+
+   ninja -t browse --port=8000 --no-browser all
+   

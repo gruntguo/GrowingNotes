@@ -1,0 +1,58 @@
+* Debian
+  常用系统命令及配置
+
+  https://wiki.gnome.org/HowDoI/GSettings
+ 
+** 命令
+
+*** GSettings   
+
+    GSetings 实际上是一套高级API，用来操作dconf。
+    gsettings 提供对 GSetings的命令行操作.
+
+    dconf存储着GNOME3的配置，是二进制格式. 类似注册表
+    dconf 是一个底层的配置管理系统，被设计用来作为 GSettings 的 backend.
+
+    
+
+
+**** 常用命令
+
+     gsetings list-schemas
+     gsettings list-keys schema-xxx
+     gsettings get xxx key-xxx
+     gsettings get xxx key-xxx value-xxx
+     gsettings range xxx key-xxx  , 查看类型
+     gsettings list-recursively
+
+** disk
+
+   aliaes, /dev/disk/by-id/
+
+   
+*** md 软raid
+
+    mdadm
+    
+    mdadm是一个用于创建、管理、监控RAID设备的工具，它使用linux中的md驱动.
+
+*** udevadm
+
+    udevadm主要命令：
+
+      info 查询sysfs或者udev的数据库
+      trigger 从内核请求events
+      settle 查看udev事件队列，如果所有的events已处理则退出
+      control 修改udev后台的内部状态信息
+      monitor 监控内核的uevents
+      hwdb 处理硬件数据库索引
+      test
+
+
+*** 硬盘管理
+blkid 命令：定位或打印块设备的属性。
+lsblk命令：列出所有可用的或指定的块设备的信息。
+hwinfo命令：硬件信息工具，是另外一个很好的实用工具，用于查询系统中已存在硬件。
+udevadm命令：udev 管理工具
+tune2fs命令：调整 ext2/ext3/ext4 文件系统上的可调文件系统参数。
+dumpe2fs 命令：查询 ext2/ext3/ext4 文件系统的信息。

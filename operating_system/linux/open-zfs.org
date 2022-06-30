@@ -1,0 +1,160 @@
+* zfs
+
+** build
+
+   [[   https://openzfs.github.io/openzfs-docs/Developer%20Resources/Building%20ZFS.html#installing-dependencies][openzfs-building]]
+   
+*** on debian
+
+   sudo apt install build-essential
+   autoconf
+   automake
+   libtool
+   gawk
+   alien
+   fakeroot
+   dkms
+   libblkid-dev uuid-dev libudev-dev libssl-dev
+   zlib1g-dev libaio-dev libattr1-dev libelf-dev linux-headers-$(uname -r)
+   python3 python3-dev python3-setuptools python3-cffi libffi-dev
+   python3-packaging git libcurl4-openssl-dev
+
+
+   gawk, gnu awk
+   alien, linux 包格式转换工具
+   fakeroot, debian打包时, 像root操作文件; 仅仅是简单的shell script
+   dkms, Dynamic Kernel Module Support, 协助维护内核外的驱动
+   libblkid, 获取分区uuid
+   libudev, 内核设备管理, udevadm命令
+   zlib1g,
+   libaio, 原声 aio 库,封装了以下 io 系统调用;
+           io_setup, io_destroy, io_submit, io_cancel, io_getevents
+   libattr1, extended attribute system calls and library functions
+  
+*** build kmod
+    #+begin_src
+    $ cd zfs
+    $ ./configure --enable-systemd
+    $ make -j4 deb-utils deb-kmod
+    $ for file in *.deb; do sudo gdebi -q --non-interactive $file; done
+    #+end_src
+
+*** build dkms
+    #+begin_src
+     $ sudo apt-get install dkms
+     $ cd zfs
+     $ ./configure --enable-systemd
+     $ make -j1 deb-utils deb-dkms
+     $ for file in *.deb; do sudo gdebi -q --non-interactive $file; done
+    #+end_src
+    
+*** test
+    sudo apt install ksh bc fio
+    acl sysstat mdadm
+    lsscsi parted attr
+    dbench nfs-kernel-server samba
+    rng-tools pax linux-perf selinux-utils quota
+
+    scrpits
+
+      - zfs-helper.sh, create links
+      - zfs.sh, load module
+      - zloop.sh, wapper to run ztest repeatedly
+      - zfs-tests.sh, launch zfs test suite
+
+    
+** 安装
+   
+*** 擦除
+
+    md 清除
+    #+begin_src shell
+      # See if one or more MD arrays are active:
+      cat /proc/mdstat
+      # If so, stop them (replace ``md0`` as required):
+      mdadm --stop /dev/md0
+      
+      # For an array using the whole disk:
+      mdadm --zero-superblock --force $DISK
+      # For an array using a partition:
+      mdadm --zero-superblock --force ${DISK}-part2
+    #+end_src
+    
+    擦除签名
+    wipefs -a $DISK
+    擦除 partition table
+    sgdisk --zap-all $DISK
+	
+*** 新建分区
+
+    分区类型:
+      sgdisk --list-types
+    新建boot 分区
+      sgdisk -a1 -n1:24K:+1000K -t1:EF02 $DISK
+
+      -t 更改分区类型, ef02, bios boot partition
+
+      efi:
+      sgdisk     -n2:1M:+512M   -t2:EF00 $DISK
+
+      bf01, Solaris /usr & Mac Z
+      sgdisk     -n3:0:+1G      -t3:BF01 $DISK
+
+      bf00, bf00 Solaris root
+
+
+    创建 boot pool:
+
+    #+begin_src shell
+    zpool create \
+    -o ashift=12 \
+    -o autotrim=on -d \
+    -o cachefile=/etc/zfs/zpool.cache \
+    -o feature@async_destroy=enabled \
+    -o feature@bookmarks=enabled \
+    -o feature@embedded_data=enabled \
+    -o feature@empty_bpobj=enabled \
+    -o feature@enabled_txg=enabled \
+    -o feature@extensible_dataset=enabled \
+    -o feature@filesystem_limits=enabled \
+    -o feature@hole_birth=enabled \
+    -o feature@large_blocks=enabled \
+    -o feature@livelist=enabled \
+    -o feature@lz4_compress=enabled \
+    -o feature@spacemap_histogram=enabled \
+    -o feature@zpool_checkpoint=enabled \
+    -O devices=off \
+    -O acltype=posixacl -O xattr=sa \
+    -O compression=lz4 \
+    -O normalization=formD \
+    -O relatime=on \
+    -O canmount=off -O mountpoint=/boot -R /mnt \
+    bpool ${DISK}-part3
+    #+end_src
+
+
+    GRUB does not support all of the zpool features.
+      http://git.savannah.gnu.org/cgit/grub.git/tree/grub-core/fs/zfs/zfs.c#n276
+
+    mirror:
+
+    #+begin_src shell
+    zpool create \
+    ... \
+    bpool mirror \
+    /dev/disk/by-id/scsi-SATA_disk1-part3 \
+    /dev/disk/by-id/scsi-SATA_disk2-part3
+    #+end_src
+
+    root pool:
+    #+begin_src shell
+    zpool create \
+    -o ashift=12 \
+    -o autotrim=on \
+    -O acltype=posixacl -O xattr=sa -O dnodesize=auto \
+    -O compression=lz4 \
+    -O normalization=formD \
+    -O relatime=on \
+    -O canmount=off -O mountpoint=/ -R /mnt \
+    rpool ${DISK}-part4
+    #+end_src

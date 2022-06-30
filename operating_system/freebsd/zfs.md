@@ -45,9 +45,6 @@ ZFS 三个主要目标:
 	Dataset Reservation, Reference Reservation  
 	Resilver, 换盘时的流程
 	
-	
-		
-	
 
 ## Quick start
 

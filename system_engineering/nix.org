@@ -1,0 +1,62 @@
+* Nix
+
+** 简介
+
+   简单说是用来包管理;
+   复杂说是环境管理;
+   再大点说, 这个搞了个相关的系统 NixOS ;
+
+
+*** 名词
+
+    - channel, 简单指向某个 Nix 表达式集合, 或者说是软件包仓库
+
+   
+** 工具集
+
+  - nix-env, 安装升级或删除包;
+  - nix-channel, 管理channel 的工具
+  - nix-shell, 类似 virtualenv的工具
+
+
+*** nix-shell
+
+    nix-shell -A <pkg>
+
+    将会准备好pkg所需要的编译时依赖, 类似 apt 的 build-depends;
+    启动一个配置好这些依赖的shell;
+
+*** 源
+
+    更改为中科大的源:
+    #+begin_src shell
+      $ nix-channel --add https://mirrors.ustc.edu.cn/nix-channels/nixpkgs-unstable nixpkgs
+      $ nix-channel --update
+    #+end_src
+
+    
+** 常用
+
+*** 基本环境
+    
+   [[https://nixos.org/guides/dev-environment.html][nix, getting start]]
+
+   nix-shell default.nix
+   python myapp.py
+
+*** 常用命令
+
+    nix-env --upgrade some-packages
+    
+    nix-env --rollback
+
+    nix-env --uninstall firefox
+    
+    nix-collect-garbage
+
+    nix-env --install firefox
+
+** ref
+
+   nix menual: https://nixos.org/manual/nix/stable/
+   
