@@ -258,13 +258,75 @@
      'sedhelper = middlewared.scripts.sedhelper:main',
 
 ***** hadetect
-	  非开源功能
 
+	  非开源功能, 集群相关?
+
+***** middlewared
+
+****** 相关文件
+	   /var/run/middlewared.pid
+	   /tmp/middlewared_startup.seq
+
+****** 类
+
+******* Middleware
+		参数:
+		loop_debug=args.loop_debug,
+        loop_monitor=not args.disable_loop_monitor,
+        trace_malloc=args.trace_malloc,
+        overlay_dirs=args.overlay_dirs,
+        debug_level=args.debug_level,
+        log_handler=args.log_handler,
+        startup_seq_path=startup_seq_path,
+
+		class Middleware(LoadPluginsMixin, RunInThreadMixin, ServiceCallMixin):
+
+		LoadPluginsMixin:
+		  plugin/, plugin的文件夹
+		  load_modules,
+
+		RunInThreadMixin:
+		  asyncio, excuter 包装
+
+		ServiceCallMixin:
+		  返回, serviceobj, methodobj
+
+****** logger
+	   
+	   logger.py
+
+	   CrashReporting, 崩溃时, 会发送到 ixsystems 在线的 sentry 进行记录;
+
+****** thread pool
+	   
+	   __ws_threadpool
+	   __init_procpool
+
+****** Event
+
+        self.__events = Events()
+        self.event_source_manager = EventSourceManager(self)
+        self.__event_subs = defaultdict(list)
+
+		Event:
+		'description': description,
+		'accepts': [],
+		'returns': [returns] if returns else [Any(name, null=True)],
+
+
+		EventSourceManager: 
+        self.event_sources = {}
+        self.instances = defaultdict(dict)
+        self.idents = {}
+        self.subscriptions = defaultdict(lambda: defaultdict(set))
+	   
+	  
 ***** sedhelper
 
 	  sedutil 相关, sedutil-cli 管理加密盘?
 	  
 ***** midclt
+
 	  middleware client
 
 	  sub command,
@@ -283,7 +345,6 @@
 	   socket:
 	   ws+unix:///var/run/middlewared.sock
 
-
 ***** midgdb
 	  packages: 'python3-dbg', 'python3-dev'
 	  comply with the TCG OPAL 2.00 standard
@@ -291,7 +352,6 @@
 ** TrueNas
 
    基于BSD 的版本;
-   
    
 *** iso
 
