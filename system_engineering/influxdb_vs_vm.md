@@ -82,8 +82,6 @@ influxdb集群场景下，1个shard有N个replcia，通常replica在不同的节
 * 当远端的replica写入失败时，会先存储到本机的hinted-handoff队列；
 * 本机会定期的将hinted-handoff队列的内容发送给远端节点，达到数据的最终一致；
 
-![](./img/influx-cluster-hh.jpg)
-
 ![](./img/influx-cluster-hh.jpeg)
 
 #### 4. anti-entropy机制
