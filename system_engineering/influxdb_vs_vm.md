@@ -10,7 +10,7 @@ victoriametrics(简称vm)集群开源。
 
 
 
-![](D:\GrowingNotes\system_engineering\img\influx-cluster-arch.jpg)
+![](./img/influx-cluster-arch.jpg)
 
 meta data: 保存db/retention policy/shardgroups/shard等信息，通过Raft协议，保证强一致；
 
@@ -51,7 +51,7 @@ ID      GroupID Database        RetentionPolcy  Replicas        Owners          
 
 
 
-![](D:\GrowingNotes\system_engineering\img\influx-cluster-write.jpg)
+![](./img/influx-cluster-write.jpg)
 
 
 
@@ -63,7 +63,7 @@ ID      GroupID Database        RetentionPolcy  Replicas        Owners          
 * 在执行每个statement时，根据timeRange确定ClusterShardMapping(包含localShardMapping+remoteShardGroup)；
 * 执行TSDBB本地查询和TCP远程查询，将结果merge返回给client；
 
-![](D:\GrowingNotes\system_engineering\img\influx-cluster-read.jpg)
+![](./img/influx-cluster-read.jpg)
 
 
 
@@ -82,9 +82,9 @@ influxdb集群场景下，1个shard有N个replcia，通常replica在不同的节
 * 当远端的replica写入失败时，会先存储到本机的hinted-handoff队列；
 * 本机会定期的将hinted-handoff队列的内容发送给远端节点，达到数据的最终一致；
 
-![](D:\GrowingNotes\system_engineering\img\influx-cluster-hh.jpg)
+![](./img/influx-cluster-hh.jpg)
 
-
+![](./img/influx-cluster-hh.jpeg)
 
 #### 4. anti-entropy机制
 
@@ -129,7 +129,7 @@ vmstorage的多节点采用[shared noting architecture](https://en.wikipedia.org
 
 写入数据在vminsert服务中处理，假设--replicationFactor=2，即数据副本=2：
 
-![](D:\GrowingNotes\system_engineering\img\victoriametrics-write-arch.jpg)
+![](./img/victoriametrics-write-arch.jpg)
 
 插入时：
 
@@ -143,7 +143,7 @@ vmstorage的多节点采用[shared noting architecture](https://en.wikipedia.org
 
 查询数据在vmselect服务中处理，假设--replicationFactor=2，即数据副本=2：
 
-![](D:\GrowingNotes\system_engineering\img\victoriametrics-read-arch.jpg)
+![](./img/victoriametrics-read-arch.jpg)
 
 查询时：
 
@@ -188,7 +188,7 @@ cpu,tag1=v1,tag2=v2,...tag10=v10 field1=fv1,filed2=fv2,...,field10=v10
 
 
 
-![](D:\GrowingNotes\system_engineering\img\influx-vm-insert.jpg)
+![](./img/influx-vm-insert.jpg)
 
 结论：vm的insert性能是influxdb的4倍左右。
 
@@ -208,7 +208,7 @@ SELECT max(usage_user) from cpu where (hostname = 'host_3609') and time >= '2022
 query=max(max_over_time(cpu_usage_user{hostname='host_295'}[1m]))+by+(__name__)&start=1656661021&end=1656664621&step=60
 ```
 
-![](D:\GrowingNotes\system_engineering\img\influx-vm-query-simple.jpg)
+![](./img/influx-vm-query-simple.jpg)
 
 结论：对于简单查询，vm性能比influx高1/3左右。
 
@@ -224,7 +224,7 @@ SELECT mean(usage_user) from cpu where time >= '2022-07-01T07:00:24Z' and time <
 query=avg(avg_over_time(cpu_usage_user{}[1h]))+by+(__name__,+hostname)&start=1656658824&end=1656702024&step=3600
 ```
 
-![](D:\GrowingNotes\system_engineering\img\influx-vm-query-complicated.jpg)
+![](./img/influx-vm-query-complicated.jpg)
 
 结论：对于复杂查询，vm的性能比influx高10倍以上。
 
