@@ -263,6 +263,27 @@
 
 ***** middlewared
 
+	  middlewared 初始化 service 并注册相应的 event;
+	  提供 plugin 的load 能力.
+
+****** 基本流程
+	   
+	   - 命令行处理
+	   - 设置处理, pid, 进程名
+	   - seq 
+	   - logger 设置
+	   - run()
+		 + osc, 根据系统类型(linux,freebsd), 使用不同的脚本;
+		   然后使用 prctl 更改进程名字
+		 + 获取 asyncio 的 eventloop
+		 + 异步执行 __initialize
+		   - 启动 aiohttp 服务, 设置 middleware
+			 aiohttp.web.normalize_path_middleware(redirect_class=HTTPPermanentRedirect)
+		   - load plugin
+		   - 启动 monitor 线程(_loop_monitor_thread);
+			 sleep(2),获取frame->获取堆栈->过滤忽略的线程?->打印死锁线程;
+			 2秒为执行完的线程认为死锁?
+	  
 ****** 相关文件
 	   /var/run/middlewared.pid
 	   /tmp/middlewared_startup.seq
@@ -283,8 +304,9 @@
 
 		LoadPluginsMixin:
 		  plugin/, plugin的文件夹
-		  load_modules,
-
+		  load_modules,  递归实现
+		  importlib.import_module
+ 
 		RunInThreadMixin:
 		  asyncio, excuter 包装
 
@@ -303,7 +325,7 @@
 	   __init_procpool
 
 ****** Event
-
+	   
         self.__events = Events()
         self.event_source_manager = EventSourceManager(self)
         self.__event_subs = defaultdict(list)
@@ -313,14 +335,35 @@
 		'accepts': [],
 		'returns': [returns] if returns else [Any(name, null=True)],
 
-
+		event_source/manager.py
 		EventSourceManager: 
         self.event_sources = {}
         self.instances = defaultdict(dict)
         self.idents = {}
         self.subscriptions = defaultdict(lambda: defaultdict(set))
-	   
-	  
+
+		__event_subs = defaultdict
+
+****** jobs
+
+	   job.py
+	   注册event
+	   self.middleware.event_register('core.get_jobs', 'Updates on job changes.')
+
+****** service
+
+	   meta class:
+	     ServiceBase
+		   _config, service_config
+
+	   service:
+	     metaclass=ServiceBase
+
+	   注册event:
+	   self.event_register('core.environ', 'Send on middleware process environment changes.', private=True)
+       self.event_register('core.reconfigure_logging', 'Send when /var/log is remounted.', private=True)
+
+		
 ***** sedhelper
 
 	  sedutil 相关, sedutil-cli 管理加密盘?
