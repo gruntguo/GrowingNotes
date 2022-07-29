@@ -190,3 +190,70 @@ func getMaxRawRowsPerShard() int {
     * 导致一段时间内的N个tsm file，包含相同的index数据，重复存储；
   * vm的timestamp/value数据文件与index文件分别存储；
 
+
+
+
+
+### 四. 附zig-zag算法
+
+
+
+zigzag算法认为大多数情况下，我们使用的数字都是不大的，其原理是：
+
+* 将原始值左移1bit，得到X1；
+* 将原始值的最高位移至最低位，得到X2；
+* X1^X2=C，将C存入；
+
+由于小的数值前导位都是0，故X1^X2将是一个很小的数值。
+
+
+
+实现的代码，src []int64为待编码数字：
+
+* 首先，遍历src []int64，保留第一个值，依次计算与preValue的delta；
+* 然后，对差值进使用zig-zag编码；
+
+```
+func marshalInt64NearestDelta(dst []byte, src []int64, precisionBits uint8) (result []byte, firstValue int64) {
+	...
+	firstValue = src[0]
+	v := src[0]
+	src = src[1:]
+	is := GetInt64s(len(src))	//Get from bufferPool
+	if precisionBits == 64 {
+		// Fast path.
+		for i, next := range src {		//计算与前值的delta
+			d := next - v
+			v += d
+			is.A[i] = d
+		}
+	} else {
+		...
+	}
+	dst = MarshalVarInt64s(dst, is.A)
+	PutInt64s(is)			// Retrun to bufferPool
+	return dst, firstValue
+}
+```
+
+zig-zag编码的实现代码：
+
+* 计算v=(v左移1位) xor (v右移63位)；
+* 将v的有效非0字节存入结果[]byte；
+
+```
+func MarshalVarInt64s(dst []byte, vs []int64) []byte {
+	for _, v := range vs {
+		...
+		v = (v << 1) ^ (v >> 63) // zig-zag encoding without branching.
+		u := uint64(v)
+		for u > 0x7f {
+			dst = append(dst, 0x80|byte(u))
+			u >>= 7
+		}
+		dst = append(dst, byte(u))
+	}
+	return dst
+}
+```
+
