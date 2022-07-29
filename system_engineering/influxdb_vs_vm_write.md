@@ -56,6 +56,8 @@ func (e *Engine) ShouldCompactCache(t time.Time) bool {
 * Timestamp: simple8b算法；
 * Float: XOR算法；
 * Integer: Zigzag算法；
+  * 对小整数的压缩效果较好(包括正数和负数)；
+
 * String: Snappy算法；
 * Bool: 0/1bit存储；
 
@@ -175,10 +177,10 @@ func getMaxRawRowsPerShard() int {
 
 * 压缩率：
   * influxdb对timestamp和value只进行了1次压缩；
-  * vm进行两次压缩，第1次是对[]int64的压缩，第2次对第1次压缩的的结果，使用zstd进行2次压缩，压缩率更高；
+  * vm进行两次压缩，第1次是对[]int64的压缩，第2次对第1次压缩的的结果，再使用zstd进行2次压缩，压缩率更高；
 * 数据文件：
   * influxdb的timestamp和value压缩后保存在一个文件中，格式：k-v-padding::k-v:padding::...，对于对齐的因素，中间需要填充Padding；
-  * vm的timestamp压缩后保存在timestamps.bin，value压缩后保存在values.bin，相比influxdb，发挥了列式存储的优势，压缩率更高；
+  * vm的timestamp压缩后保存在timestamps.bin，value压缩后保存在values.bin，相比influxdb，没有padding，压缩率更高；
 
 * 数据类型：
   * influxdb的timestamp使用simple8b压缩；value支持float/int/string等类型，对不同的类型使用不同的压缩算法；由于压缩算法的差异，可能达不到最大的压缩效果；

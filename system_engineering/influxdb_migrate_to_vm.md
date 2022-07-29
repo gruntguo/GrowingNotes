@@ -162,8 +162,6 @@ influx-2:
 397M    /var/lib/influxdb/data/prometheus/one_week/8
 ```
 
-
-
 influx-3:
 
 ```
