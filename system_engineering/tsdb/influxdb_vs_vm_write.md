@@ -14,7 +14,7 @@ VM存储引擎也是基于LSM，适应写多读少、连续读的场景。
 
 #### 1. 写入
 
-![](./img/influx-write.jpg)
+![](../img/influx-write.jpg)
 
 写数据是，写入cache和wal后，就返回client：
 
@@ -47,7 +47,7 @@ func (e *Engine) ShouldCompactCache(t time.Time) bool {
   * 由于influxdb的value支持float/int/bool/string等类型，针对不同的数据类型，使用不同的压缩算法；
 * 压缩完成后，需要删除wal文件；
 
-![image-20220725152853785](./img/influx-cache-compact.png)
+![image-20220725152853785](../img/influx-cache-compact.png)
 
 
 
@@ -83,7 +83,7 @@ compact仅涉及数据文件的合并，不涉及压缩。
 * smallParts对应small目录，存放最近写入的数据；
 * bigParts对应big目录，存放时间较远的数据；
 
-![](./img/vm-data-struct.jpg)
+![](../img/vm-data-struct.jpg)
 
 ```
 ├── big
@@ -157,7 +157,7 @@ func getMaxRawRowsPerShard() int {
     * 最后使用[zstd](https://github.com/facebook/zstd)对结果进行二次压缩；
       * zstd是facebook开源的无损的、实时(real-time)的zlib级别的压缩算法；
 
-![](./img/vm-compact.jpg)
+![](../img/vm-compact.jpg)
 
 * inmemoryPart(内存)的数据，每隔5s，以15个inmemoryPart为一组，合并后刷入磁盘的small目录；
 

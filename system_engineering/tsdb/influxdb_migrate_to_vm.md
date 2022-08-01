@@ -111,7 +111,7 @@ vmctl的工作原理：
 
 influxdb 3节点，迁移到vm 3节点。
 
-![](./img/influx-cluster-to-vm.jpg)
+![](../img/influx-cluster-to-vm.jpg)
 
 迁移的思路：
 
