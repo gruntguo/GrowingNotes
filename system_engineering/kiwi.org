@@ -1,0 +1,37 @@
+* kiwi
+
+  系统镜像制作工具
+
+** 基本流程
+
+   - 从 CD/DVD 启动
+   - 用户交互, 选择需要安装的包
+   - reboot
+   - 配置
+
+
+   其他 optional 组件:
+   config.xml, 主要 kiwi ng 描述文件
+
+   *.kiwi , 描述文件的 extension
+
+   config.sh, configuration 脚本,  在 prepare step 执行的脚本
+
+   images.sh, 
+     
+   CD root user data,
+
+   archives included in the config.xml
+
+   <packages type="image">
+     <archive name="custom-archive.tgz"/>
+   </packages>
+
+** installation
+
+   pip install kiwi
+
+** basic workflow
+   https://osinside.github.io/kiwi/concept_and_workflow.html
+
+   
