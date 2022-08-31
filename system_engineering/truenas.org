@@ -247,10 +247,10 @@
 	  - /sys/firmware/efi,  efi 相关, 看不懂
 	  - 
 		  
-		  
 *** 管控 Middleware
 
 **** entpy point
+
 	 'hadetect = middlewared.scripts.hadetect:main',
      'middlewared = middlewared.main:main',
      'midclt = middlewared.client.client:main',
@@ -279,7 +279,7 @@
 		 + 异步执行 __initialize
 		   - 启动 aiohttp 服务, 设置 middleware
 			 aiohttp.web.normalize_path_middleware(redirect_class=HTTPPermanentRedirect)
-		   - load plugin
+		   - load plugin, 通过plugin mixin,导入各种plugin
 		   - 启动 monitor 线程(_loop_monitor_thread);
 			 sleep(2),获取frame->获取堆栈->过滤忽略的线程?->打印死锁线程;
 			 2秒为执行完的线程认为死锁?
@@ -312,6 +312,9 @@
 
 		ServiceCallMixin:
 		  返回, serviceobj, methodobj
+
+		  例如: "system.state", 
+		  service是 system, method_name 是state
 
 ****** logger
 	   
@@ -362,6 +365,10 @@
 	   注册event:
 	   self.event_register('core.environ', 'Send on middleware process environment changes.', private=True)
        self.event_register('core.reconfigure_logging', 'Send when /var/log is remounted.', private=True)
+
+	   
+
+
 
 		
 ***** sedhelper

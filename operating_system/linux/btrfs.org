@@ -1,337 +1,1236 @@
 * btrfs
 
-** 常用
+** 常用命令
 
 ** rockstor
-   
-*** 创建 pool
 
-	add pool
+*** 概念与zfs的对比
+
+	Terminology 对比:
+
+     | btrfs             | zfs                      |           |
+     |-------------------+--------------------------+-----------|
+     | label volume      | pool                     | pool      |
+     | subvolume         | dataset                  | share dir |
+     | subvolume operate | vdev operate             | resize    |
+     | scrub             | scrub                    | scrub     |
+     | qgroup            | dataset,user,group quota | quota     |
+     |                   |                          | snapshot  |
+
 	
-	创建pool的主要步骤如下:
-	1. 创建fs
-	2. mount
-	3. 设置quota
+	
+**** pool
+
+***** basic 
+
+	  ========
+	  
+	  btrfs:
+
+	  ========
+	  
+	  Lable: 卷标, device 加入了同一个卷标, 即认为是同一个pool
+
+	  pool 的状态:  \\
+	     MISSING: btrfs fi show --raw , 存在 missing 
+		 degrade: 存在 失效 missing 的device的 pool
+
+	  pool 名字:   btrfs fi mount_point 新名字
+
+	  pool 信息获取: btrfs fi show --raw
+
+	  pool 状态: 出现 missing 状态, 即为degrade
+
+	  pool raid: btrfs fi df <mount_point>
+
+	       raid 分 meta 和 data
+	  
+	  #+begin_src
+      $sudo btrfs fi show
+      [sudo] password for guo: 
+      Label: 'hello1'  uuid: 28a933c4-6f53-4fc2-8418-edf68d3659e7
+      	Total devices 1 FS bytes used 336.00KiB
+       	devid    1 size 350.00MiB used 168.00MiB path /dev/loop0
+
+	  #+end_src
+
+	  ========
+	  
+      zfs:
+
+	  ========
+
+
+	  存在pool的概念和工具 utility zpool.
+	  
+	  pool:  zpool <pool_name> <device>
+
+	  pool的状态:
+
+	    zpool status <null_for_all|pool_name>
+
+		zpool list 
+
+	  pool 会出现degrade 状态: \\
+	  state: DEGRADED  \\
+	  pool 的降级状态会影响总的状态 \\
+
+	  replace:  zpool replace dev1 dev2 \\
+	    执行时, pool中的 device 会出现replacing 状态 \\
+	         This is equivalent to \\
+             attaching new_device, waiting for it to resilver, and then \\
+             detaching old_device.  Any in progress scrub will be cancelled. \\
+
+	  另外:
+	  
+	    zpool clear, 清除 error message
+			 
+	  #+begin_src
+        # only 显示有问题的pool
+        $ zpool status -x
+          all pools are healthy
+
+
+        $ zpool status
+          $ zpool status
+            pool: zroot
+            state: ONLINE
+            config:
+            
+            	NAME        STATE     READ WRITE CKSUM
+            	zroot       ONLINE       0     0     0
+            	  ada0p4    ONLINE       0     0     0
+            	  ada1p4    ONLINE       0     0     0
+            
+            errors: No known data errors
+
+        $ zpool list
+          NAME    SIZE  ALLOC   FREE  CKPOINT  EXPANDSZ   FRAG    CAP  DEDUP    HEALTH  ALTROOT
+          zroot  1.02T  32.9G  1011G        -         -     0%     3%  1.00x    ONLINE  -
+
+	  #+end_src
+
+***** mirror
+
+	  ========
+	  
+	  btrfs:
+
+	  ========
+
+
+	  data和meta 分开做软raid
+	  
+	  mkfs.btrfs -d raid1 -m radi1
+
+	  支持: raid0, raid1, raid1c3, raid1c4, raid5, raid6, raid10 or single or dup
+	  
+	  ========
+	  
+	  zfs:
+
+	  ========
+ 	  
+	  支持:  mirror, RAID-Z(2+1), RAID-Z2(2+2), RAID-Z3(3+3)
+
+
+**** resize
+
+***** btrfs vs zfs
+
+	  ========
+	  
+	  btrfs:
+
+	  ========
+
+	  btrfs <device list> add(default)/delete root_mnt_pt(pool)
+
+
+	  
+	  ========
+	  
+	  zfs:
+
+	  ========
+
+	  两种方式:
+	    - attach disk 到一个已经存在的vdev
+		- add vdev 到一个pool
+	  
+	  zpool attach mypool ada0p3 ada1p3
+	  zpool add mypool mirror ada2p3 ada3p3
+
+	  会出现 Resilver
+	  
+**** scrub
+
+***** btrfs vs zfs
+
+	  ========
+	  
+	  btrfs:
+
+	  ========
+
+	  检测文件系统错误: btrfs scrub start -B mount_point
+
+	  是否自动修复: 未知?
+
+
+	  ========
+	  
+	  zfs:
+
+	  ========
+
+	  检测: Verifying the data checksums
+
+	  zpool scrub <pool_name>
+
+	  执行scrub时, 会进行
+
+	  是否自动修复: 是?
+
+
+**** import
+
+	 zfs 特有:
+
+	   可以 export 一个非挂载的pool, 然后再 import
+
+	   参考:
 	   
-**** 创建fs
+	   https://docs.oracle.com/cd/E37934_01/html/E36658/gbchy.html
+	  
+**** upgrade
 
-	 mkfs.btrfs -f -d draid -m mraid -L name xpathx  
-
-       -L   lable (pool) \\
-	   -m   matedata profile (raid0, raid1, raid1c3, raid1c4, raid5, raid6 raid10, dup, single)  \\
-	   -d   data profile  \\
-	   -f   force overwrite \\ 
-	   path /dev/disk/by-id/{} \\   
-
-**** 设置quota
+	 zfs 特有:
 	 
-		btrfs device scan
-		
-		mount,
-		       默认在 /mnt2/lablename, -o options  \\
-               root的话, 参数options增加: subvol=/@  \\
-			   compress=request的传参 ('lzo', 'zlib', 'no',)  
-			   
-		先根据 label mount, 失败后再根据 device
+	   升级后
 
-	    btrfs quota enable mountpoint
+**** history
 
-*** 获取设备 stats
+	 zfs 特有:
 
-	fun: dev_stats_zero, get_dev_io_error_stats
+	   zpool history, 显示 对 pool 操作的命令
+
+	      -i, -l 显示更多信息
+
+**** mount
+
+	  ========
+	  
+	  btrfs:
+
+	  ========
+
+	  将 pool root 目录 mount 到default目录(/mnt2), \\
+	  例如, test-pool 将被mount到 /mnt2/test-pool
+
+	  由于 btrfs 没有pool的概念, 所谓的pool 是多个磁盘组成的volume, 再设置Label;
+	  
+	  换句话说: 先有device, 再组成pool;
+	  
+
+	  1. 可以根据label mount,  需要先 scan, 再mount;
+	  2. 根据device 来mount \\
+		 例如: mount -o device=/dev/sdb,device=/dev/sdc,device=/dev/sdd,device=/dev/sde /dev/sdb /data01
+
+
+	  ========
+	  
+	  zfs:
+
+	  ========
+
+	  大概不需要;
+
+	  先有 pool, 再加入device;
+
+	  可以使用以下
+	   zfs set mountpoint=/home storage/home
+
+	  
+
+**** share
+
+	 ========
+	  
+	 btrfs:
+
+	 ========
+	  
+	 share 即 subvolume;
+
+	 一些命令:
+
+	   btrfs subvolume create -i
+	 
+	   btrfs subvolume list root_pool_mnt
+
+
+	   
+	 ========
+	  
+	 zfs:
+
+	 ========
+
+	 share 如何对应? 需要讨论下;
+
+	 dataset 可以对应为share 目录
+
+	 zfs list:
+
+	    列出目录
+
+		-H, script 模式, 去除了header
+
+		-s, 各种属性
+
+	 
+
+	  destroy 是个异步的操作: \\
+	    可以使用以下命令查看哪些正在后台运行 \\
+	    zpool get freeing poolname 
+	 
+	  支持好多property:
+	    zfs get custom:costcenter zroot
+
+***** quota
+
+	  ========
+	  
+	  btrfs:
+
+	  ========
+
+	  qgroup, 使用qgroup 设置quota
+
+	  qgroup 讲真概念简单, 但逻辑有点复杂, 特别是层次分的有点奇怪, 细节参考官方文档.
+
+	  基本命令:
+	    - btrfs show qgroup -reF
+		- btrfs qgroup assign qid pqid mount_point
+
+	  ========
+	  
+	  zfs:
+
+	  ========
+
+	  zfs的quota 逻辑上更好理解一点.
+	  
+	  支持 dataset 设置quota,
+
+	  zfs set quota=10G storage/home/bob \\
+	  zfs set quota=none storage/home/bob
+
+	  支持 user quota
+
+	  zfs set userquota@joe=50G
+
+	  支持 group quota
+
+	  zfs set groupquota@firstgroup=50G
+
+	  支持 Reservations, 为dataset 预留一些空间,  TODO: 跟子dataset 和 snap的关系
+
+	  zfs set reservation=10G storage/home/bob
+
+**** snapshot
+
+	 ========
+	  
+	 btrfs:
+
+	 ========
+
+	 btrfs subvolume snapshot
+	 
+	 TODO: 细节待补充
+
+	 ========
+	  
+	 zfs:
+
+	 ========
+
+	 创建快照, 针对dataset: 
+	 
+	 zfs snapshot storage/home@08-30-08
+	 
+	 可用 ls 查看:
+	 
+	 ls /storage/home/.zfs/snapshot
+
+	  zfs set mountpoint=/home storage/home
+	 
+
+	  
+*** 其他资料
 	
-	 btrfs device stats -c moutpoint
+	Fault Management Architecture (FMA) Message Registry
+	https://illumos.org/msg/ZFS-8000-4J
 
-	 - 返回 64(2#1000000) 说明有问题
-	 - 返回 0 正常
-	 - 返回 1 dev 不是 btrfs, ERROR: not a btrfs filesystem
+
+	
+
+*** rockstor学习
+	学习 rockstor 流水帐记录.
+   
+**** Pool
+
+	 add pool
+	
+	 创建pool的主要步骤如下:
+	 1. 创建fs
+	 2. mount
+	 3. 设置quota
+	   
+***** 创建fs
+
+	  fun: add_pool
+
+	  in: pool, disks
+	  
+	  cmd: mkfs.btrfs -f -d draid -m mraid -L name xpathx  
+
+		-L   lable (pool) \\
+		-m   matedata profile (raid0, raid1, raid1c3, raid1c4, raid5, raid6 raid10, dup, single)  \\
+		-d   data profile  \\
+		-f   force overwrite \\ 
+		path /dev/disk/by-id/{} \\   
+
+	   
+***** 设置quota
+	 
+		 btrfs device scan
+		
+		 mount,
+				默认在 /mnt2/lablename, -o options  \\
+				root的话, 参数options增加: subvol=/@  \\
+				compress=request的传参 ('lzo', 'zlib', 'no',)  
+			   
+		 先根据 label mount, 失败后再根据 device
+
+	     btrfs quota enable mountpoint
+
+****** quota enable 
+
+	  enable_quota, disable_quote 包装了 switch_quota, 提供配额的 开启/关闭 功能
+	 
+******* switch_quota	 
+	  fun: switch_quota
+
+	  in: pool, flag=enable
+
+	  cmd: btrfs quota flag pool_mount_point
+
+****** rescan quota
+
+	   fun: recas_quotas
+
+	   in: pool
+
+	   cmd: btrfs quota rescan pool_mount_point
+
+****** quota is enable
+
+	   fun: are_quotas_enable
+
+	   in: mount_point
+
+	   cmd: btrfs qgroup show -f --raw mount_point
+
+	   返回0 并且 标准错误 是空或者 报warning:建议 rescan,  返回 true
+	   其他场合返回 false
+
+****** qgroup id
+
+	   fun: qgroup_id
+
+	   in: pool, share_name
+	  
+	   return: 0/sid
+
+
+
+****** qgroup max
+
+	   fun: qgroup_max
+
+	   in: mount_point
+
+	   cmd: btrfs qgroup show mnt_point
+
+	   返回最大层数?
+
+	   2015 不清楚是最大层数吗? 为什么要么是0, 要么是2015?
+	   理论上可以分很多层, 是不是为了方便管理,  rockstor 只分了两层
+
+****** qgroup create
+
+	   fun: qgroup_create,  创建share 目录时调用
+
+	   in: pool
+
+****** qgroup destroy
+
+	   fun: qgroup_destroy
+
+	   in: qid, mount_point
+
+****** quroup as assigned
+
+	   fun: qgroup_is_assigned
+
+	   in: qid, pqid, mount_point
+
+	   cmd: btrfs qgroup show -pc mount_point
+	  
+****** qgroup assign
+
+	   fun: qgroup_assign
+
+	   in: qid, pqid, mount_point
+
+	   cmd: btrfs qgroup assign qid pqid mount_point
+
+****** update quota
+
+	   fun: update_quota
+
+	   in: pool, qgroup, size_bytes
+
+	   cmd: btrfs qgroup limit none qgroup pool_mount_point
+
+	   注: 没有使用size, 这个设置真的会起作用?
+	  
+**** 获取设备 stats
+
+	 fun: dev_stats_zero, get_dev_io_error_stats
+	
+	  btrfs device stats -c moutpoint
+
+	  - 返回 64(2#1000000) 说明有问题
+	  - 返回 0 正常
+	  - 返回 1 dev 不是 btrfs, ERROR: not a btrfs filesystem
 	   
 
-**** 模拟 io error
+***** 模拟 io error
 
-	  dd  if=/dev/zero of=btrfs-loop bs=1M count=350
+	   dd  if=/dev/zero of=btrfs-loop bs=1M count=350
 	  
-	  sudo mkfs.btrfs btrfs-loop
+	   sudo mkfs.btrfs btrfs-loop
 	  
-	  sudo mount -o loop btrfs-loop /mnt/btrfs/
+	   sudo mount -o loop btrfs-loop /mnt/btrfs/
 	  
-	  sudo touch /mnt/btrfs/test.txt
+	   sudo touch /mnt/btrfs/test.txt
 	  
-	  for (( i=0;i<10000;i++ )) ;do sudo echo "string" >> /mnt/btrfs/test.txt ;done
+	   for (( i=0;i<10000;i++ )) ;do sudo echo "string" >> /mnt/btrfs/test.txt ;done
 	  
-	  echo "localuseabcdefg" >> /mnt/btrfs/test.txt
+	   echo "localuseabcdefg" >> /mnt/btrfs/test.txt
 	  
-	  sudo umount /mnt/btrfs
+	   sudo umount /mnt/btrfs
 	  
-	  sudo hexedit btrfs-loop
+	   sudo hexedit btrfs-loop
 	  
-	  sudo mount -o loop btrfs-loop /mnt/btrfs/
+	   sudo mount -o loop btrfs-loop /mnt/btrfs/
 	  
-	  sudo cp /mnt/btrfs/test.txt /mnt/btrfs/test1.txt
+	   sudo cp /mnt/btrfs/test.txt /mnt/btrfs/test1.txt
+
+	   #+begin_src
+         [/dev/loop0].write_io_errs    0
+         [/dev/loop0].read_io_errs     0
+         [/dev/loop0].flush_io_errs    0
+         [/dev/loop0].corruption_errs  3
+         [/dev/loop0].generation_errs  0
+	   #+end_src
+
+
+***** 获取 volume 使用率
+
+	  新的方式获取使用率
+	 
+	  fun: volume_usage
+
+	  in: pool, volume_id(0/*), pvolume_id=None(2015/*)
+
+	  cmd:
+
+	   1. btrfs subvolume list pool_mount_point
+	   2. btrfs qgroup show volume_dir
+
+	  回到了 ref size 和 exclued size, 由于 2015/* 两个size经常是相等的, 使用哪个都一样?
+
+
+***** 共享目录的使用率
+
+	  fun: share_usage
+
+	  in: pool, share_map, snap_map
+
+	  cmd: btrfs qgroup show mount_point
+	 
+	  return: usage_map
+
+***** pool 使用率
+
+	  fun: pool_usage
+
+	  in: mount_point
+
+	  cmd: btrfs fi usage -b mount_point
+	 
+	  return:  used / 1024
 
 	  #+begin_src
-        [/dev/loop0].write_io_errs    0
-        [/dev/loop0].read_io_errs     0
-        [/dev/loop0].flush_io_errs    0
-        [/dev/loop0].corruption_errs  3
-        [/dev/loop0].generation_errs  0
+		Overall:
+			Device size:		         367001600
+			Device allocated:		          92274688
+			Device unallocated:		         274726912
+			Device missing:		                 0
+			Used:			            524288
+			Free (estimated):		         282951680	(min: 145588224)
+			Free (statfs, df):		         281903104
+			Data ratio:			              1.00
+			Metadata ratio:		              2.00
+			Global reserve:		           3407872	(used: 0)
+			Multiple profiles:		                no
+       
+		Data,single: Size:8388608, Used:163840 (1.95%)
+           /dev/loop0	   8388608
+       
+		Metadata,DUP: Size:33554432, Used:163840 (0.49%)
+           /dev/loop0	  67108864
+       
+		System,DUP: Size:8388608, Used:16384 (0.20%)
+           /dev/loop0	  16777216
+       
+		Unallocated:
+           /dev/loop0	 274726912
+       
 	  #+end_src
-	  
-*** file system missing
 
-	fun: is_pool_missing_dev
+***** usage_bound
+
+	  fun: usage_bound
+
+	  in: disk_size, num_devices, raid_level
+
+	  return: bytes
+
+	  递归调用, 没看懂?
+	  主要是跟raid 有关, 获取实际使用率
+
+***** device usage
+
+	  fun: get_devid_usage
+
+	  in: mount_point
+
+	  cmd: btrfs device usage -b mount_point
+
+	  #+begin_src
+       $ sudo btrfs device usage -b ./
+       /dev/loop0, ID: 1
+          Device size:           367001600
+          Device slack:                  0
+          Data,single:             8388608
+          Metadata,DUP:          100663296
+          System,DUP:             67108864
+          Unallocated:           190840832
+
+	  #+end_src
+	 
+	 
+**** file system missing
+
+	 fun: is_pool_missing_dev
 	
-	btrfs fi show --raw label
+	 btrfs fi show --raw label
 
-	false, device is missing from de given pool
+	 false, device is missing from de given pool
 
-	有一个device missing, 即为false
+	 有一个device missing, 即为false
 	
-	#+begin_src
-      Label: none  uuid: 28a933c4-6f53-4fc2-8418-edf68d3659e7
-	  Total devices 1 FS bytes used 282624
-	  devid    1 size 367001600 used 92274688 path /dev/loop0
+	 #+begin_src
+       Label: none  uuid: 28a933c4-6f53-4fc2-8418-edf68d3659e7
+	   Total devices 1 FS bytes used 282624
+	   devid    1 size 367001600 used 92274688 path /dev/loop0
 
-	#+end_src
+	 #+end_src
 
-*** degrade
+**** degrade
 
-	fun: degraded_pools_found
+	 fun: degraded_pools_found
 	
-	btrfs fi show --raw label
+	 btrfs fi show --raw label
 
-	返回 Label, 正常
-	返回 missing, 降级 count + 1
+	 返回 Label, 正常
+	 返回 missing, 降级 count + 1
    
-*** set label
+**** set label
 
-	fun: set_pool_label
+	 fun: set_pool_label
 	
-	btrfs fi label dev|mnt_pt
+	 btrfs fi label dev|mnt_pt
 
-	主要是自动设置 label, 因为初始化有些是none
+	 主要是自动设置 label, 因为初始化有些是none
 
-	root 通过 setting.SYS_VOL_LABEL设置
+	 root 通过 setting.SYS_VOL_LABEL设置
 
-	#+begin_src
-    sudo btrfs filesystem label /mnt/btrfs/  hello
-    sudo btrfs filesystem show
-    Label: 'hello'  uuid: 28a933c4-6f53-4fc2-8418-edf68d3659e7
-	Total devices 1 FS bytes used 276.00KiB
-	devid    1 size 350.00MiB used 88.00MiB path /dev/loop0
+	 #+begin_src
+     sudo btrfs filesystem label /mnt/btrfs/  hello
+     sudo btrfs filesystem show
+     Label: 'hello'  uuid: 28a933c4-6f53-4fc2-8418-edf68d3659e7
+	 Total devices 1 FS bytes used 276.00KiB
+	 devid    1 size 350.00MiB used 88.00MiB path /dev/loop0
 
-	#+end_src
+	 #+end_src
 
-**** dev mount point
+***** dev mount point
 
-	 fun: dev_mount_point
+	  fun: dev_mount_point
 	 
-	 参数 device name /dev/sda
+	  参数 device name /dev/sda
 	 
-	 通过 /proc/mounts 匹配, 获取第一个匹配的 mount point
+	  通过 /proc/mounts 匹配, 获取第一个匹配的 mount point
 
-	 None 说明没有匹配到
+	  None 说明没有匹配到
 
-*** 获取所有 pool info
+**** 获取所有 pool info
 
-	fun: get_dev_pool_info
+	 fun: get_dev_pool_info
 
-	btrfs fi show --raw
+	 btrfs fi show --raw
 
-	return: {DevPoolInfo}
-	DevPoolInfo, nametuple,
-	   ("DevPoolInfo", "devid size allocated uuid label")
+	 return: {DevPoolInfo}
+	 DevPoolInfo, nametuple,
+		("DevPoolInfo", "devid size allocated uuid label")
 
-*** 获取 pool info
+**** 获取 pool info
 
-	fun: get_pool_info
+	 fun: get_pool_info
 
-	btrfs fi show --raw path(/dev/disk/by-id)
+	 btrfs fi show --raw path(/dev/disk/by-id)
 
-	#+begin_src
-	pool_info = {
-        "disks": {},
-        "hasMissingDev": False,
-        "fullDevCount": 0,
-        "missingDevCount": 0,
-    }
-	#+end_src
+	 #+begin_src
+	 pool_info = {
+         "disks": {},
+         "hasMissingDev": False,
+         "fullDevCount": 0,
+         "missingDevCount": 0,
+     }
+	 #+end_src
 
-	Dev , namedtuple , ("Dev", "temp_name is_byid devid size allocated")
+	 Dev , namedtuple , ("Dev", "temp_name is_byid devid size allocated")
 
-*** 获取 pool raid
+**** 获取 pool raid
 
-	fun: pool_raid
+	 fun: pool_raid
 
-	btrfs fi df mountpoint
+	 btrfs fi df mountpoint
 
-	#+begin_src
-    Data, single: total=8.00MiB, used=148.00KiB
-    System, DUP: total=8.00MiB, used=16.00KiB
-    Metadata, DUP: total=32.00MiB, used=112.00KiB
-    GlobalReserve, single: total=3.25MiB, used=0.00B
-	#+end_src
+	 #+begin_src
+     Data, single: total=8.00MiB, used=148.00KiB
+     System, DUP: total=8.00MiB, used=16.00KiB
+     Metadata, DUP: total=32.00MiB, used=112.00KiB
+     GlobalReserve, single: total=3.25MiB, used=0.00B
+	 #+end_src
 
-	?含义
+	 ?含义
 
-*** 获取 dev list
+**** 获取 dev list
 
-	fun: cur_devices
+	 fun: cur_devices
 	
-	in: mount point
+	 in: mount point
 
-	cmd: 	btrfs fi show mountpoint
+	 cmd: 	btrfs fi show mountpoint
 
-	#+begin_src
-    Label: 'hello'  uuid: 28a933c4-6f53-4fc2-8418-edf68d3659e7
-	Total devices 1 FS bytes used 276.00KiB
-	devid    1 size 350.00MiB used 88.00MiB path /dev/loop0
-	#+end_src
+	 #+begin_src
+     Label: 'hello'  uuid: 28a933c4-6f53-4fc2-8418-edf68d3659e7
+	 Total devices 1 FS bytes used 276.00KiB
+	 devid    1 size 350.00MiB used 88.00MiB path /dev/loop0
+	 #+end_src
 
 
-	return: /dev/loop0
+	 return: /dev/loop0
 
-*** resize
+**** resize
 
-	fun: resize_pool_cmd
+	 fun: resize_pool_cmd
 
-	in: pool, dev_list_byid, add=True
+	 in: pool, dev_list_byid, add=True
 
-	return: cmd, btrfs <device list> add(defauld)/delete root_mnt_pt(pool)
+	 return: cmd, btrfs <device list> add(defauld)/delete root_mnt_pt(pool)
 
-	cmd: btrfs device add <dev-list>
+	 cmd: btrfs device add <dev-list>
 
-	/dev/disk/by-id/{id}
+	 /dev/disk/by-id/{id}
 
-	detached- 开头的dev, 说明有missing
+	 detached- 开头的dev, 说明有missing
 
-*** 挂载pool
+**** 挂载pool
 
-	fun: mount_root
+	 fun: mount_root
 
-	in: pool
+	 in: pool
 
-	return: mount point
+	 return: mount point
 
-	默认挂载路径, /mnt2/
+	 默认挂载路径, /mnt2/
 	
-	pool.mnt_opiton 将会加入到mount 命令中的 -o 选项中, 包括 compress
+	 pool.mnt_opiton 将会加入到mount 命令中的 -o 选项中, 包括 compress
 	
-	存在两个 mount 变量, 当 default_subvol().boot_to_snap
-	   - True, subvol=/@
-	   - False,
+	 存在两个 mount 变量, 当 default_subvol().boot_to_snap
+		- True, subvol=/@
+		- False,
 
-	先根据 /dev/disk/by-label/pool.name 进行mount 操作,
-	失败后 根据/dev/disk/by-id/pool.disk_set.all() 进行, 
+	 先根据 /dev/disk/by-label/pool.name 进行mount 操作,
+	 失败后 根据/dev/disk/by-id/pool.disk_set.all() 进行, 
 
-	主要过程:
-	 1. 创建mount point dir
-	 2. 更改rw属性, chattr +i
-	 3. 获取dev by label, /dev/disk/by-label/{}
-	 4. mount dev dir
-	 5. 增加opiton
-	 6. dev scan
-	 7. 不能根据 label mount 时, 根据device id mount
+	 主要过程:
+	  1. 创建mount point dir
+	  2. 更改rw属性, chattr +i
+	  3. 获取dev by label, /dev/disk/by-label/{}
+	  4. mount dev dir
+	  5. 增加opiton
+	  6. dev scan
+	  7. 不能根据 label mount 时, 根据device id mount
 	
-*** 卸载 mount point
+**** 卸载 mount point
 
-	fun: umount_root
+	 fun: umount_root
 	
-	in: mountpoint
+	 in: mountpoint
 
-	cmd: umount -l mountpoint
+	 cmd: umount -l mountpoint
 
-	-l, lazy unmount
+	 -l, lazy unmount
 
-	获取mount状态(/proc/mount) 20 次(间隔 2秒),
-	当没有mount时, 更改rw属性为可读写, 删除dir
+	 获取mount状态(/proc/mount) 20 次(间隔 2秒),
+	 当没有mount时, 更改rw属性为可读写, 删除dir
 
-*** 获取subvolume  状态
+**** 判定 subvolume  状态
 
-	fun: is_subvol
+	 fun: is_subvol
 
-	in: mountpoint
+	 in: mountpoint
 
-	cmd: btrfs subvolume show mnt_pt
+	 cmd: btrfs subvolume show mnt_pt
 
-	cmd 结果 0, 返回True
+	 cmd 结果 0, 返回True
 	
-	return: True|False
+	 return: True|False
 
-	?subvolume
+	 true: 该 mount point 存在 subvolumn
 
-	#+begin_src
+	 #+begin_src
 	
-    /
-    	Name: 			<FS_TREE>
-    	UUID: 			07c27a72-f091-4481-9830-0334eb5b3ab4
-    	Parent UUID: 		-
-    	Received UUID: 		-
-    	Creation time: 		2022-07-07 19:19:51 +0800
-    	Subvolume ID: 		5
-    	Generation: 		19
-    	Gen at creation: 	0
-    	Parent ID: 		0
-    	Top level ID: 		0
-    	Flags: 			-
-    	Snapshot(s):
+     /
+    	 Name: 			<FS_TREE>
+    	 UUID: 			07c27a72-f091-4481-9830-0334eb5b3ab4
+    	 Parent UUID: 		-
+    	 Received UUID: 		-
+    	 Creation time: 		2022-07-07 19:19:51 +0800
+    	 Subvolume ID: 		5
+    	 Generation: 		19
+    	 Gen at creation: 	0
+    	 Parent ID: 		0
+    	 Top level ID: 		0
+    	 Flags: 			-
+    	 Snapshot(s):
     
-	#+end_src
+	 #+end_src
 
-*** 获取 subvolume 信息
+**** 获取 subvolume 信息
 
-	fun: subvol_info
+	 fun: subvol_info
 
-	in: mountpoint
+	 in: mountpoint
 	
-	cmd: btrfs subvolume show mountpoint
+	 cmd: btrfs subvolume show mountpoint
 
-*** 增加share 目录
+**** 增加share 目录
 
-	share 即 subvolume
+	 share 即 subvolume
 
-	fun: add_share
+	 fun: add_share
 
-	in: pool, sharename, qid
+	 in: pool, sharename, qid
 	
-	cmd: btrfs subvolume create -i 
+	 cmd: btrfs subvolume create -i 
 	
-	share moutponint: /root_mount_point/sharename
+	 share moutponint: /root_mount_point/sharename
 
-	qid: 子卷配额组, qgroup_create, \\
-	   default, -1/-1 , 返回非-1/-1, 说明quota enabled \\
-	   highest quota 2015/n
+	 qid: 子卷配额组, qgroup_create, \\
+		default, -1/-1 , 返回非-1/-1, 说明quota enabled \\
+		highest quota 2015/n
 
-	#+BEGIN_src
-     sudo btrfs qgroup show /mnt/btrfs/
-     qgroupid         rfer         excl 
-     --------         ----         ---- 
-     0/5         164.00KiB    164.00KiB 
+	 #+BEGIN_src
+      sudo btrfs qgroup show /mnt/btrfs/
+      qgroupid         rfer         excl 
+      --------         ----         ---- 
+      0/5         164.00KiB    164.00KiB 
      
-	#+end_src
+	 #+end_src
 
 	
-	qgroupid: level/id
+	 qgroupid: level/id
 	
-	  level 0 is reserved to the qgroups associated with subvolumes.
+	   level 0 is reserved to the qgroups associated with subvolumes.
 
-	  0/5 是 root subvolumn
+	   0/5 是 root subvolumn
 	  
 
-	btrfs show qgroup
-	    exclusively (excl)
-	    shared/referred to (rfer)
+	 btrfs show qgroup
+	     exclusively (excl)
+	     shared/referred to (rfer)
 
-	btrfs qgroup show -reF ./a
-	sudo  btrfs qgroup show -p ./a
+	 btrfs qgroup show -reF ./a
+	 sudo  btrfs qgroup show -p ./a
 	
-	exclusive:
-	  Exclusive of a qgroup conveys the useful information
-	  how much space will be freed in case all subvolumes of the qgroup get deleted
+	 exclusive:
+	   Exclusive of a qgroup conveys the useful information
+	   how much space will be freed in case all subvolumes of the qgroup get deleted
 
 
-	注:
-	https://btrfs.readthedocs.io/en/latest/btrfs-qgroup.html
-	Qgroup is not stable yet and will impact performance in current
-	mainline kernel (v4.14).
+	 注:
+	 https://btrfs.readthedocs.io/en/latest/btrfs-qgroup.html
+	 Qgroup is not stable yet and will impact performance in current
+	 mainline kernel (v4.14).
 
+**** 挂载共享目录
+
+	 fun: mount_share
+	 in: share, monut point
+	 cmd: mount -t btrfs -o subvol_str(subvolid=qgroup[2:]), pooldevice , mountpoint
+
+
+	 fun: mount_snap
+	 in: share, snap_name, snap_qgroup, snap_mnt
+	 cmd: mount -t btrfs -o subvol_str(subvolid=qgroup[2:]), pooldevice , mountpoint
+
+**** 默认 subvol
+
+	
+	 cmd: btrfs subvol get-default /mnt/btrfs
+
+	 由于 snapshot 和 rollback 后的qgroup, 还有subvol id 如何设置, 需要后面补充?
+
+**** snapshot id
+
+	 cmd: btrfs subvol list -s pool_mount_point
+
+
+**** share info
+	
+	 cmd:
+	   btrfs subvol list -s mnt_point,  snapshot id
+	   btrfs subvol list -p mnt_point,  parent id
+
+	   '/@',  snap vol ?
+
+***** share id
+
+	  fun: share_id
+
+	  in: pool, sharename
+
+	  cmd: btrfs subvolume list root_pool_mnt
+
+***** remove_share
+
+	  fun: remove_share
+
+	  in: pool, sharename, pgroup, force=false
+
+	  cmd: \\
+		1. umount -l mountpoint,  (fun: umount_root)
+		2. btrfs subvol list -o subvol_mountpoint
+		3. btrfs subvol delete subvol, 删除下面的 子volume
+		4. btrfs subvol delete subvol, 删除该mount point的volume
+		5. btrfs qgroup show mountpoint (fun: qgroup_destroy), 查找 qgroup
+		6. btrfs qgroup destroy qid mountpoint, 删除 qgroup
+
+		  
+***** qgroup_destroy
+
+	  fun: qgroup_destroy
+
+	  in: gid, mount_point
+
+	  cmd:
+	     - 查找 btrfs qgroup show moutpoint
+		 - 删除 btrfs qgroup destroy qid mountpoint
+	 
+**** snap
+	
+***** 获取 snap 详细信息	
+
+	  fun: parse_snap_details
+
+	  in: pool mount point, snap path
+
+	  return:
+		- snapshot name or None , if snap is clone
+		- writable
+		- is_clone
+
+***** 获取 snap 信息
+
+	  fun: snaps_info
+	  cmd: btrfs subvolume list -u -p -q mountpoint
+	  return: snap dict
+
+	  #+begin_src
+
+       sudo btrfs subvol list -u -p -q .
+       ID 256 gen 42 parent 5 top level 5 parent_uuid -
+           uuid a9d20f4c-555b-d746-92d0-21280852e009 path a
+       ID 257 gen 42 parent 5 top level 5 parent_uuid -
+           uuid 41fe9e5f-c0dd-9941-875e-3d60fd880ef0 path b
+
+
+	  #+end_src
+
+	 
+	  
+***** 获取 property
+
+	  fun: get_property
+
+	  in:  mount point, property name
+
+	  cmd: btrfs property get mnt_pt prop_name 
+
+	  mount point: Vol(pool)/subvol(share/snap)
+
+	  suppont property :
+		- ro
+		- compression
+		- label
+
+	#+begin_src
+	 $ btrfs property get  .
+		ro=false
+		label=hello
+	#+end_src
+
+
+***** 获取 snap
+
+	  fun: get_snap, \\
+	       get_oldest_snap, get_lastest_snap 是上面函数的包装
+	 
+
+	  in: subvol path, oldest, num_retain, regex , test_model
+
+	  cmd: btrfs subvol list -o subvol_path
+
+	       -o 获取指定目录的 subvolumes,  但可能会被deprecated
+		   参考:
+		   https://www.mail-archive.com/linux-btrfs@vger.kernel.org/msg75514.html
+
+
+***** 删除 snap
+
+	  fun: remove_snap
+
+	  in: pool, share_name, snap_name, snap_qgroup
+
+	  snap path:  pool_root_mount/.snapshots/share_name/snap_name
+
+	  cmd : \\
+
+		该 snap path 存在 subvolume ? 
+		- btrfs subvolume delete snap_path
+		- qgroup_desnroy(查找并删除qgroup)
+
+		不存在
+		- btrfs subvolume list -s root_mount
+		- 模式匹配, ID.*{snap_name}$,  snap=root_mountpoint/id
+		- btrfs subvolume delete snap
+	
+***** add snap
+
+	  add_snap, add_clone 是对 add_snap_helper的包装
+	 
+****** snap helper
+	  fun: add_snap_helper
+
+	  in: orig_path, snap_path
+
+	  cmd: btrfs subvolume snapshot orig_path snap
+
+		当 clone 场景 : \\
+	       从snapshot 克隆: orig_path = pool_root_mountpoint/.snapshots/share/ \\
+		   其他:            orig_path = pool_root_mountpoint/share_path 
+
+		当 add snap 场景:
+	       orig_path = share_mountpoint
+		   snap_path = share_mountpoint/.snapshots/share_subvol_name/snap_name
+
+		  
+**** scrub
+
+***** scrub_start
+
+	  fun: scrub_start
+
+	  in: pool
+
+	  ref: pool_scrub.py
+
+	  cmd: btrfs scrub start -B mount_point
+
+	     -B:  do not background and print scrub statistics when  finished
+      注: 执行是开启新的进程进行
+
+	  #+begin_src
+		scrub done for 28a933c4-6f53-4fc2-8418-edf68d3659e7
+		Scrub started:    Mon Jul 11 16:12:27 2022
+		Status:           finished
+		Duration:         0:00:00
+		Total to scrub:   88.00MiB
+		Rate:             0.00B/s
+		Error summary:    csum=1
+          Corrected:      0
+          Uncorrectable:  1
+          Unverified:     0
+		ERROR: there are uncorrectable errors
+
+	  #+end_src
+
+***** scrub_status
+
+	  fun: scrub_status
+
+	  in: pool
+
+	  cmd: btrfs scrub status -R mount_point
+	 
+	 
+	  #+begin_src
+         UUID:             28a933c4-6f53-4fc2-8418-edf68d3659e7
+         Scrub started:    Mon Jul 11 16:12:27 2022
+         Status:           finished
+         Duration:         0:00:00
+        	 data_extents_scrubbed: 8
+        	 tree_extents_scrubbed: 22
+        	 data_bytes_scrubbed: 163840
+        	 tree_bytes_scrubbed: 360448
+        	 read_errors: 0
+        	 csum_errors: 1
+        	 verify_errors: 0
+        	 no_csum: 0
+        	 csum_discards: 0
+        	 super_errors: 0
+        	 malloc_errors: 0
+        	 uncorrectable_errors: 1
+        	 unverified_errors: 0
+        	 corrected_errors: 0
+        	 last_physical: 105906176
+
+	  #+end_src
+
+
+**** resize
+
+***** resize pool
+
+	  fun: start_resize_pool
+
+	  in: cmd
+
+	  ref:
+	     huey: 轻量级异步任务队列简介 \\
+	     标记为 @task, 被huey 调用 async bypass function (start_resize_pool.call_local())
+
+***** balance
+
+	  fun: start_balance
+
+	  in: mount_point, force=None, convert=None
+
+	  cmd: btrfs balance start mount_point
+
+	       force 时, 增加 -f 参数
+
+		   dconvert mconvert, data 和 meta 的转换, 例如: \\
+		      btrfs balance start -dconvert=raid5  /mydata \\
+			  btrfs balance start -mconvert=raid5  /mydata \\
+
+			  查看: btrfs filesystem filesystem mount_point
+
+
+	  #+begin_src
+         sudo dmesg |tail
+		[712489.044636] BTRFS info (device loop0): relocating block group 30408704 flags metadata|dup
+		[712489.069940] BTRFS info (device loop0): found 5 extents, stage: move data extents
+		[712489.089790] BTRFS info (device loop0): relocating block group 22020096 flags system|dup
+		[712489.105284] BTRFS info (device loop0): found 1 extents, stage: move data extents
+		[712489.125579] BTRFS info (device loop0): relocating block group 13631488 flags data
+		[712489.133105] BTRFS warning (device loop0): csum failed root -9 ino 259 off 77824 csum 0xad822372 expected csum 0x4082356f mirror 1
+		[712489.133113] BTRFS error (device loop0): bdev /dev/loop0 errs: wr 0, rd 0, flush 0, corrupt 5, gen 0
+		[712489.133426] BTRFS warning (device loop0): csum failed root -9 ino 259 off 77824 csum 0xad822372 expected csum 0x4082356f mirror 1
+		[712489.133433] BTRFS error (device loop0): bdev /dev/loop0 errs: wr 0, rd 0, flush 0, corrupt 6, gen 0
+		[712489.140867] BTRFS info (device loop0): balance: ended with status: -5
+       
+	  #+end_src
+
+***** balance status
+
+	  fun: balance_status
+
+	  in: pool
+
+	  cmd: btrfs balance status mount_point
+
+	 
+***** balance status internal
+
+	  fun: balance_status_internal
+
+	  in: pool
+
+	  cmd: btrfs dev usage -b mount_point
+
+	  快速获取状态的一个方法, 因为 balance 可能会持续很久?
+	  如果 unallocated 的值 是个负, 表明 balance 可能还没做完.
+
+	  #+begin_src
+       $ sudo btrfs dev usage -b ./
+       /dev/loop0, ID: 1
+          Device size:           367001600
+          Device slack:                  0
+          Data,single:             8388608
+          Metadata,DUP:          100663296
+          System,DUP:             67108864
+          Unallocated:           190840832
+	  #+end_src
+
+**** device scan
+
+	 fun : device_scan
+
+	 in: device list
+
+	 cmd: btrfs device scan
+
+	 #+begin_src
+       $ sudo btrfs device scan /dev/loop0
+       Scanning for btrfs filesystems on '/dev/loop0'
+	 #+end_src
+	 
+**** btrfs uuid
+
+	 fun: btrfs_uuid
+
+	 cmd: btrfs filesystem show mount_point
+
+	

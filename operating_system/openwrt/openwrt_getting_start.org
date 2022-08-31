@@ -1,0 +1,72 @@
+* open wrt getting start
+
+** installation
+
+** 服务   
+   
+*** ubus
+
+   curl -d '{ "jsonrpc": "2.0", "id": 1, "method": "call", "params": [ "00000000000000000000000000000000", "session", "login", { "username": "root", "password": "xxxxxx"  } ] }'  http://<ip>/ubus
+
+   
+*** ash
+
+	https://www.in-ulm.de/~mascheck/various/ash/#busybox
+	
+*** procd
+
+	
+*** ssh
+
+	dropbear
+	https://openwrt.org/docs/guide-quick-start/sshadministration
+
+*** logread
+
+*** fwknop
+	单包认证
+	fwknop实现了基于单包认证(SPA)的强服务隐藏授权协议，SPA只需要一个加密的单包，无需重发，通过哈希码（HMAC）授权，就能和目标服务进行信息传输，目标服务常常位于防火墙后。
+	https://openwrt.org/docs/guide-user/services/fwknop
+
+*** fail2ban
+
+	TODO, research the code
+
+	
+	
+** uci
+
+   ucd: Unified Configuration Interface
+
+*** uci default   
+   /etc/uci-default , run by /etc/init.d/boot
+
+   #+begin_src
+    uci_apply_defaults() {
+	. /lib/functions/system.sh
+
+	cd /etc/uci-defaults || return 0
+	files="$(ls)"
+	[ -z "$files" ] && return 0
+	mkdir -p /tmp/.uci
+	for file in $files; do
+		( . "./$(basename $file)" ) && rm -f "$file"
+	done
+	uci commit
+    }
+
+   #+end_src
+
+   JFFS2 & cramfs
+   
+   Flash 设备而发展的两种文件系统JFFS2和cramfs
+
+   JFFS2和cramfs都是基于MTD驱动程序。
+   JFFS2文件系统是第二代日志闪存文件系统，主要应用在NOR flash，并提供耗损均衡技术。
+   缺点是当文件系统变满时，因为垃圾收集的增多导致运行速度会受影响。JFFS2文件系统挂载时会扫描整个flash中的内容。
+
+   Cramfs文件系统是一个简单小巧的文件系统，可以对文件进行压缩，很适合放到小容量的ROM中，Cramfs属于一种只读压缩文件系统。
+   Cramfs速度快效率高，由于只读特性可以保护文件系统免受破坏。
+
+   [[file:img/jffs2.png][mtd]]
+   

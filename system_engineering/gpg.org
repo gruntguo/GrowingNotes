@@ -1,0 +1,70 @@
+* gpg
+
+** 产生
+
+   生成key:
+   gpg --full-generate-key
+   
+   生成撤销证书:
+   gpg --gen-revoke <id>
+
+   列出:
+   gpg --list-keys
+
+   删除:
+   gpg --delete-secret-keys <id>
+   gpg --delete-keys <id>
+   
+   导出公钥:
+   gpg --armor --output public-key.txt --export <id>
+
+   导出私钥:
+   gpg --armor --output public-key.txt --export-secret-keys <id>
+
+   发送到服务器
+   gpg --send-keys --keyserver kering.debian.org
+
+   指纹
+   gpg --fingerprint <id>
+
+   导入
+   gpg --import <公钥/私钥>
+
+   查找
+   gpg --keyserver keys.openpgp.org --search-keys <id>
+
+   从服务器导入
+   gpg --keyserver keys.openpgp.org --recv-keys xxxxxx
+
+** 加密解密
+   
+   加密:
+   gpg --recipient <id> --output demo.en.txt --encrypt demo.txt
+   gpg --recipient xxx --output demo.en.txt --encrypt demo.txt
+
+   解密:
+   gpg --output demo.dn.txt --decrypt demo.en.txt
+
+   签名:
+   gpg --sign demo.txt
+   gpg --local-user <id> --sign demo.txt
+
+   gpg --detach-sign demo.txt
+
+** 验证
+
+   gpg --verify log.txt.asc log.txt
+
+** 参考
+
+   https://wiki.debian.org/Keysigning
+   http://www.ruanyifeng.com/blog/2013/07/gpg.html
+
+   
+   
+ 
+   
+   
+   
+   
+   

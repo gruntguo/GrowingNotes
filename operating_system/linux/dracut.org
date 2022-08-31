@@ -1,0 +1,80 @@
+* dracut
+
+** 基本介绍
+   
+   dracut 是一个事件驱动的 initramfs 基础设施。
+   dracut(工具)被用来通过拷贝工具和文件，
+   从一个已经安装的系统创建一个 initramfs 镜像，
+   并将镜像与dracut框架结合在一起。
+
+   其目录通常在:
+   /usr/lib/dracut/modules.d/
+
+   其主要作用是在挂载 rootfs 前, 充当文件系统, 做各项准备工作.
+
+   有以下几个场景:
+     - 探测硬件以便 kernel 可以load相应的模块
+	 - 文件系统可能在 NFS, LVM, soft raid上, mount 前做些准备
+	 - hibernation, 休眠后会把系统dump在一个swap分区或者文件上,下次启动时要加载
+   
+** boot 过程
+
+   - Host-only mode: 定制为特定的系统准备, 例如,ATA, SCSI
+   - default mode: 更加通用的
+
+*** mount rootfs 的步骤
+
+	- hardware driver load, 内核支持的 fs 会打包进去, udev 发现硬件后对应的操作
+	- video 驱动被加载,  用来显示 boot rd.splash screen
+	- rootfs 是 NFS 的场合, 拉起nic, 从dhcp获取地址, 获取NFS share, 最后mount
+	- rootfs 是 Raid,  调用 standard MD(Multiple Devices) utilities 去 scan
+	- rootfs 是 LVM, 调用 LVM 工具集
+	- rootfs 是 加密设备时, 显示提示,用户交互输入密码或者插入usb 电子狗
+	  
+*** udev
+
+	an event-driven hotplug agent, 根据规则匹配调用 helper programs;
+	并行执行
+
+	udev是一个设备管理工具，udev以守护进程的形式运行，
+	通过侦听内核发出来的uevent来管理/dev目录下的设备文件。
+	udev在用户空间运行，而不在内核空间 运行
+
+** shutdown
+
+   在 systemd 管理的Linux 中, 关机过程需要 initramfs
+
+
+   - systemd switches to the shutdown.target
+   - systemd starts $prefix/lib/systemd/system/shutdown.target.wants/dracut-shutdown.service
+   - dracut-shutdown.service executes /usr/lib/dracut/dracut-initramfs-restore which unpacks the initramfs to /run/initramfs
+   - systemd finishes shutdown.target
+   - systemd kills all processes
+   - systemd tries to unmount everything and mounts the remaining read-only
+   - systemd checks, if there is a /run/initramfs/shutdown executable
+   - if yes, it does a pivot_root to /run/initramfs and executes
+	  ./shutdown. The old root is then mounted on /oldroot.
+	  /usr/lib/dracut/modules.d/99shutdown/shutdown.sh is the shutdown executable.
+   - shutdown will try to unmount every /oldroot mount and calls the various shutdown hooks from the dracut modules 
+   
+	 
+** 命令行工具
+
+*** dracut
+
+	创建镜像
+
+	默认地址:  /boot/initramfs-.img
+
+*** lsinitrd
+
+	显示镜像内容
+
+*** mkinitrd
+p
+	dracut 的 wrapper
+
+
+** 参考
+
+   https://mirrors.edge.kernel.org/pub/linux/utils/boot/dracut/dracut.html#dracutkernel7

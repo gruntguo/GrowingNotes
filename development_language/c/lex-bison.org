@@ -1,0 +1,70 @@
+* lex-bison
+
+** flex
+  
+*** 基础
+
+	yylex 的函数，该函数的作用就是扫描输入文件（默认情况下为标准输入），
+	当扫描到一个完整的、最长的、可以和某条规则的正则表达式所匹配的字符串时，
+	该函数会执行此规则后面的 C 代码。如果这些 C 代码中没有 return 语句，
+	则执行完这些 C 代码后， yylex 函数会继续运行，开始下一轮的扫描和匹配。
+
+  
+*** 全局变量
+
+	yyleng
+	yytext
+
+
+	#+begin_src
+      %%
+      [0-9]+  printf("?");
+      #       return 0;
+      .       ECHO;
+      %%
+     
+      int main(int argc, char* argv[]){
+     	 yylex();
+     	 return 0;
+      }
+     
+      int yywrap(){
+     	 return 1;
+      }
+	#+end_src
+
+
+** bison
+
+   T, terminal set
+   N, non-terminal set
+   V, alphabet,符号集合, T 与 N 的并集,
+   a string of symbols, 一串符号, 只有终结符的符号串成为句子(sentence)
+   production, 一个描述符号串如何转换的规则.   A -> u,  A 是非终结符, u是字符串
+   production set, P : 一个由有限个产生式组成的集合
+   expand, 展开, 一个动作, 将一个产生式 A -> u 应用到一个含有 A 的符号串 vAw 上,
+                 用 u 代替该符号串中的 A, 得到新字符串 vuw
+   reduce, 折叠, 一个动作, 将一个产生式 A -> u 应用到一个含有 u 的符号串 vuw 上,
+                 用 A 代替符号串中的 u, 得到新字符串 vAw
+
+   start symbol , S , N 中的一个特定元素
+   derivate , 推导, 一个过程, 一个从符号串u 开始, 应用一系列产生式, 展开到符号串 v
+              若 v 可以由 u 推导得到, 可写成 u=>v
+   context-free grammar, CFG, 上下文无关语法 G, 一个4元组 (T,N,P,S)
+   parse, 解析, 一个过程, 给定一个句子, s 和 语法G, 判断 s 是否属于 G ;
+
+   一个上下文无关语法 G 就是由一个终结符集合 T ，一个非终结符集合 N （ N 和 T 不相交），
+   一个产生式集合 P ，以及一个起始符号 S （S ∈ N）组成。
+   由语法 G 推导（产生）出来的所有的句子的集合称为 G 语言。
+   因此一个语法可以代表一个句子集合，也就是一个语言。
+
+   产生歧义, 可以引入优先级
+
+   LL, 自顶向下
+   LR, 自底向上
+
+** ref
+   学习笔记: https://www.cnblogs.com/lit10050528/p/3944489.html
+   GNU: https://www.gnu.org/software/bison/manual/bison.html#Introduction
+   
+   

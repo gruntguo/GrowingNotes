@@ -1,0 +1,17 @@
+* kiwi
+
+** cmd
+
+*** normal build
+
+	sudo kiwi-ng --profile vdisk system build \
+	--description ./ \
+	--target-dir /tmp/myimage
+
+   
+*** box build
+
+	sudo kiwi-ng --type iso system boxbuild
+	--box leap --
+	--description kiwi/build-tests/x86/leap/test-image-disk       --set-repo obs://openSUSE:Leap:15.3/standard       --target-dir /tmp/myimage
+	

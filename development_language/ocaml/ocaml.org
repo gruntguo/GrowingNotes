@@ -1276,132 +1276,8 @@ let rec destutter = function
 
 	 
 	  
-** opam 库
-   textwrap : 包装长文本
-   uri:
-   yojson:
-   cohttp:
-
-*** uri
-
-	#+begin_src ocmal
-	 let base_uri Uri.of_string "http://api.duckduckgo.com/?format=json" in
-     Uri.add_query_param base_uri ("q", [ query ])
-	#+end_src
-
-*** Yojson
-
-	Yojson.Safe.from_string json
-
-	ydump:
-	    Pretty-printed JSON
-
-*** atd
 	
-	Adjustable Type Definitions
-
-	ATD is the OCaml library providing a parser for the ATD language
-	and various utilities. ATD stands for Adjustable Type Definitions
-	in reference to its main property of supporting annotations
-	that allow a good fit with a variety of data formats.
 	
-	auto gen json parser
-
-	atdgen -i github.atd
-	atdgen -j github.atd
-
-	
-*** cohttp	
-
-	Cohttp_async.Client.get (query_uri word) >>= fun(_, body) ->
-	Cohttp_async.Body.to_string body >>| fun string ->
-	(word, get_definition_from_json string)
-
-	#require "cohttp-async" ;;
-	Cohttp_async.Client.get ;;
-
-	Cohttp_async.Client.get ~interrupt
-	当interrput is determined, 会关闭client connection
-
-	
-*** Wrapper module
-	Wrapper module is from textwrap package
-
-*** Deferred.all
-	Deferred.all to wait for all the results. 
-	#+bigin_src ocmal
-	(* Run many searches in parallel, printing out the results after they're all
-   done. *)
-	let search_and_print words =
-	Deferred.all (List.map words ~f:get_definition) >>| fun results ->
-	List.iter results ~f:print_result
-
-	(* Run many searches in parallel, printing out the results as you go *)
-	let search_and_print words =
-	Deferred.all_unit
-    (List.map words ~f:(fun word -> get_definition word >>| print_result))
-
-	#+end_src
-
-*** Mutex & Nano_mutex
-	Mutex: standard library
-	Nano_Mutex: more efficient
-	  creating a Nano_mutex.t is 20 times faster than creating a Mutex.t
-	  and acquiring the mutex is about 40 percent faster
-	
-*** patdiff
-
-*** lambdasoup
-	#+begin_src
-    let get_href_hosts soup =
-    Soup.select "a[href]" soup
-    |> Soup.to_list
-    |> List.map ~f:(Soup.R.attribute "href")
-    |> Set.of_list (module String)      
-
-let%expect_test _ =
-  let example_html = {|
-    <html>
-      Some random <b>text</b> with a
-      <a href="http://ocaml.org/base">link</a>.
-      And here's another
-      <a href="http://github.com/ocaml/dune">link</a>.
-      And here is <a>link</a> with no href.
-    </html>|}
-  in
-  let soup = Soup.parse example_html in
-  let hrefs = get_href_hosts soup in
-  print_s [%sexp (hrefs : Set.M(String).t)]
-	#+end_src
-
-
-*** Quoted strings
-	#+begin_src
-	{|This is a quoted string|} ;;
-    - : string = "This is a quoted string"
-
-    {xxx|This is how you write a {|quoted string|}|xxx} ;;
-    - : string = "This is how you write a {|quoted string|}"
-	#+end_src
-
-*** unicode
-	sedlex ： https://github.com/ocaml-community/sedlex
-	uutf   ： https://erratique.ch/software/uutf
-	
-*** odig
-
-	[[https://erratique.ch/software/odig][odig link]]
-
-    [[https://erratique.ch/software/odig/doc/manual.html][manual]]
-	
-*** ocaml-print-intf
-	opam install ocaml-print-intf
-	根据 .ml 生成 .mli 
-
-*** weak
-
-    weak pointer, 会被垃圾回收, 相较于普通let 复制的pointer或引用
-    
 ** 解析
    ocmalyacc
    menhir
@@ -1511,7 +1387,191 @@ let%expect_test _ =
    
    https://v2.ocaml.org/manual/lexyacc.html
 
+
+** opam 库
+   textwrap : 包装长文本
+   uri:
+   yojson:
+   cohttp:
+
+*** uri
+
+	#+begin_src ocmal
+	 let base_uri Uri.of_string "http://api.duckduckgo.com/?format=json" in
+     Uri.add_query_param base_uri ("q", [ query ])
+	#+end_src
+
+*** Yojson
+
+	Yojson.Safe.from_string json
+
+	ydump:
+	    Pretty-printed JSON
+
+*** atd
 	
+	Adjustable Type Definitions
+
+	ATD is the OCaml library providing a parser for the ATD language
+	and various utilities. ATD stands for Adjustable Type Definitions
+	in reference to its main property of supporting annotations
+	that allow a good fit with a variety of data formats.
+	
+	auto gen json parser
+
+	atdgen -i github.atd
+	atdgen -j github.atd
+
+*** cohttp	
+
+	Cohttp_async.Client.get (query_uri word) >>= fun(_, body) ->
+	Cohttp_async.Body.to_string body >>| fun string ->
+	(word, get_definition_from_json string)
+
+	#require "cohttp-async" ;;
+	Cohttp_async.Client.get ;;
+
+	Cohttp_async.Client.get ~interrupt
+	当interrput is determined, 会关闭client connection
+
+*** Wrapper module
+	Wrapper module is from textwrap package
+
+*** Deferred.all
+	Deferred.all to wait for all the results. 
+	#+bigin_src ocmal
+	(* Run many searches in parallel, printing out the results after they're all
+   done. *)
+	let search_and_print words =
+	Deferred.all (List.map words ~f:get_definition) >>| fun results ->
+	List.iter results ~f:print_result
+
+	(* Run many searches in parallel, printing out the results as you go *)
+	let search_and_print words =
+	Deferred.all_unit
+    (List.map words ~f:(fun word -> get_definition word >>| print_result))
+
+	#+end_src
+
+*** Mutex & Nano_mutex
+	Mutex: standard library
+	Nano_Mutex: more efficient
+	  creating a Nano_mutex.t is 20 times faster than creating a Mutex.t
+	  and acquiring the mutex is about 40 percent faster
+	
+*** patdiff
+
+*** lambdasoup
+	#+begin_src
+    let get_href_hosts soup =
+    Soup.select "a[href]" soup
+    |> Soup.to_list
+    |> List.map ~f:(Soup.R.attribute "href")
+    |> Set.of_list (module String)      
+
+let%expect_test _ =
+  let example_html = {|
+    <html>
+      Some random <b>text</b> with a
+      <a href="http://ocaml.org/base">link</a>.
+      And here's another
+      <a href="http://github.com/ocaml/dune">link</a>.
+      And here is <a>link</a> with no href.
+    </html>|}
+  in
+  let soup = Soup.parse example_html in
+  let hrefs = get_href_hosts soup in
+  print_s [%sexp (hrefs : Set.M(String).t)]
+	#+end_src
+
+*** Quoted strings
+	#+begin_src
+	{|This is a quoted string|} ;;
+    - : string = "This is a quoted string"
+
+    {xxx|This is how you write a {|quoted string|}|xxx} ;;
+    - : string = "This is how you write a {|quoted string|}"
+	#+end_src
+
+*** unicode
+	sedlex ： https://github.com/ocaml-community/sedlex
+	uutf   ： https://erratique.ch/software/uutf
+	
+*** odig
+
+	[[https://erratique.ch/software/odig][odig link]]
+
+    [[https://erratique.ch/software/odig/doc/manual.html][manual]]
+	
+*** ocaml-print-intf
+	opam install ocaml-print-intf
+	根据 .ml 生成 .mli 
+
+*** weak
+
+    weak pointer, 会被垃圾回收, 相较于普通let 复制的pointer或引用
+
+*** react
+
+	https://erratique.ch/software/react/doc/React/index.html
+
+	响应式,
+
+	event, signal
+
+	S.hold,   last
+	S.switch,
+
+*** stream
+
+	https://www2.ocaml.org/learn/tutorials/streams.html
+	
+	stream.from 从callback函数创建一个stream,
+
+	#+begin_src ocaml
+      # let in_channel = open_in "README.md";;
+        val in_channel : in_channel = <abstr>
+      # let lines = line_stream_of_channel in_channel;;
+
+      # Stream.next lines;;
+        (*返回一个item或者raise a failure*)
+
+      (* build on *)
+      # #load "str.cma";;
+      # let line_stream_of_string string =
+        Stream.of_list (Str.split (Str.regexp "\n") string);;
+	#+end_src
+
+*** lwt
+
+	http://ocsigen.org/lwt/latest/manual/manual
+
+	p promise, f fun
+	
+	lwt.t  promise
+	Lwt.bind p f             
+	Lwt.wait
+	Lwt.state (Lwt.return 42)
+	Lwt.state (Lwt.fail Exit)
+
+	Lwt.task    cancelable promise
+	Lwt.cancel
+	Lwt.on_cancel
+	Lwt.protected  prevent cancel
+
+	Lwt.join
+	Lwt.choose
+	Lwt.pick      like choose, will cancel all other promise
+
+	Lwt_main.run
+
+	Lwt_mvar
+	
+	logs.lwt
+	lwt.unix
+
+	
+   
 ** ref
 
    real world:

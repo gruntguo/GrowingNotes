@@ -1,0 +1,2360 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<!-- 2022-07-11 Mon 20:48 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>&lrm;</title>
+<meta name="generator" content="Org mode" />
+<meta name="author" content="guo" />
+<style type="text/css">
+ <!--/*--><![CDATA[/*><!--*/
+  .title  { text-align: center;
+             margin-bottom: .2em; }
+  .subtitle { text-align: center;
+              font-size: medium;
+              font-weight: bold;
+              margin-top:0; }
+  .todo   { font-family: monospace; color: red; }
+  .done   { font-family: monospace; color: green; }
+  .priority { font-family: monospace; color: orange; }
+  .tag    { background-color: #eee; font-family: monospace;
+            padding: 2px; font-size: 80%; font-weight: normal; }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  .org-right  { margin-left: auto; margin-right: 0px;  text-align: right; }
+  .org-left   { margin-left: 0px;  margin-right: auto; text-align: left; }
+  .org-center { margin-left: auto; margin-right: auto; text-align: center; }
+  .underline { text-decoration: underline; }
+  #postamble p, #preamble p { font-size: 90%; margin: .2em; }
+  p.verse { margin-left: 3%; }
+  pre {
+    border: 1px solid #ccc;
+    box-shadow: 3px 3px 3px #eee;
+    padding: 8pt;
+    font-family: monospace;
+    overflow: auto;
+    margin: 1.2em;
+  }
+  pre.src {
+    position: relative;
+    overflow: auto;
+    padding-top: 1.2em;
+  }
+  pre.src:before {
+    display: none;
+    position: absolute;
+    background-color: white;
+    top: -10px;
+    right: 10px;
+    padding: 3px;
+    border: 1px solid black;
+  }
+  pre.src:hover:before { display: inline; margin-top: 14px;}
+  /* Languages per Org manual */
+  pre.src-asymptote:before { content: 'Asymptote'; }
+  pre.src-awk:before { content: 'Awk'; }
+  pre.src-C:before { content: 'C'; }
+  /* pre.src-C++ doesn't work in CSS */
+  pre.src-clojure:before { content: 'Clojure'; }
+  pre.src-css:before { content: 'CSS'; }
+  pre.src-D:before { content: 'D'; }
+  pre.src-ditaa:before { content: 'ditaa'; }
+  pre.src-dot:before { content: 'Graphviz'; }
+  pre.src-calc:before { content: 'Emacs Calc'; }
+  pre.src-emacs-lisp:before { content: 'Emacs Lisp'; }
+  pre.src-fortran:before { content: 'Fortran'; }
+  pre.src-gnuplot:before { content: 'gnuplot'; }
+  pre.src-haskell:before { content: 'Haskell'; }
+  pre.src-hledger:before { content: 'hledger'; }
+  pre.src-java:before { content: 'Java'; }
+  pre.src-js:before { content: 'Javascript'; }
+  pre.src-latex:before { content: 'LaTeX'; }
+  pre.src-ledger:before { content: 'Ledger'; }
+  pre.src-lisp:before { content: 'Lisp'; }
+  pre.src-lilypond:before { content: 'Lilypond'; }
+  pre.src-lua:before { content: 'Lua'; }
+  pre.src-matlab:before { content: 'MATLAB'; }
+  pre.src-mscgen:before { content: 'Mscgen'; }
+  pre.src-ocaml:before { content: 'Objective Caml'; }
+  pre.src-octave:before { content: 'Octave'; }
+  pre.src-org:before { content: 'Org mode'; }
+  pre.src-oz:before { content: 'OZ'; }
+  pre.src-plantuml:before { content: 'Plantuml'; }
+  pre.src-processing:before { content: 'Processing.js'; }
+  pre.src-python:before { content: 'Python'; }
+  pre.src-R:before { content: 'R'; }
+  pre.src-ruby:before { content: 'Ruby'; }
+  pre.src-sass:before { content: 'Sass'; }
+  pre.src-scheme:before { content: 'Scheme'; }
+  pre.src-screen:before { content: 'Gnu Screen'; }
+  pre.src-sed:before { content: 'Sed'; }
+  pre.src-sh:before { content: 'shell'; }
+  pre.src-sql:before { content: 'SQL'; }
+  pre.src-sqlite:before { content: 'SQLite'; }
+  /* additional languages in org.el's org-babel-load-languages alist */
+  pre.src-forth:before { content: 'Forth'; }
+  pre.src-io:before { content: 'IO'; }
+  pre.src-J:before { content: 'J'; }
+  pre.src-makefile:before { content: 'Makefile'; }
+  pre.src-maxima:before { content: 'Maxima'; }
+  pre.src-perl:before { content: 'Perl'; }
+  pre.src-picolisp:before { content: 'Pico Lisp'; }
+  pre.src-scala:before { content: 'Scala'; }
+  pre.src-shell:before { content: 'Shell Script'; }
+  pre.src-ebnf2ps:before { content: 'ebfn2ps'; }
+  /* additional language identifiers per "defun org-babel-execute"
+       in ob-*.el */
+  pre.src-cpp:before  { content: 'C++'; }
+  pre.src-abc:before  { content: 'ABC'; }
+  pre.src-coq:before  { content: 'Coq'; }
+  pre.src-groovy:before  { content: 'Groovy'; }
+  /* additional language identifiers from org-babel-shell-names in
+     ob-shell.el: ob-shell is the only babel language using a lambda to put
+     the execution function name together. */
+  pre.src-bash:before  { content: 'bash'; }
+  pre.src-csh:before  { content: 'csh'; }
+  pre.src-ash:before  { content: 'ash'; }
+  pre.src-dash:before  { content: 'dash'; }
+  pre.src-ksh:before  { content: 'ksh'; }
+  pre.src-mksh:before  { content: 'mksh'; }
+  pre.src-posh:before  { content: 'posh'; }
+  /* Additional Emacs modes also supported by the LaTeX listings package */
+  pre.src-ada:before { content: 'Ada'; }
+  pre.src-asm:before { content: 'Assembler'; }
+  pre.src-caml:before { content: 'Caml'; }
+  pre.src-delphi:before { content: 'Delphi'; }
+  pre.src-html:before { content: 'HTML'; }
+  pre.src-idl:before { content: 'IDL'; }
+  pre.src-mercury:before { content: 'Mercury'; }
+  pre.src-metapost:before { content: 'MetaPost'; }
+  pre.src-modula-2:before { content: 'Modula-2'; }
+  pre.src-pascal:before { content: 'Pascal'; }
+  pre.src-ps:before { content: 'PostScript'; }
+  pre.src-prolog:before { content: 'Prolog'; }
+  pre.src-simula:before { content: 'Simula'; }
+  pre.src-tcl:before { content: 'tcl'; }
+  pre.src-tex:before { content: 'TeX'; }
+  pre.src-plain-tex:before { content: 'Plain TeX'; }
+  pre.src-verilog:before { content: 'Verilog'; }
+  pre.src-vhdl:before { content: 'VHDL'; }
+  pre.src-xml:before { content: 'XML'; }
+  pre.src-nxml:before { content: 'XML'; }
+  /* add a generic configuration mode; LaTeX export needs an additional
+     (add-to-list 'org-latex-listings-langs '(conf " ")) in .emacs */
+  pre.src-conf:before { content: 'Configuration File'; }
+
+  table { border-collapse:collapse; }
+  caption.t-above { caption-side: top; }
+  caption.t-bottom { caption-side: bottom; }
+  td, th { vertical-align:top;  }
+  th.org-right  { text-align: center;  }
+  th.org-left   { text-align: center;   }
+  th.org-center { text-align: center; }
+  td.org-right  { text-align: right;  }
+  td.org-left   { text-align: left;   }
+  td.org-center { text-align: center; }
+  dt { font-weight: bold; }
+  .footpara { display: inline; }
+  .footdef  { margin-bottom: 1em; }
+  .figure { padding: 1em; }
+  .figure p { text-align: center; }
+  .equation-container {
+    display: table;
+    text-align: center;
+    width: 100%;
+  }
+  .equation {
+    vertical-align: middle;
+  }
+  .equation-label {
+    display: table-cell;
+    text-align: right;
+    vertical-align: middle;
+  }
+  .inlinetask {
+    padding: 10px;
+    border: 2px solid gray;
+    margin: 10px;
+    background: #ffffcc;
+  }
+  #org-div-home-and-up
+   { text-align: right; font-size: 70%; white-space: nowrap; }
+  textarea { overflow-x: auto; }
+  .linenr { font-size: smaller }
+  .code-highlighted { background-color: #ffff00; }
+  .org-info-js_info-navigation { border-style: none; }
+  #org-info-js_console-label
+    { font-size: 10px; font-weight: bold; white-space: nowrap; }
+  .org-info-js_search-highlight
+    { background-color: #ffff00; color: #000000; font-weight: bold; }
+  .org-svg { width: 90%; }
+  /*]]>*/-->
+</style>
+<script type="text/javascript">
+// @license magnet:?xt=urn:btih:1f739d935676111cfff4b4693e3816e664797050&amp;dn=gpl-3.0.txt GPL-v3-or-Later
+<!--/*--><![CDATA[/*><!--*/
+     function CodeHighlightOn(elem, id)
+     {
+       var target = document.getElementById(id);
+       if(null != target) {
+         elem.classList.add("code-highlighted");
+         target.classList.add("code-highlighted");
+       }
+     }
+     function CodeHighlightOff(elem, id)
+     {
+       var target = document.getElementById(id);
+       if(null != target) {
+         elem.classList.remove("code-highlighted");
+         target.classList.remove("code-highlighted");
+       }
+     }
+    /*]]>*///-->
+// @license-end
+</script>
+</head>
+<body>
+<div id="content">
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#orga4dd6c8">1. btrfs</a>
+<ul>
+<li><a href="#org2cf5938">1.1. 常用命令</a></li>
+<li><a href="#org66fa17d">1.2. rockstor</a>
+<ul>
+<li><a href="#org60405c8">1.2.1. 概念与zfs的对比</a></li>
+<li><a href="#org805cefc">1.2.2. 其他资料</a></li>
+<li><a href="#org122f6eb">1.2.3. rockstor学习</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orga4dd6c8" class="outline-2">
+<h2 id="orga4dd6c8"><span class="section-number-2">1.</span> btrfs</h2>
+<div class="outline-text-2" id="text-1">
+</div>
+<div id="outline-container-org2cf5938" class="outline-3">
+<h3 id="org2cf5938"><span class="section-number-3">1.1.</span> 常用命令</h3>
+</div>
+
+<div id="outline-container-org66fa17d" class="outline-3">
+<h3 id="org66fa17d"><span class="section-number-3">1.2.</span> rockstor</h3>
+<div class="outline-text-3" id="text-1-2">
+</div>
+<div id="outline-container-org60405c8" class="outline-4">
+<h4 id="org60405c8"><span class="section-number-4">1.2.1.</span> 概念与zfs的对比</h4>
+<div class="outline-text-4" id="text-1-2-1">
+<p>
+Terminology 对比:
+</p>
+
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">btrfs</th>
+<th scope="col" class="org-left">zfs</th>
+<th scope="col" class="org-left">&#xa0;</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">label volume</td>
+<td class="org-left">pool</td>
+<td class="org-left">pool</td>
+</tr>
+
+<tr>
+<td class="org-left">subvolume</td>
+<td class="org-left">dataset</td>
+<td class="org-left">share dir</td>
+</tr>
+
+<tr>
+<td class="org-left">subvolume operate</td>
+<td class="org-left">vdev operate</td>
+<td class="org-left">resize</td>
+</tr>
+
+<tr>
+<td class="org-left">scrub</td>
+<td class="org-left">scrub</td>
+<td class="org-left">scrub</td>
+</tr>
+
+<tr>
+<td class="org-left">qgroup</td>
+<td class="org-left">dataset,user,group quota</td>
+<td class="org-left">quota</td>
+</tr>
+
+<tr>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">&#xa0;</td>
+<td class="org-left">snapshot</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+
+
+<ol class="org-ol">
+<li><a id="orgcb36367"></a>pool<br />
+<ol class="org-ol">
+<li><a id="orge3f671b"></a>basic<br />
+<div class="outline-text-6" id="text-1-2-1-1-1">
+<hr />
+
+<p>
+btrfs:
+</p>
+
+<hr />
+
+<p>
+Lable: 卷标, device 加入了同一个卷标, 即认为是同一个pool
+</p>
+
+<p>
+pool 的状态:  <br />
+   MISSING: btrfs fi show &#x2013;raw , 存在 missing 
+   degrade: 存在 失效 missing 的device的 pool
+</p>
+
+<p>
+pool 名字:   btrfs fi mount<sub>point</sub> 新名字
+</p>
+
+<p>
+pool 信息获取: btrfs fi show &#x2013;raw
+</p>
+
+<p>
+pool 状态: 出现 missing 状态, 即为degrade
+</p>
+
+<p>
+pool raid: btrfs fi df &lt;mount<sub>point</sub>&gt;
+</p>
+
+<p>
+raid 分 meta 和 data
+</p>
+
+<pre class="example">
+$sudo btrfs fi show
+[sudo] password for guo: 
+Label: 'hello1'  uuid: 28a933c4-6f53-4fc2-8418-edf68d3659e7
+  Total devices 1 FS bytes used 336.00KiB
+  devid    1 size 350.00MiB used 168.00MiB path /dev/loop0
+
+</pre>
+
+<hr />
+
+<p>
+zfs:
+</p>
+
+<hr />
+
+
+<p>
+存在pool的概念和工具 utility zpool.
+</p>
+
+<p>
+pool:  zpool &lt;pool<sub>name</sub>&gt; &lt;device&gt;
+</p>
+
+<p>
+pool的状态:
+</p>
+
+<p>
+zpool status &lt;null<sub>for</sub><sub>all</sub>|pool<sub>name</sub>&gt;
+</p>
+
+<p>
+zpool list 
+</p>
+
+<p>
+pool 会出现degrade 状态: <br />
+state: DEGRADED  <br />
+pool 的降级状态会影响总的状态 <br />
+</p>
+
+<p>
+replace:  zpool replace dev1 dev2 <br />
+  执行时, pool中的 device 会出现replacing 状态 <br />
+	   This is equivalent to <br />
+	   attaching new<sub>device</sub>, waiting for it to resilver, and then <br />
+	   detaching old<sub>device</sub>.  Any in progress scrub will be cancelled. <br />
+</p>
+
+<p>
+另外:
+</p>
+
+<p>
+zpool clear, 清除 error message
+</p>
+
+<pre class="example">
+# only 显示有问题的pool
+$ zpool status -x
+  all pools are healthy
+
+
+$ zpool status
+  $ zpool status
+	pool: zroot
+	state: ONLINE
+	config:
+
+		NAME        STATE     READ WRITE CKSUM
+		zroot       ONLINE       0     0     0
+		  ada0p4    ONLINE       0     0     0
+		  ada1p4    ONLINE       0     0     0
+
+	errors: No known data errors
+
+$ zpool list
+  NAME    SIZE  ALLOC   FREE  CKPOINT  EXPANDSZ   FRAG    CAP  DEDUP    HEALTH  ALTROOT
+  zroot  1.02T  32.9G  1011G        -         -     0%     3%  1.00x    ONLINE  -
+
+</pre>
+</div>
+</li>
+
+<li><a id="orgbd250ef"></a>mirror<br />
+<div class="outline-text-6" id="text-1-2-1-1-2">
+<hr />
+
+<p>
+btrfs:
+</p>
+
+<hr />
+
+
+<p>
+data和meta 分开做软raid
+</p>
+
+<p>
+mkfs.btrfs -d raid1 -m radi1
+</p>
+
+<p>
+支持: raid0, raid1, raid1c3, raid1c4, raid5, raid6, raid10 or single or dup
+</p>
+
+<hr />
+
+<p>
+zfs:
+</p>
+
+<hr />
+
+<p>
+支持:  mirror, RAID-Z(2+1), RAID-Z2(2+2), RAID-Z3(3+3)
+</p>
+</div>
+</li>
+</ol>
+</li>
+
+
+<li><a id="org38d11cd"></a>resize<br />
+<ol class="org-ol">
+<li><a id="org2e0f2b5"></a>btrfs vs zfs<br />
+<div class="outline-text-6" id="text-1-2-1-2-1">
+<hr />
+
+<p>
+btrfs:
+</p>
+
+<hr />
+
+<p>
+btrfs &lt;device list&gt; add(default)/delete root<sub>mnt</sub><sub>pt</sub>(pool)
+</p>
+
+
+
+<hr />
+
+<p>
+zfs:
+</p>
+
+<hr />
+
+<p>
+两种方式:
+</p>
+<ul class="org-ul">
+<li>attach disk 到一个已经存在的vdev</li>
+<li>add vdev 到一个pool</li>
+</ul>
+
+<p>
+zpool attach mypool ada0p3 ada1p3
+zpool add mypool mirror ada2p3 ada3p3
+</p>
+
+<p>
+会出现 Resilver
+</p>
+</div>
+</li>
+</ol>
+</li>
+
+<li><a id="org092965d"></a>scrub<br />
+<ol class="org-ol">
+<li><a id="org845d98b"></a>btrfs vs zfs<br />
+<div class="outline-text-6" id="text-1-2-1-3-1">
+<hr />
+
+<p>
+btrfs:
+</p>
+
+<hr />
+
+<p>
+检测文件系统错误: btrfs scrub start -B mount<sub>point</sub>
+</p>
+
+<p>
+是否自动修复: 未知?
+</p>
+
+
+<hr />
+
+<p>
+zfs:
+</p>
+
+<hr />
+
+<p>
+检测: Verifying the data checksums
+</p>
+
+<p>
+zpool scrub &lt;pool<sub>name</sub>&gt;
+</p>
+
+<p>
+执行scrub时, 会进行
+</p>
+
+<p>
+是否自动修复: 是?
+</p>
+</div>
+</li>
+</ol>
+</li>
+
+
+<li><a id="org0438de5"></a>import<br />
+<div class="outline-text-5" id="text-1-2-1-4">
+<p>
+zfs 特有:
+</p>
+
+<p>
+可以 export 一个非挂载的pool, 然后再 import
+</p>
+
+<p>
+参考:
+</p>
+
+<p>
+<a href="https://docs.oracle.com/cd/E37934_01/html/E36658/gbchy.html">https://docs.oracle.com/cd/E37934_01/html/E36658/gbchy.html</a>
+</p>
+</div>
+</li>
+
+<li><a id="org324914a"></a>upgrade<br />
+<div class="outline-text-5" id="text-1-2-1-5">
+<p>
+zfs 特有:
+</p>
+
+<p>
+升级后
+</p>
+</div>
+</li>
+
+<li><a id="org03965b0"></a>history<br />
+<div class="outline-text-5" id="text-1-2-1-6">
+<p>
+zfs 特有:
+</p>
+
+<p>
+zpool history, 显示 对 pool 操作的命令
+</p>
+
+<p>
+-i, -l 显示更多信息
+</p>
+</div>
+</li>
+
+<li><a id="org994c2a9"></a>mount<br />
+<div class="outline-text-5" id="text-1-2-1-7">
+<hr />
+
+<p>
+btrfs:
+</p>
+
+<hr />
+
+<p>
+将 pool root 目录 mount 到default目录(/mnt2), <br />
+例如, test-pool 将被mount到 /mnt2/test-pool
+</p>
+
+<p>
+由于 btrfs 没有pool的概念, 所谓的pool 是多个磁盘组成的volume, 再设置Label;
+</p>
+
+<p>
+换句话说: 先有device, 再组成pool;
+</p>
+
+
+<ol class="org-ol">
+<li>可以根据label mount,  需要先 scan, 再mount;</li>
+<li>根据device 来mount <br />
+例如: mount -o device=/dev/sdb,device=/dev/sdc,device=/dev/sdd,device=/dev/sde /dev/sdb /data01</li>
+</ol>
+
+
+<hr />
+
+<p>
+zfs:
+</p>
+
+<hr />
+
+<p>
+大概不需要;
+</p>
+
+<p>
+先有 pool, 再加入device;
+</p>
+
+<p>
+可以使用以下
+ zfs set mountpoint=/home storage/home
+</p>
+</div>
+</li>
+
+
+
+<li><a id="org53ecd1e"></a>share<br />
+<div class="outline-text-5" id="text-1-2-1-8">
+<hr />
+
+<p>
+btrfs:
+</p>
+
+<hr />
+
+<p>
+share 即 subvolume;
+</p>
+
+<p>
+一些命令:
+</p>
+
+<p>
+btrfs subvolume create -i
+</p>
+
+<p>
+btrfs subvolume list root<sub>pool</sub><sub>mnt</sub>
+</p>
+
+
+
+<hr />
+
+<p>
+zfs:
+</p>
+
+<hr />
+
+<p>
+share 如何对应? 需要讨论下;
+</p>
+
+<p>
+dataset 可以对应为share 目录
+</p>
+
+<p>
+zfs list:
+</p>
+
+<p>
+列出目录
+</p>
+
+<p>
+-H, script 模式, 去除了header
+</p>
+
+<p>
+-s, 各种属性
+</p>
+
+
+
+<p>
+destroy 是个异步的操作: <br />
+  可以使用以下命令查看哪些正在后台运行 <br />
+  zpool get freeing poolname 
+</p>
+
+<p>
+支持好多property:
+  zfs get custom:costcenter zroot
+</p>
+</div>
+
+<ol class="org-ol">
+<li><a id="orgd486f48"></a>quota<br />
+<div class="outline-text-6" id="text-1-2-1-8-1">
+<hr />
+
+<p>
+btrfs:
+</p>
+
+<hr />
+
+<p>
+qgroup, 使用qgroup 设置quota
+</p>
+
+<p>
+qgroup 讲真概念简单, 但逻辑有点复杂, 特别是层次分的有点奇怪, 细节参考官方文档.
+</p>
+
+<p>
+基本命令:
+</p>
+<ul class="org-ul">
+<li>btrfs show qgroup -reF</li>
+<li>btrfs qgroup assign qid pqid mount<sub>point</sub></li>
+</ul>
+
+<hr />
+
+<p>
+zfs:
+</p>
+
+<hr />
+
+<p>
+zfs的quota 逻辑上更好理解一点.
+</p>
+
+<p>
+支持 dataset 设置quota,
+</p>
+
+<p>
+zfs set quota=10G storage/home/bob <br />
+zfs set quota=none storage/home/bob
+</p>
+
+<p>
+支持 user quota
+</p>
+
+<p>
+zfs set userquota@joe=50G
+</p>
+
+<p>
+支持 group quota
+</p>
+
+<p>
+zfs set groupquota@firstgroup=50G
+</p>
+
+<p>
+支持 Reservations, 为dataset 预留一些空间,  TODO: 跟子dataset 和 snap的关系
+</p>
+
+<p>
+zfs set reservation=10G storage/home/bob
+</p>
+</div>
+</li>
+</ol>
+</li>
+
+<li><a id="org4071792"></a>snapshot<br />
+<div class="outline-text-5" id="text-1-2-1-9">
+<hr />
+
+<p>
+btrfs:
+</p>
+
+<hr />
+
+<p>
+btrfs subvolume snapshot
+</p>
+
+<p>
+TODO: 细节待补充
+</p>
+
+<hr />
+
+<p>
+zfs:
+</p>
+
+<hr />
+
+<p>
+创建快照, 针对dataset: 
+</p>
+
+<p>
+zfs snapshot storage/home@08-30-08
+</p>
+
+<p>
+可用 ls 查看:
+</p>
+
+<p>
+ls <i>storage/home</i>.zfs/snapshot
+</p>
+
+<p>
+zfs set mountpoint=/home storage/home
+</p>
+</div>
+</li>
+</ol>
+</div>
+
+
+
+<div id="outline-container-org805cefc" class="outline-4">
+<h4 id="org805cefc"><span class="section-number-4">1.2.2.</span> 其他资料</h4>
+<div class="outline-text-4" id="text-1-2-2">
+<p>
+Fault Management Architecture (FMA) Message Registry
+<a href="https://illumos.org/msg/ZFS-8000-4J">https://illumos.org/msg/ZFS-8000-4J</a>
+</p>
+</div>
+</div>
+
+
+
+
+<div id="outline-container-org122f6eb" class="outline-4">
+<h4 id="org122f6eb"><span class="section-number-4">1.2.3.</span> rockstor学习</h4>
+<div class="outline-text-4" id="text-1-2-3">
+<p>
+学习 rockstor 流水帐记录.
+</p>
+</div>
+
+<ol class="org-ol">
+<li><a id="org277f086"></a>Pool<br />
+<div class="outline-text-5" id="text-1-2-3-1">
+<p>
+add pool
+</p>
+
+<p>
+创建pool的主要步骤如下:
+</p>
+<ol class="org-ol">
+<li>创建fs</li>
+<li>mount</li>
+<li>设置quota</li>
+</ol>
+</div>
+
+<ol class="org-ol">
+<li><a id="org07422de"></a>创建fs<br />
+<div class="outline-text-6" id="text-1-2-3-1-1">
+<p>
+fun: add<sub>pool</sub>
+</p>
+
+<p>
+in: pool, disks
+</p>
+
+<p>
+cmd: mkfs.btrfs -f -d draid -m mraid -L name xpathx  
+</p>
+
+<p>
+-L   lable (pool) <br />
+-m   matedata profile (raid0, raid1, raid1c3, raid1c4, raid5, raid6 raid10, dup, single)  <br />
+-d   data profile  <br />
+-f   force overwrite <br />
+path /dev/disk/by-id/{} <br />
+</p>
+</div>
+</li>
+
+
+<li><a id="orgecce5f9"></a>设置quota<br />
+<div class="outline-text-6" id="text-1-2-3-1-2">
+<p>
+btrfs device scan
+</p>
+
+<p>
+mount,
+	   默认在 /mnt2/lablename, -o options  <br />
+	   root的话, 参数options增加: subvol=/@  <br />
+	   compress=request的传参 ('lzo', 'zlib', 'no',)  
+</p>
+
+<p>
+先根据 label mount, 失败后再根据 device
+</p>
+
+<p>
+btrfs quota enable mountpoint
+</p>
+</div>
+
+<ol class="org-ol">
+<li><a id="org2da18fc"></a>quota enable<br />
+<div class="outline-text-7" id="text-1-2-3-1-2-1">
+<p>
+enable<sub>quota</sub>, disable<sub>quote</sub> 包装了 switch<sub>quota</sub>, 提供配额的 开启/关闭 功能
+</p>
+</div>
+
+<ol class="org-ol">
+<li><a id="orgee8cb3a"></a>switch<sub>quota</sub><br />
+<div class="outline-text-8" id="text-1-2-3-1-2-1-1">
+<p>
+fun: switch<sub>quota</sub>
+</p>
+
+<p>
+in: pool, flag=enable
+</p>
+
+<p>
+cmd: btrfs quota flag pool<sub>mount</sub><sub>point</sub>
+</p>
+</div>
+</li>
+</ol>
+</li>
+
+<li><a id="org90f3af3"></a>rescan quota<br />
+<div class="outline-text-7" id="text-1-2-3-1-2-2">
+<p>
+fun: recas<sub>quotas</sub>
+</p>
+
+<p>
+in: pool
+</p>
+
+<p>
+cmd: btrfs quota rescan pool<sub>mount</sub><sub>point</sub>
+</p>
+</div>
+</li>
+
+<li><a id="orgbe5cf4a"></a>quota is enable<br />
+<div class="outline-text-7" id="text-1-2-3-1-2-3">
+<p>
+fun: are<sub>quotas</sub><sub>enable</sub>
+</p>
+
+<p>
+in: mount<sub>point</sub>
+</p>
+
+<p>
+cmd: btrfs qgroup show -f &#x2013;raw mount<sub>point</sub>
+</p>
+
+<p>
+返回0 并且 标准错误 是空或者 报warning:建议 rescan,  返回 true
+其他场合返回 false
+</p>
+</div>
+</li>
+
+<li><a id="org9ad4dc7"></a>qgroup id<br />
+<div class="outline-text-7" id="text-1-2-3-1-2-4">
+<p>
+fun: qgroup<sub>id</sub>
+</p>
+
+<p>
+in: pool, share<sub>name</sub>
+</p>
+
+<p>
+return: 0/sid
+</p>
+</div>
+</li>
+
+
+
+<li><a id="orgc201b00"></a>qgroup max<br />
+<div class="outline-text-7" id="text-1-2-3-1-2-5">
+<p>
+fun: qgroup<sub>max</sub>
+</p>
+
+<p>
+in: mount<sub>point</sub>
+</p>
+
+<p>
+cmd: btrfs qgroup show mnt<sub>point</sub>
+</p>
+
+<p>
+返回最大层数?
+</p>
+
+<p>
+2015 不清楚是最大层数吗? 为什么要么是0, 要么是2015?
+理论上可以分很多层, 是不是为了方便管理,  rockstor 只分了两层
+</p>
+</div>
+</li>
+
+<li><a id="org117f08e"></a>qgroup create<br />
+<div class="outline-text-7" id="text-1-2-3-1-2-6">
+<p>
+fun: qgroup<sub>create</sub>,  创建share 目录时调用
+</p>
+
+<p>
+in: pool
+</p>
+</div>
+</li>
+
+<li><a id="org0f6d097"></a>qgroup destroy<br />
+<div class="outline-text-7" id="text-1-2-3-1-2-7">
+<p>
+fun: qgroup<sub>destroy</sub>
+</p>
+
+<p>
+in: qid, mount<sub>point</sub>
+</p>
+</div>
+</li>
+
+<li><a id="org85dcbdf"></a>quroup as assigned<br />
+<div class="outline-text-7" id="text-1-2-3-1-2-8">
+<p>
+fun: qgroup<sub>is</sub><sub>assigned</sub>
+</p>
+
+<p>
+in: qid, pqid, mount<sub>point</sub>
+</p>
+
+<p>
+cmd: btrfs qgroup show -pc mount<sub>point</sub>
+</p>
+</div>
+</li>
+
+<li><a id="org5639b28"></a>qgroup assign<br />
+<div class="outline-text-7" id="text-1-2-3-1-2-9">
+<p>
+fun: qgroup<sub>assign</sub>
+</p>
+
+<p>
+in: qid, pqid, mount<sub>point</sub>
+</p>
+
+<p>
+cmd: btrfs qgroup assign qid pqid mount<sub>point</sub>
+</p>
+</div>
+</li>
+
+<li><a id="org03db297"></a>update quota<br />
+<div class="outline-text-7" id="text-1-2-3-1-2-10">
+<p>
+fun: update<sub>quota</sub>
+</p>
+
+<p>
+in: pool, qgroup, size<sub>bytes</sub>
+</p>
+
+<p>
+cmd: btrfs qgroup limit none qgroup pool<sub>mount</sub><sub>point</sub>
+</p>
+
+<p>
+注: 没有使用size, 这个设置真的会起作用?
+</p>
+</div>
+</li>
+</ol>
+</li>
+</ol>
+</li>
+
+<li><a id="orgb8532bf"></a>获取设备 stats<br />
+<div class="outline-text-5" id="text-1-2-3-2">
+<p>
+fun: dev<sub>stats</sub><sub>zero</sub>, get<sub>dev</sub><sub>io</sub><sub>error</sub><sub>stats</sub>
+</p>
+
+<p>
+btrfs device stats -c moutpoint
+</p>
+
+<ul class="org-ul">
+<li>返回 64(2#1000000) 说明有问题</li>
+<li>返回 0 正常</li>
+<li>返回 1 dev 不是 btrfs, ERROR: not a btrfs filesystem</li>
+</ul>
+</div>
+
+
+<ol class="org-ol">
+<li><a id="org3fa822e"></a>模拟 io error<br />
+<div class="outline-text-6" id="text-1-2-3-2-1">
+<p>
+dd  if=/dev/zero of=btrfs-loop bs=1M count=350
+</p>
+
+<p>
+sudo mkfs.btrfs btrfs-loop
+</p>
+
+<p>
+sudo mount -o loop btrfs-loop <i>mnt/btrfs</i>
+</p>
+
+<p>
+sudo touch /mnt/btrfs/test.txt
+</p>
+
+<p>
+for (( i=0;i&lt;10000;i++ )) ;do sudo echo "string" &gt;&gt; /mnt/btrfs/test.txt ;done
+</p>
+
+<p>
+echo "localuseabcdefg" &gt;&gt; /mnt/btrfs/test.txt
+</p>
+
+<p>
+sudo umount /mnt/btrfs
+</p>
+
+<p>
+sudo hexedit btrfs-loop
+</p>
+
+<p>
+sudo mount -o loop btrfs-loop <i>mnt/btrfs</i>
+</p>
+
+<p>
+sudo cp /mnt/btrfs/test.txt /mnt/btrfs/test1.txt
+</p>
+
+<pre class="example">
+[/dev/loop0].write_io_errs    0
+[/dev/loop0].read_io_errs     0
+[/dev/loop0].flush_io_errs    0
+[/dev/loop0].corruption_errs  3
+[/dev/loop0].generation_errs  0
+</pre>
+</div>
+</li>
+
+
+<li><a id="org6cd040f"></a>获取 volume 使用率<br />
+<div class="outline-text-6" id="text-1-2-3-2-2">
+<p>
+新的方式获取使用率
+</p>
+
+<p>
+fun: volume<sub>usage</sub>
+</p>
+
+<p>
+in: pool, volume<sub>id</sub>(0/*), pvolume<sub>id</sub>=None(2015/*)
+</p>
+
+<p>
+cmd:
+</p>
+
+<ol class="org-ol">
+<li>btrfs subvolume list pool<sub>mount</sub><sub>point</sub></li>
+<li>btrfs qgroup show volume<sub>dir</sub></li>
+</ol>
+
+<p>
+回到了 ref size 和 exclued size, 由于 2015/* 两个size经常是相等的, 使用哪个都一样?
+</p>
+</div>
+</li>
+
+
+<li><a id="org12c3767"></a>共享目录的使用率<br />
+<div class="outline-text-6" id="text-1-2-3-2-3">
+<p>
+fun: share<sub>usage</sub>
+</p>
+
+<p>
+in: pool, share<sub>map</sub>, snap<sub>map</sub>
+</p>
+
+<p>
+cmd: btrfs qgroup show mount<sub>point</sub>
+</p>
+
+<p>
+return: usage<sub>map</sub>
+</p>
+</div>
+</li>
+
+<li><a id="org0873e45"></a>pool 使用率<br />
+<div class="outline-text-6" id="text-1-2-3-2-4">
+<p>
+fun: pool<sub>usage</sub>
+</p>
+
+<p>
+in: mount<sub>point</sub>
+</p>
+
+<p>
+cmd: btrfs fi usage -b mount<sub>point</sub>
+</p>
+
+<p>
+return:  used / 1024
+</p>
+
+<pre class="example">
+Overall:
+	Device size:		         367001600
+	Device allocated:		          92274688
+	Device unallocated:		         274726912
+	Device missing:		                 0
+	Used:			            524288
+	Free (estimated):		         282951680	(min: 145588224)
+	Free (statfs, df):		         281903104
+	Data ratio:			              1.00
+	Metadata ratio:		              2.00
+	Global reserve:		           3407872	(used: 0)
+	Multiple profiles:		                no
+
+Data,single: Size:8388608, Used:163840 (1.95%)
+   /dev/loop0	   8388608
+
+Metadata,DUP: Size:33554432, Used:163840 (0.49%)
+   /dev/loop0	  67108864
+
+System,DUP: Size:8388608, Used:16384 (0.20%)
+   /dev/loop0	  16777216
+
+Unallocated:
+   /dev/loop0	 274726912
+
+</pre>
+</div>
+</li>
+
+<li><a id="org513e455"></a>usage<sub>bound</sub><br />
+<div class="outline-text-6" id="text-1-2-3-2-5">
+<p>
+fun: usage<sub>bound</sub>
+</p>
+
+<p>
+in: disk<sub>size</sub>, num<sub>devices</sub>, raid<sub>level</sub>
+</p>
+
+<p>
+return: bytes
+</p>
+
+<p>
+递归调用, 没看懂?
+主要是跟raid 有关, 获取实际使用率
+</p>
+</div>
+</li>
+
+<li><a id="orgee62bf8"></a>device usage<br />
+<div class="outline-text-6" id="text-1-2-3-2-6">
+<p>
+fun: get<sub>devid</sub><sub>usage</sub>
+</p>
+
+<p>
+in: mount<sub>point</sub>
+</p>
+
+<p>
+cmd: btrfs device usage -b mount<sub>point</sub>
+</p>
+
+<pre class="example">
+$ sudo btrfs device usage -b ./
+/dev/loop0, ID: 1
+   Device size:           367001600
+   Device slack:                  0
+   Data,single:             8388608
+   Metadata,DUP:          100663296
+   System,DUP:             67108864
+   Unallocated:           190840832
+
+</pre>
+</div>
+</li>
+</ol>
+</li>
+
+
+<li><a id="org344daac"></a>file system missing<br />
+<div class="outline-text-5" id="text-1-2-3-3">
+<p>
+fun: is<sub>pool</sub><sub>missing</sub><sub>dev</sub>
+</p>
+
+<p>
+btrfs fi show &#x2013;raw label
+</p>
+
+<p>
+false, device is missing from de given pool
+</p>
+
+<p>
+有一个device missing, 即为false
+</p>
+
+<pre class="example">
+Label: none  uuid: 28a933c4-6f53-4fc2-8418-edf68d3659e7
+Total devices 1 FS bytes used 282624
+devid    1 size 367001600 used 92274688 path /dev/loop0
+
+</pre>
+</div>
+</li>
+
+<li><a id="org40626b8"></a>degrade<br />
+<div class="outline-text-5" id="text-1-2-3-4">
+<p>
+fun: degraded<sub>pools</sub><sub>found</sub>
+</p>
+
+<p>
+btrfs fi show &#x2013;raw label
+</p>
+
+<p>
+返回 Label, 正常
+返回 missing, 降级 count + 1
+</p>
+</div>
+</li>
+
+<li><a id="orgd9cbe02"></a>set label<br />
+<div class="outline-text-5" id="text-1-2-3-5">
+<p>
+fun: set<sub>pool</sub><sub>label</sub>
+</p>
+
+<p>
+btrfs fi label dev|mnt<sub>pt</sub>
+</p>
+
+<p>
+主要是自动设置 label, 因为初始化有些是none
+</p>
+
+<p>
+root 通过 setting.SYS<sub>VOL</sub><sub>LABEL设置</sub>
+</p>
+
+<pre class="example">
+sudo btrfs filesystem label /mnt/btrfs/  hello
+sudo btrfs filesystem show
+Label: 'hello'  uuid: 28a933c4-6f53-4fc2-8418-edf68d3659e7
+Total devices 1 FS bytes used 276.00KiB
+devid    1 size 350.00MiB used 88.00MiB path /dev/loop0
+
+</pre>
+</div>
+
+<ol class="org-ol">
+<li><a id="org24b9f64"></a>dev mount point<br />
+<div class="outline-text-6" id="text-1-2-3-5-1">
+<p>
+fun: dev<sub>mount</sub><sub>point</sub>
+</p>
+
+<p>
+参数 device name /dev/sda
+</p>
+
+<p>
+通过 /proc/mounts 匹配, 获取第一个匹配的 mount point
+</p>
+
+<p>
+None 说明没有匹配到
+</p>
+</div>
+</li>
+</ol>
+</li>
+
+<li><a id="org64ac3e2"></a>获取所有 pool info<br />
+<div class="outline-text-5" id="text-1-2-3-6">
+<p>
+fun: get<sub>dev</sub><sub>pool</sub><sub>info</sub>
+</p>
+
+<p>
+btrfs fi show &#x2013;raw
+</p>
+
+<p>
+return: {DevPoolInfo}
+DevPoolInfo, nametuple,
+   ("DevPoolInfo", "devid size allocated uuid label")
+</p>
+</div>
+</li>
+
+<li><a id="org1d09ace"></a>获取 pool info<br />
+<div class="outline-text-5" id="text-1-2-3-7">
+<p>
+fun: get<sub>pool</sub><sub>info</sub>
+</p>
+
+<p>
+btrfs fi show &#x2013;raw path(/dev/disk/by-id)
+</p>
+
+<pre class="example">
+pool_info = {
+	"disks": {},
+	"hasMissingDev": False,
+	"fullDevCount": 0,
+	"missingDevCount": 0,
+}
+</pre>
+
+<p>
+Dev , namedtuple , ("Dev", "temp<sub>name</sub> is<sub>byid</sub> devid size allocated")
+</p>
+</div>
+</li>
+
+<li><a id="org31bca13"></a>获取 pool raid<br />
+<div class="outline-text-5" id="text-1-2-3-8">
+<p>
+fun: pool<sub>raid</sub>
+</p>
+
+<p>
+btrfs fi df mountpoint
+</p>
+
+<pre class="example">
+Data, single: total=8.00MiB, used=148.00KiB
+System, DUP: total=8.00MiB, used=16.00KiB
+Metadata, DUP: total=32.00MiB, used=112.00KiB
+GlobalReserve, single: total=3.25MiB, used=0.00B
+</pre>
+
+<p>
+?含义
+</p>
+</div>
+</li>
+
+<li><a id="org3ff077e"></a>获取 dev list<br />
+<div class="outline-text-5" id="text-1-2-3-9">
+<p>
+fun: cur<sub>devices</sub>
+</p>
+
+<p>
+in: mount point
+</p>
+
+<p>
+cmd: 	btrfs fi show mountpoint
+</p>
+
+<pre class="example">
+Label: 'hello'  uuid: 28a933c4-6f53-4fc2-8418-edf68d3659e7
+Total devices 1 FS bytes used 276.00KiB
+devid    1 size 350.00MiB used 88.00MiB path /dev/loop0
+</pre>
+
+
+<p>
+return: /dev/loop0
+</p>
+</div>
+</li>
+
+<li><a id="orgc31b0f7"></a>resize<br />
+<div class="outline-text-5" id="text-1-2-3-10">
+<p>
+fun: resize<sub>pool</sub><sub>cmd</sub>
+</p>
+
+<p>
+in: pool, dev<sub>list</sub><sub>byid</sub>, add=True
+</p>
+
+<p>
+return: cmd, btrfs &lt;device list&gt; add(defauld)/delete root<sub>mnt</sub><sub>pt</sub>(pool)
+</p>
+
+<p>
+cmd: btrfs device add &lt;dev-list&gt;
+</p>
+
+<p>
+/dev/disk/by-id/{id}
+</p>
+
+<p>
+detached- 开头的dev, 说明有missing
+</p>
+</div>
+</li>
+
+<li><a id="orge888a8f"></a>挂载pool<br />
+<div class="outline-text-5" id="text-1-2-3-11">
+<p>
+fun: mount<sub>root</sub>
+</p>
+
+<p>
+in: pool
+</p>
+
+<p>
+return: mount point
+</p>
+
+<p>
+默认挂载路径, <i>mnt2</i>
+</p>
+
+<p>
+pool.mnt<sub>opiton</sub> 将会加入到mount 命令中的 -o 选项中, 包括 compress
+</p>
+
+<p>
+存在两个 mount 变量, 当 default<sub>subvol</sub>().boot<sub>to</sub><sub>snap</sub>
+</p>
+<ul class="org-ul">
+<li>True, subvol=/@</li>
+<li>False,</li>
+</ul>
+
+<p>
+先根据 /dev/disk/by-label/pool.name 进行mount 操作,
+失败后 根据/dev/disk/by-id/pool.disk<sub>set.all</sub>() 进行, 
+</p>
+
+<p>
+主要过程:
+</p>
+<ol class="org-ol">
+<li>创建mount point dir</li>
+<li>更改rw属性, chattr +i</li>
+<li>获取dev by label, /dev/disk/by-label/{}</li>
+<li>mount dev dir</li>
+<li>增加opiton</li>
+<li>dev scan</li>
+<li>不能根据 label mount 时, 根据device id mount</li>
+</ol>
+</div>
+</li>
+
+<li><a id="org878351a"></a>卸载 mount point<br />
+<div class="outline-text-5" id="text-1-2-3-12">
+<p>
+fun: umount<sub>root</sub>
+</p>
+
+<p>
+in: mountpoint
+</p>
+
+<p>
+cmd: umount -l mountpoint
+</p>
+
+<p>
+-l, lazy unmount
+</p>
+
+<p>
+获取mount状态(/proc/mount) 20 次(间隔 2秒),
+当没有mount时, 更改rw属性为可读写, 删除dir
+</p>
+</div>
+</li>
+
+<li><a id="org3917350"></a>判定 subvolume  状态<br />
+<div class="outline-text-5" id="text-1-2-3-13">
+<p>
+fun: is<sub>subvol</sub>
+</p>
+
+<p>
+in: mountpoint
+</p>
+
+<p>
+cmd: btrfs subvolume show mnt<sub>pt</sub>
+</p>
+
+<p>
+cmd 结果 0, 返回True
+</p>
+
+<p>
+return: True|False
+</p>
+
+<p>
+true: 该 mount point 存在 subvolumn
+</p>
+
+<pre class="example">
+
+/
+	Name: 			&lt;FS_TREE&gt;
+	UUID: 			07c27a72-f091-4481-9830-0334eb5b3ab4
+	Parent UUID: 		-
+	Received UUID: 		-
+	Creation time: 		2022-07-07 19:19:51 +0800
+	Subvolume ID: 		5
+	Generation: 		19
+	Gen at creation: 	0
+	Parent ID: 		0
+	Top level ID: 		0
+	Flags: 			-
+	Snapshot(s):
+
+</pre>
+</div>
+</li>
+
+<li><a id="org7ac08f6"></a>获取 subvolume 信息<br />
+<div class="outline-text-5" id="text-1-2-3-14">
+<p>
+fun: subvol<sub>info</sub>
+</p>
+
+<p>
+in: mountpoint
+</p>
+
+<p>
+cmd: btrfs subvolume show mountpoint
+</p>
+</div>
+</li>
+
+<li><a id="org0212276"></a>增加share 目录<br />
+<div class="outline-text-5" id="text-1-2-3-15">
+<p>
+share 即 subvolume
+</p>
+
+<p>
+fun: add<sub>share</sub>
+</p>
+
+<p>
+in: pool, sharename, qid
+</p>
+
+<p>
+cmd: btrfs subvolume create -i 
+</p>
+
+<p>
+share moutponint: /root<sub>mount</sub><sub>point</sub>/sharename
+</p>
+
+<p>
+qid: 子卷配额组, qgroup<sub>create</sub>, <br />
+   default, -1/-1 , 返回非-1/-1, 说明quota enabled <br />
+   highest quota 2015/n
+</p>
+
+<pre class="example">
+sudo btrfs qgroup show /mnt/btrfs/
+qgroupid         rfer         excl 
+--------         ----         ---- 
+0/5         164.00KiB    164.00KiB 
+
+</pre>
+
+
+<p>
+qgroupid: level/id
+</p>
+
+<p>
+level 0 is reserved to the qgroups associated with subvolumes.
+</p>
+
+<p>
+0/5 是 root subvolumn
+</p>
+
+
+<p>
+btrfs show qgroup
+	exclusively (excl)
+	shared/referred to (rfer)
+</p>
+
+<p>
+btrfs qgroup show -reF ./a
+sudo  btrfs qgroup show -p ./a
+</p>
+
+<p>
+exclusive:
+  Exclusive of a qgroup conveys the useful information
+  how much space will be freed in case all subvolumes of the qgroup get deleted
+</p>
+
+
+<p>
+注:
+<a href="https://btrfs.readthedocs.io/en/latest/btrfs-qgroup.html">https://btrfs.readthedocs.io/en/latest/btrfs-qgroup.html</a>
+Qgroup is not stable yet and will impact performance in current
+mainline kernel (v4.14).
+</p>
+</div>
+</li>
+
+<li><a id="org21fa345"></a>挂载共享目录<br />
+<div class="outline-text-5" id="text-1-2-3-16">
+<p>
+fun: mount<sub>share</sub>
+in: share, monut point
+cmd: mount -t btrfs -o subvol<sub>str</sub>(subvolid=qgroup[2:]), pooldevice , mountpoint
+</p>
+
+
+<p>
+fun: mount<sub>snap</sub>
+in: share, snap<sub>name</sub>, snap<sub>qgroup</sub>, snap<sub>mnt</sub>
+cmd: mount -t btrfs -o subvol<sub>str</sub>(subvolid=qgroup[2:]), pooldevice , mountpoint
+</p>
+</div>
+</li>
+
+<li><a id="org92d62a2"></a>默认 subvol<br />
+<div class="outline-text-5" id="text-1-2-3-17">
+<p>
+cmd: btrfs subvol get-default /mnt/btrfs
+</p>
+
+<p>
+由于 snapshot 和 rollback 后的qgroup, 还有subvol id 如何设置, 需要后面补充?
+</p>
+</div>
+</li>
+
+<li><a id="org7d0688b"></a>snapshot id<br />
+<div class="outline-text-5" id="text-1-2-3-18">
+<p>
+cmd: btrfs subvol list -s pool<sub>mount</sub><sub>point</sub>
+</p>
+</div>
+</li>
+
+
+<li><a id="orgaf63e19"></a>share info<br />
+<div class="outline-text-5" id="text-1-2-3-19">
+<p>
+cmd:
+  btrfs subvol list -s mnt<sub>point</sub>,  snapshot id
+  btrfs subvol list -p mnt<sub>point</sub>,  parent id
+</p>
+
+<p>
+'/@',  snap vol ?
+</p>
+</div>
+
+<ol class="org-ol">
+<li><a id="org0021914"></a>share id<br />
+<div class="outline-text-6" id="text-1-2-3-19-1">
+<p>
+fun: share<sub>id</sub>
+</p>
+
+<p>
+in: pool, sharename
+</p>
+
+<p>
+cmd: btrfs subvolume list root<sub>pool</sub><sub>mnt</sub>
+</p>
+</div>
+</li>
+
+<li><a id="org2dca73d"></a>remove<sub>share</sub><br />
+<div class="outline-text-6" id="text-1-2-3-19-2">
+<p>
+fun: remove<sub>share</sub>
+</p>
+
+<p>
+in: pool, sharename, pgroup, force=false
+</p>
+
+<p>
+cmd: <br />
+</p>
+<ol class="org-ol">
+<li>umount -l mountpoint,  (fun: umount<sub>root</sub>)</li>
+<li>btrfs subvol list -o subvol<sub>mountpoint</sub></li>
+<li>btrfs subvol delete subvol, 删除下面的 子volume</li>
+<li>btrfs subvol delete subvol, 删除该mount point的volume</li>
+<li>btrfs qgroup show mountpoint (fun: qgroup<sub>destroy</sub>), 查找 qgroup</li>
+<li>btrfs qgroup destroy qid mountpoint, 删除 qgroup</li>
+</ol>
+</div>
+</li>
+
+
+<li><a id="org9789916"></a>qgroup<sub>destroy</sub><br />
+<div class="outline-text-6" id="text-1-2-3-19-3">
+<p>
+fun: qgroup<sub>destroy</sub>
+</p>
+
+<p>
+in: gid, mount<sub>point</sub>
+</p>
+
+<p>
+cmd:
+</p>
+<ul class="org-ul">
+<li>查找 btrfs qgroup show moutpoint</li>
+<li>删除 btrfs qgroup destroy qid mountpoint</li>
+</ul>
+</div>
+</li>
+</ol>
+</li>
+
+<li><a id="org455fd6d"></a>snap<br />
+<ol class="org-ol">
+<li><a id="org61849c7"></a>获取 snap 详细信息<br />
+<div class="outline-text-6" id="text-1-2-3-20-1">
+<p>
+fun: parse<sub>snap</sub><sub>details</sub>
+</p>
+
+<p>
+in: pool mount point, snap path
+</p>
+
+<p>
+return:
+</p>
+<ul class="org-ul">
+<li>snapshot name or None , if snap is clone</li>
+<li>writable</li>
+<li>is<sub>clone</sub></li>
+</ul>
+</div>
+</li>
+
+<li><a id="org3e18348"></a>获取 snap 信息<br />
+<div class="outline-text-6" id="text-1-2-3-20-2">
+<p>
+fun: snaps<sub>info</sub>
+cmd: btrfs subvolume list -u -p -q mountpoint
+return: snap dict
+</p>
+
+<pre class="example">
+
+sudo btrfs subvol list -u -p -q .
+ID 256 gen 42 parent 5 top level 5 parent_uuid -
+	uuid a9d20f4c-555b-d746-92d0-21280852e009 path a
+ID 257 gen 42 parent 5 top level 5 parent_uuid -
+	uuid 41fe9e5f-c0dd-9941-875e-3d60fd880ef0 path b
+
+
+</pre>
+</div>
+</li>
+
+
+
+<li><a id="org401d057"></a>获取 property<br />
+<div class="outline-text-6" id="text-1-2-3-20-3">
+<p>
+fun: get<sub>property</sub>
+</p>
+
+<p>
+in:  mount point, property name
+</p>
+
+<p>
+cmd: btrfs property get mnt<sub>pt</sub> prop<sub>name</sub> 
+</p>
+
+<p>
+mount point: Vol(pool)/subvol(share/snap)
+</p>
+
+<p>
+suppont property :
+</p>
+<ul class="org-ul">
+<li>ro</li>
+<li>compression</li>
+<li>label</li>
+</ul>
+
+<pre class="example">
+$ btrfs property get  .
+   ro=false
+   label=hello
+</pre>
+</div>
+</li>
+
+
+<li><a id="orgba7e892"></a>获取 snap<br />
+<div class="outline-text-6" id="text-1-2-3-20-4">
+<p>
+fun: get<sub>snap</sub>, <br />
+	 get<sub>oldest</sub><sub>snap</sub>, get<sub>lastest</sub><sub>snap</sub> 是上面函数的包装
+</p>
+
+
+<p>
+in: subvol path, oldest, num<sub>retain</sub>, regex , test<sub>model</sub>
+</p>
+
+<p>
+cmd: btrfs subvol list -o subvol<sub>path</sub>
+</p>
+
+<p>
+-o 获取指定目录的 subvolumes,  但可能会被deprecated
+参考:
+<a href="https://www.mail-archive.com/linux-btrfs@vger.kernel.org/msg75514.html">https://www.mail-archive.com/linux-btrfs@vger.kernel.org/msg75514.html</a>
+</p>
+</div>
+</li>
+
+
+<li><a id="orgbde2623"></a>删除 snap<br />
+<div class="outline-text-6" id="text-1-2-3-20-5">
+<p>
+fun: remove<sub>snap</sub>
+</p>
+
+<p>
+in: pool, share<sub>name</sub>, snap<sub>name</sub>, snap<sub>qgroup</sub>
+</p>
+
+<p>
+snap path:  pool<sub>root</sub><sub>mount</sub>/.snapshots/share<sub>name</sub>/snap<sub>name</sub>
+</p>
+
+<p>
+cmd : <br />
+</p>
+
+<p>
+该 snap path 存在 subvolume ? 
+</p>
+<ul class="org-ul">
+<li>btrfs subvolume delete snap<sub>path</sub></li>
+<li>qgroup<sub>desnroy</sub>(查找并删除qgroup)</li>
+</ul>
+
+<p>
+不存在
+</p>
+<ul class="org-ul">
+<li>btrfs subvolume list -s root<sub>mount</sub></li>
+<li>模式匹配, ID.*{snap<sub>name</sub>}$,  snap=root<sub>mountpoint</sub>/id</li>
+<li>btrfs subvolume delete snap</li>
+</ul>
+</div>
+</li>
+
+<li><a id="org2d6c19d"></a>add snap<br />
+<div class="outline-text-6" id="text-1-2-3-20-6">
+<p>
+add<sub>snap</sub>, add<sub>clone</sub> 是对 add<sub>snap</sub><sub>helper的包装</sub>
+</p>
+</div>
+
+<ol class="org-ol">
+<li><a id="org4c5afd5"></a>snap helper<br />
+<div class="outline-text-7" id="text-1-2-3-20-6-1">
+<p>
+fun: add<sub>snap</sub><sub>helper</sub>
+</p>
+
+<p>
+in: orig<sub>path</sub>, snap<sub>path</sub>
+</p>
+
+<p>
+cmd: btrfs subvolume snapshot orig<sub>path</sub> snap
+</p>
+
+<p>
+当 clone 场景 : <br />
+   从snapshot 克隆: orig<sub>path</sub> = pool<sub>root</sub><sub>mountpoint</sub>/.snapshots/share/ <br />
+   其他:            orig<sub>path</sub> = pool<sub>root</sub><sub>mountpoint</sub>/share<sub>path</sub> 
+</p>
+
+<p>
+当 add snap 场景:
+   orig<sub>path</sub> = share<sub>mountpoint</sub>
+   snap<sub>path</sub> = share<sub>mountpoint</sub>/.snapshots/share<sub>subvol</sub><sub>name</sub>/snap<sub>name</sub>
+</p>
+</div>
+</li>
+</ol>
+</li>
+</ol>
+</li>
+
+
+<li><a id="orgabdf9df"></a>scrub<br />
+<ol class="org-ol">
+<li><a id="org536f0aa"></a>scrub<sub>start</sub><br />
+<div class="outline-text-6" id="text-1-2-3-21-1">
+<p>
+fun: scrub<sub>start</sub>
+</p>
+
+<p>
+in: pool
+</p>
+
+<p>
+ref: pool<sub>scrub.py</sub>
+</p>
+
+<p>
+cmd: btrfs scrub start -B mount<sub>point</sub>
+</p>
+
+<p>
+   -B:  do not background and print scrub statistics when  finished
+注: 执行是开启新的进程进行
+</p>
+
+<pre class="example">
+scrub done for 28a933c4-6f53-4fc2-8418-edf68d3659e7
+Scrub started:    Mon Jul 11 16:12:27 2022
+Status:           finished
+Duration:         0:00:00
+Total to scrub:   88.00MiB
+Rate:             0.00B/s
+Error summary:    csum=1
+  Corrected:      0
+  Uncorrectable:  1
+  Unverified:     0
+ERROR: there are uncorrectable errors
+
+</pre>
+</div>
+</li>
+
+<li><a id="org33f4197"></a>scrub<sub>status</sub><br />
+<div class="outline-text-6" id="text-1-2-3-21-2">
+<p>
+fun: scrub<sub>status</sub>
+</p>
+
+<p>
+in: pool
+</p>
+
+<p>
+cmd: btrfs scrub status -R mount<sub>point</sub>
+</p>
+
+
+<pre class="example">
+UUID:             28a933c4-6f53-4fc2-8418-edf68d3659e7
+Scrub started:    Mon Jul 11 16:12:27 2022
+Status:           finished
+Duration:         0:00:00
+	data_extents_scrubbed: 8
+	tree_extents_scrubbed: 22
+	data_bytes_scrubbed: 163840
+	tree_bytes_scrubbed: 360448
+	read_errors: 0
+	csum_errors: 1
+	verify_errors: 0
+	no_csum: 0
+	csum_discards: 0
+	super_errors: 0
+	malloc_errors: 0
+	uncorrectable_errors: 1
+	unverified_errors: 0
+	corrected_errors: 0
+	last_physical: 105906176
+
+</pre>
+</div>
+</li>
+</ol>
+</li>
+
+
+<li><a id="org3fa917a"></a>resize<br />
+<ol class="org-ol">
+<li><a id="org5f20353"></a>resize pool<br />
+<div class="outline-text-6" id="text-1-2-3-22-1">
+<p>
+fun: start<sub>resize</sub><sub>pool</sub>
+</p>
+
+<p>
+in: cmd
+</p>
+
+<p>
+ref:
+   huey: 轻量级异步任务队列简介 <br />
+   标记为 @task, 被huey 调用 async bypass function (start<sub>resize</sub><sub>pool.call</sub><sub>local</sub>())
+</p>
+</div>
+</li>
+
+<li><a id="org9f79878"></a>balance<br />
+<div class="outline-text-6" id="text-1-2-3-22-2">
+<p>
+fun: start<sub>balance</sub>
+</p>
+
+<p>
+in: mount<sub>point</sub>, force=None, convert=None
+</p>
+
+<p>
+cmd: btrfs balance start mount<sub>point</sub>
+</p>
+
+<p>
+force 时, 增加 -f 参数
+</p>
+
+<p>
+dconvert mconvert, data 和 meta 的转换, 例如: <br />
+   btrfs balance start -dconvert=raid5  /mydata <br />
+   btrfs balance start -mconvert=raid5  /mydata <br />
+</p>
+
+<p>
+查看: btrfs filesystem filesystem mount<sub>point</sub>
+</p>
+
+
+<pre class="example">
+ sudo dmesg |tail
+[712489.044636] BTRFS info (device loop0): relocating block group 30408704 flags metadata|dup
+[712489.069940] BTRFS info (device loop0): found 5 extents, stage: move data extents
+[712489.089790] BTRFS info (device loop0): relocating block group 22020096 flags system|dup
+[712489.105284] BTRFS info (device loop0): found 1 extents, stage: move data extents
+[712489.125579] BTRFS info (device loop0): relocating block group 13631488 flags data
+[712489.133105] BTRFS warning (device loop0): csum failed root -9 ino 259 off 77824 csum 0xad822372 expected csum 0x4082356f mirror 1
+[712489.133113] BTRFS error (device loop0): bdev /dev/loop0 errs: wr 0, rd 0, flush 0, corrupt 5, gen 0
+[712489.133426] BTRFS warning (device loop0): csum failed root -9 ino 259 off 77824 csum 0xad822372 expected csum 0x4082356f mirror 1
+[712489.133433] BTRFS error (device loop0): bdev /dev/loop0 errs: wr 0, rd 0, flush 0, corrupt 6, gen 0
+[712489.140867] BTRFS info (device loop0): balance: ended with status: -5
+
+</pre>
+</div>
+</li>
+
+<li><a id="org9e1c51d"></a>balance status<br />
+<div class="outline-text-6" id="text-1-2-3-22-3">
+<p>
+fun: balance<sub>status</sub>
+</p>
+
+<p>
+in: pool
+</p>
+
+<p>
+cmd: btrfs balance status mount<sub>point</sub>
+</p>
+</div>
+</li>
+
+
+<li><a id="orgce7a568"></a>balance status internal<br />
+<div class="outline-text-6" id="text-1-2-3-22-4">
+<p>
+fun: balance<sub>status</sub><sub>internal</sub>
+</p>
+
+<p>
+in: pool
+</p>
+
+<p>
+cmd: btrfs dev usage -b mount<sub>point</sub>
+</p>
+
+<p>
+快速获取状态的一个方法, 因为 balance 可能会持续很久?
+如果 unallocated 的值 是个负, 表明 balance 可能还没做完.
+</p>
+
+<pre class="example">
+$ sudo btrfs dev usage -b ./
+/dev/loop0, ID: 1
+   Device size:           367001600
+   Device slack:                  0
+   Data,single:             8388608
+   Metadata,DUP:          100663296
+   System,DUP:             67108864
+   Unallocated:           190840832
+</pre>
+</div>
+</li>
+</ol>
+</li>
+
+<li><a id="org1a90401"></a>device scan<br />
+<div class="outline-text-5" id="text-1-2-3-23">
+<p>
+fun : device<sub>scan</sub>
+</p>
+
+<p>
+in: device list
+</p>
+
+<p>
+cmd: btrfs device scan
+</p>
+
+<pre class="example">
+$ sudo btrfs device scan /dev/loop0
+Scanning for btrfs filesystems on '/dev/loop0'
+</pre>
+</div>
+</li>
+
+<li><a id="org6ff4cd2"></a>btrfs uuid<br />
+<div class="outline-text-5" id="text-1-2-3-24">
+<p>
+fun: btrfs<sub>uuid</sub>
+</p>
+
+<p>
+cmd: btrfs filesystem show mount<sub>point</sub>
+</p>
+</div>
+</li>
+</ol>
+</div>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="author">Author: guo</p>
+<p class="date">Created: 2022-07-11 Mon 20:48</p>
+</div>
+</body>
+</html>

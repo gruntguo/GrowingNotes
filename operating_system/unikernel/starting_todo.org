@@ -1,0 +1,24 @@
+* todo
+
+** sandbox
+
+   bubblewrap:
+   https://github.com/containers/bubblewrap
+
+   includeos:
+   https://www.includeos.org/
+
+   mirage:
+
+
+   Albatross: orchestrate and manage MirageOS unikernels with Solo5
+   https://github.com/roburio/albatross
+
+
+   full stack engineer:
+   https://hannes.nqsb.io/Posts
+   
+** os
+
+   muen:
+   https://muen.sk/

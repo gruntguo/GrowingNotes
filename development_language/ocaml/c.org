@@ -1,0 +1,5 @@
+* linux c
+
+** attribute
+
+   __attribute__((format(printf, a, b))) ,

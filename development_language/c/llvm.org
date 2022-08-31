@@ -1,0 +1,42 @@
+* llvm
+
+** installation
+
+   apt install clang lldb
+
+   clang -ccc-print-phases lex.yy.c
+
+   clang -E 预处理
+
+   clang -Xclang -dump-tokens  词法分析
+
+   clang -fsyntax-only -Xclang -ast-dump  语法解析
+
+
+
+*** 过程分析
+
+	clang -ccc-print-phases lex.yy.c
+	
+	过程分析:
+    - 0.找到main.c文件
+    - 1.预处理器，处理include、import、宏定义
+    - 2.编译器编译，编译成ir中间代码
+    - 3.后端，生成汇编代码
+    - 4.汇编代码生成目标代码
+    - 5.链接其他库生成image
+
+*** 中间代码
+
+	中间代码有三种形式:
+	
+	- text:便于阅读的文本格式，类似于汇编语言，拓展名.ll， $ clang -S -emit-llvm main.c
+    - memory:内存格式
+    - bitcode:二进制格式，拓展名.bc， $ clang -c -emit-llvm main.c
+
+
+** 参考
+
+   clang: https://clang.llvm.org/
+   llvm: https://llvm.org/docs/
+   ir-入门: https://github.com/Evian-Zhang/llvm-ir-tutorial

@@ -1,0 +1,13 @@
+* glib
+
+** type
+
+*** gvariant
+
+	immutable
+
+	threadsafe
+	
+	optimised for dealing with data in serialized form
+
+	largely compatible with D-Bus.
