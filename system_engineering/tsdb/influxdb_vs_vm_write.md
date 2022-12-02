@@ -6,6 +6,8 @@ InfluxDB存储引擎目前是TSM(Time Structed Merge Tree)，本质是LSM(Log St
 
 VM存储引擎也是基于LSM，适应写多读少、连续读的场景。
 
+![](../img/lsm.jpg)
+
 
 
 ### 一. influxDB的写入
@@ -49,6 +51,12 @@ func (e *Engine) ShouldCompactCache(t time.Time) bool {
 
 ![image-20220725152853785](../img/influx-cache-compact.png)
 
+```
+card := cache.Count()
+concurrency := card / 2e6
+splits := cache.Split(concurrency)
+```
+
 
 
 压缩算法：
@@ -71,13 +79,67 @@ func (e *Engine) ShouldCompactCache(t time.Time) bool {
 
 compact仅涉及数据文件的合并，不涉及压缩。
 
+![](../img/influx-data.jpg)
+
+LSM通常会有“写放大”的问题，在Compact的过程中，一份数据不停的被Merge到下一个Level；这就导致一份数据，被来回的读取->写入磁盘多次，该现象称为“写放大”。
+
+为避免“写放大”，influxdb的compact的算法：
+
+* 限制compact Level最大=4；
+* 同时，对level中执行compact的文件个数进行限制：
+  * level=1时，最少8个文件一起合并；
+  * level>1时，最少4个文件一起合并；
+
+```
+func (c *DefaultPlanner) PlanLevel(level int) []CompactionGroup {
+	...
+	minGenerations := 4
+    if level == 1 {
+        minGenerations = 8
+    }
+    ...
+}
+```
+
+同时，在1次compact中，只能选择1个level的N个文件compact；当多个level都可以进行compact时，使用权重选择其中1个level：
+
+```
+var defaultWeights = [4]float64{0.4, 0.3, 0.2, 0.1}
+
+func (s *scheduler) next() (int, bool) {
+    ...
+    var weight float64
+    for i := 0; i < end; i++ {
+        if float64(s.queues[i])*s.weights[i] > weight {
+            level, runnable = i+1, true
+            weight = float64(s.queues[i]) * s.weights[i]
+        }
+    }
+    return level, runnable
+}
+```
+
 
 
 ### 二. vm的写入
 
 
 
-#### 1. 数据结构
+#### 1. 数据目录
+
+data目录保存指标数据，包含small和big目录：
+
+* small目录保存最近写入的数据；
+  * 目录按月分为若干个partition，每个partition保存1个月内写入的数据，比如2022_07；
+  * 每个partition下包含若干个part，每个part均保存最近写入的数据；
+  * part的命名规则：rowsCount_blocksCount_minTime_maxTime_timeHex；
+* big目录保存远期数据；
+
+![](../img/vm-data.jpg)
+
+
+
+####  2. 数据目录
 
 * partition对应一个目录，存放一个月的数据
 * smallParts对应small目录，存放最近写入的数据；
@@ -86,19 +148,18 @@ compact仅涉及数据文件的合并，不涉及压缩。
 ![](../img/vm-data-struct.jpg)
 
 ```
-├── big
-│   ├── 2022_07
-│   │   ├── tmp
-│   │   └── txn
-│   └── snapshots
-├── flock.lock
-└── small
-    ├── 2022_07
-    │   ├── 9198703_147390_20220708021944.621_20220708032254.348_16FF7D342AC6BA17
-    │   ├── tmp
-    │   └── txn
-    └── snapshots
+type partition struct {
+    ...
+    smallParts []*partWrapper
+
+    bigParts []*partWrapper
+
+	rawRows rawRowsShards
+    ...
+}
 ```
+
+保存到磁盘中的part，由time/value/index/metaindex等文件构成：
 
 ```
 # ls -alh small/2022_07/9198703_147390_20220708021944.621_20220708032254.348_16FF7D342AC6BA17/
@@ -116,10 +177,12 @@ drwxr-xr-x 5 root root  105 7月  21 18:04 ..
 
 #### 2. 写入和压缩
 
-* 数据写入时，写入内存shard即返回client；
+* 数据写入时，**写入内存shard即返回**client；
   * 每个shard存放1w~50w条数据
 
 ```
+var rawRowsShardsPerPartition = (cgroup.AvailableCPUs() + 3) / 4
+
 func getMaxRawRowsPerShard() int {
     maxRawRowsPerPartitionOnce.Do(func() {
         n := memory.Allowed() / rawRowsShardsPerPartition / 256 / int(unsafe.Sizeof(rawRow{}))
@@ -135,7 +198,30 @@ func getMaxRawRowsPerShard() int {
 }
 ```
 
-* shard内数据，每隔1s，以8K rows为一组，将其压缩写入inmemoryPart(内存)；
+* shard内数据，每隔1s，以8K rows为一组(block)，将其flush到inmemoryPart(内存)；
+
+```
+func (pt *partition) rawRowsFlusher() {
+    ticker := time.NewTicker(rawRowsFlushInterval)    // 常量=1s
+    defer ticker.Stop()
+    for {
+        select {
+        case <-pt.stopCh:
+            return
+        case <-ticker.C:
+            pt.flushRawRows(false)
+        }
+    }
+}
+```
+
+
+
+shard和inmemoryPart的数据都在内存，由于没有wal，导致宕机丢失。
+
+
+
+shard内数据flush到inmemoryPart过程中，会进行压缩：
 
   * 压缩主要针对timestamp和value，time是[]int64，value是[]float64；
   * 将value的[]float64转换为scale+[]int64；
@@ -159,15 +245,53 @@ func getMaxRawRowsPerShard() int {
 
 ![](../img/vm-compact.jpg)
 
-* inmemoryPart(内存)的数据，每隔5s，以15个inmemoryPart为一组，合并后刷入磁盘的small目录；
+
+
+inmemoryPart(内存)的数据，每隔5s，以15个inmemoryPart为一组，合并后刷入磁盘的small目录；
+
+```
+func (pt *partition) inmemoryPartsFlusher() {
+    ticker := time.NewTicker(inmemoryPartsFlushInterval)    //常量=5秒
+    defer ticker.Stop()
+    var pwsBuf []*partWrapper
+    var err error
+    for {
+        select {
+        case <-pt.stopCh:
+            return
+        case <-ticker.C:
+            pwsBuf, err = pt.flushInmemoryParts(pwsBuf[:0], false)
+            ...
+        }
+    }
+}
+```
+
+
+
+shard和inmemoryPart的数据都在内存，由于没有wal，导致节点宕机时，出现丢失；
+
+在集群模式下，由于多节点写入(--replicationFactor)和多节点读取，故可以容忍写入时部分节点宕机。
 
 
 
 #### 3. 合并
 
-定期检查small目录的数据，以15个为一组，合并到1个big目录；
+定期(10s)检查small目录的part，以15个为一组，合并到1个新目录。
 
-仅涉及数据文件的合并，不涉及压缩。
+仅涉及数据文件的合并，**不涉及压缩**。
+
+
+
+合并的步骤：
+
+* 首先，从smallParts[]中筛选最多15个part进行合并；筛选的算法：(目标，减小“写放大”)
+  * 将所有parts按(size, minTimestamp)排序；
+  * 从parts中寻找一段连续的parts，返回**m**最大的连续parts：
+    * m=(连续parts的sumSize / 连续parts最后一个part的size)，即筛选出连续的size差别不大的part；
+    * 要求maxM > min(len(parts), 15) / 2，即必须超过一半；
+* 然后，计算筛选后的sumSize，若sumSize>(剩余内存/15)，则merge到bitPart，否则merge到smallPart；
+  * 即内存足够充裕时，优先merge到bigPart，否则merge到smallPart；
 
 
 
@@ -189,8 +313,6 @@ func getMaxRawRowsPerShard() int {
   * influxdb的tsm file中除了包含timestamp/value数据，还包含index数据；
     * 导致一段时间内的N个tsm file，包含相同的index数据，重复存储；
   * vm的timestamp/value数据文件与index文件分别存储；
-
-
 
 
 
