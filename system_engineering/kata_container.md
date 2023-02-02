@@ -154,7 +154,7 @@ scheduling:
 apiVersion: v1
 kind: Pod
 metadata:
-  name: huayun-kata
+  name: my-kata
 spec:
   runtimeClassName: kata-containers
   containers:

@@ -18,7 +18,7 @@ VM存储引擎也是基于LSM，适应写多读少、连续读的场景。
 
 ![](../img/influx-write.jpg)
 
-写数据是，写入cache和wal后，就返回client：
+写数据时，写入cache和wal后，就返回client：
 
 * wal保证了宕机重启后，数据可以恢复；
 * cache的数据，会被后台的compact线程定期的保存到磁盘；
@@ -92,8 +92,8 @@ LSM通常会有“写放大”的问题，在Compact的过程中，一份数据�
 
 ```
 func (c *DefaultPlanner) PlanLevel(level int) []CompactionGroup {
-	...
-	minGenerations := 4
+	  ...
+	  minGenerations := 4
     if level == 1 {
         minGenerations = 8
     }
