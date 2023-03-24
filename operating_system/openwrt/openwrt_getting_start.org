@@ -2,20 +2,20 @@
 
 ** installation
 
-** 服务   
-   
+** 服务
+
 *** ubus
 
    curl -d '{ "jsonrpc": "2.0", "id": 1, "method": "call", "params": [ "00000000000000000000000000000000", "session", "login", { "username": "root", "password": "xxxxxx"  } ] }'  http://<ip>/ubus
 
-   
+
 *** ash
 
 	https://www.in-ulm.de/~mascheck/various/ash/#busybox
-	
+
 *** procd
 
-	
+
 *** ssh
 
 	dropbear
@@ -32,14 +32,18 @@
 
 	TODO, research the code
 
-	
-	
+
 ** uci
 
-   ucd: Unified Configuration Interface
+   uci: Unified Configuration Interface
 
-*** uci default   
+   仍有写配置文件， 与uci 不兼容，不受管控， 例如： /etc/crontabs
+
+
+*** uci default
    /etc/uci-default , run by /etc/init.d/boot
+
+   启动时，执行uci-default的文件。
 
    #+begin_src
     uci_apply_defaults() {
@@ -57,8 +61,10 @@
 
    #+end_src
 
+
+** fs
    JFFS2 & cramfs
-   
+
    Flash 设备而发展的两种文件系统JFFS2和cramfs
 
    JFFS2和cramfs都是基于MTD驱动程序。
@@ -69,4 +75,21 @@
    Cramfs速度快效率高，由于只读特性可以保护文件系统免受破坏。
 
    [[file:img/jffs2.png][mtd]]
-   
+
+
+** package
+
+*** sqm
+
+	luci-app-sqm
+
+	https://openwrt.org/docs/guide-user/network/traffic-shaping/sqm
+
+**** 测速
+
+	 server: iperf3 -s -i 1
+	 client: iperf3 -c ipaddrs.xx
+
+	 github.com/sirpdboy/netspeedtest
+
+*** netspeedtest

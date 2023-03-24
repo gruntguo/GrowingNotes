@@ -1,0 +1,12 @@
+* monitor tool
+
+** 进程占用
+
+   查询占用cpu资源较高的进程
+   ps -e -o pcpu,pid,user,tty,args | sort -n -k 1 -r | head
+
+   top -bn1 | grep load | awk '{printf "CPU Load: %.2f\n", $(NF-2)}'
+   ps -eo pid,ppid,cmd,%mem,%cpu --sort=-%mem | head
+
+   使用top ，查看某进程的占用那
+   watch 'top -bn1 -p $( cat /var/run/wingcraft/wingcraftd.pid)'

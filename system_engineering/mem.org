@@ -1,0 +1,23 @@
+* Mem
+
+** release
+***   cache
+
+   #+begin_src shell
+	 # To avoid data lose
+	 sync;sync;sync;
+	 # To free pagecache
+	 echo 1 > /proc/sys/vm/drop_caches
+	 # To free dntries and inodes
+	 echo 2 > /proc/sys/vm/drop_caches
+	 # To free pagecache, dentries and inodes
+	 echo 3 > /proc/sys/vm/drop_caches
+   #+end_src
+
+** compact memory
+
+   echo 1 > /proc/sys/vm/compact_memory
+
+   cat /proc/buddyinfo
+
+   /proc/sys/vm/extfrg_threshold

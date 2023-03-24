@@ -3,33 +3,41 @@
 ** 安装
 
 *** gap
-
 	gaps inner 15
 	gaps outer 5
 
 *** touchpad
 	xorg.conf.d
-	
+
 	Section "InputClass"
         Identifier "touchpad"
 		MatchIsTouchpad "on"
 		Driver "libinput"
 		Option "Tapping" "on"
 	EndSection
-	
+
 *** 输入法
 	fcitx5
 
 	emacs 输入法问题:
-	
+
 	export XMODIFIERS=@im=fcitx
 	export LC_CTYPE=zh_CN.UTF-8
 	export QT_IM_MODULE=fcitx
 	export GTK_IM_MODULE=fcitx
 
+*** light
 
-	   
+	# 查看电脑的最大亮度值，我的是800多。不同电脑max_brightness的路径可能不一样，但是一般都在/sys/class/backlight/里面
+	cat /sys/class/backlight/intel_backlight/max_brightness
+	# 设置你认为合适的亮度值
+	sudo tee /sys/class/backlight/intel_backlight/brightness <<< 100
+
+** 显示设置
+
+xrandr --output HDMI-1 --auto --left-of eDP-1 --mode 1920x1080
+xrandr --output HDMI-1 --off
+
 ** 常用软件
 
    截图工具: spetacle
-   

@@ -37,9 +37,6 @@
 	Base: 基本包
 	Core: 基于base的扩展
 	Core_kernel: Core 的子集,  Core_kernel 2022 被移除
-
-	
-	
    
 *** 命令式&函数式
 	使用单分号建立操作序列， 函数式编程不需要

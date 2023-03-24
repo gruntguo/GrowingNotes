@@ -17,7 +17,7 @@
 *** 过程分析
 
 	clang -ccc-print-phases lex.yy.c
-	
+
 	过程分析:
     - 0.找到main.c文件
     - 1.预处理器，处理include、import、宏定义
@@ -29,10 +29,168 @@
 *** 中间代码
 
 	中间代码有三种形式:
-	
+
 	- text:便于阅读的文本格式，类似于汇编语言，拓展名.ll， $ clang -S -emit-llvm main.c
     - memory:内存格式
     - bitcode:二进制格式，拓展名.bc， $ clang -c -emit-llvm main.c
+
+
+** tools & lib
+
+	clang -### xxx xxx 可以看出期间调用的工具
+
+*** 独立工具
+
+	- opt, IR级别优化
+	- llc, 转汇编或目标文件
+	- llvm-mc, 生成ELF，MachO，PE等
+	- lli, LLVM IP 的解释器和 JIT 编译器
+	- llvm-link, 将llvm位码链接在一起
+	- llvm-as, IR 转 位码
+	- llvm-dis, llvm 位码 解码成LLVM汇编码
+
+*** 使用示例
+
+	$ clang -emit-llvm -c main.c -o main.bc
+	$ clang -emit-llvm -c sum.c -o sum.bc
+
+	-emit-llvm  标准告诉clang, 是否存在 -c（生成llvm 位码） -S（生成汇编）
+
+	生成人工可读的汇编：
+
+	$ clang -emit-llvm -S -c sum.c -o sum.ll
+	$ clang -emit-llvm -S -c main.c -o main.ll
+
+	继续 编译，可以使用两种方式：
+	第一，
+	$ llc -filetype=obj main.bc -o main.o
+	$ llc -filetype=obj sum.bc -o sum.o
+	$ clang main.o sum.o -o sum
+
+	第二，
+	$ llvm-link main.bc sum.bc -o sum.linked.bc
+	$ llc -filetype=obj sum.linked.bc -o sum.linked.o
+	$ clang sum.linked.o -o sum
+
+*** 基本库
+
+	- libLLVMCore
+	- libLLVMAnalysis
+	- libLLVMCodeGen
+	- libLLVMTarget
+	- libLLVMX86Codegen
+	- libLLVMSupport
+	- libclang
+	- libclangDriver
+	- libclangAnalysis
+
+** frontend
+
+*** clang
+
+	clang -cc1
+
+	clang -X<option>
+
+	打印抽象语法树：
+	clang -Xclang -ast-dump xxx.c
+	clang -cc1 -ast-dump xxx.c
+
+**** 阶段，phase
+
+	 - 词法分析
+	 - 语法分析
+	 - 语义分析
+	 - LLVM IR生成器
+
+***** 语法分析
+
+ 	  $ clang -fsyntax-only -Xclang -ast-dump hello.c
+
+	  使用预编译头文件，序列化AST
+
+	  $ clang -x c-header myheader.h -o myheader.h.pch
+	  $ clang -include myheader.h myproject.c -o myproject
+
+
+
+***** 语义分析
+
+
+
+** IR 中间表示
+
+*** 操作 IR 基本工具
+
+	 位码：
+	 $ clang sum.c -emit-llvm -c -o sum.bc
+	 汇编文本：
+	 $ clang sum.c -emit-llvm -S -o sum.ll
+	 IR 汇编文本，创建相应位码
+	 $ llvm-as sum.ll -o sum.bc
+	 位码 转 汇编文本
+	 $ llvm-dis sum.bc -o sum.ll
+	 提取IR函数，全局变量
+	 $ llvm-extract -func=sum sum.bc -o sum-fn.bc
+
+*** opt
+
+	 $ opt -O3 sum.bc -o sum-03.bc
+
+	 $ llvm-link file.bc file2.bc file3.bc -o=all.bc
+	 $ opt -std-link-opts all.bc -o all-std1.bc
+
+	 单独优化：
+	 $ opt sum.bc -mem2reg -instcount -o sum-tmp.bc -stats
+
+*** 优化流程
+
+	 - 分析流程， analysis pass
+	 - 变换流程， transform pass
+
+	 #+begin_src
+	   opt  sum-O0.ll -debug-pass=Structure -mem2reg -S -o sum-O1.ll
+	   Pass Arguments:  -targetlibinfo -tti -targetpassconfig -assumption-cache-tracker -domtree -mem2reg -verify -print-module
+	   Target Library Information
+	   Target Transform Information
+	   Target Pass Configuration
+	   Assumption Cache Tracker
+	     ModulePass Manager
+	       FunctionPass Manager
+	         Dominator Tree Construction
+	         Promote Memory to Register
+	         Module Verifier
+	       Print Module IR
+
+	 #+end_src
+
+** 后端
+
+   llc 是后端主要工具
+
+   $ llc sum.bc -o sum.s
+   $ llc sum.bc -filetype=obj -o sum.o
+
+   使用 march 指定特殊的后端
+
+   $ llc -march=mips -filetype=obj sum.bc -o sum.o
+
+** 静态分析
+
+   clang -cc1 -analyzer-checker-help
+
+   检查：
+   clang -cc1 -analyze -analyzer-checker=core joe.c
+   clang  --analyze -Xanalyzer -analyzer-checker=core joe.c
+
+   生成报告：
+   -o report
+
+   处理大型项目：
+   scan-build gcc -c joe.c -o joe.o
+   scan-view
+
+** 其他工具
 
 
 ** 参考
