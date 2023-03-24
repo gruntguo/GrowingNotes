@@ -97,7 +97,7 @@ vmctl的工作原理：
 * 其次，并发的通过M个goroutine，查询**各个**series下的所有datapoints，将其push到内存队列中；
 * 最后，并发的通过N个goroutine，将内存队列中的datapoints**批量**的通过HTTP接口写入vm；
 
-![](./img/vmctl-arch.jpg)
+![](../img/vmctl-arch.jpg)
 
 
 
