@@ -25,6 +25,9 @@
      gsettings range xxx key-xxx  , 查看类型
      gsettings list-recursively
 
+*** cap
+	sudo setcap cap_dac_override=eip /usr/local/bin/emacs-27.2
+	 
 ** disk
 
    aliaes, /dev/disk/by-id/

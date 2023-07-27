@@ -1,0 +1,39 @@
+* elisp
+
+** key
+
+   C-x C-e,  evaluate
+   C-h f,  show the function name and doc-string
+   destribe-function
+   C-u, then M-x multiply-by-seven  <RET>,  pass the arg?   C-u 3 M-x,  pass de argument 3 to
+       M-3 M-e
+** fun
+
+   describe-function
+   xref-find-definitions
+   
+
+   
+*** buffer
+	(other-buffer)
+	(switch-to-buffer)
+	(buffer-size)
+	(point)
+	(point-min)(point-max)
+	(mark-whole-buffer)
+	buffer-name
+	buffer-file-name
+	current-buffer
+	set-buffer
+
+*** if
+
+	equal， 相似的结构和内容
+	eq, 相同的对象
+	string<
+	string-lessp
+	string=
+	string-equal
+
+*** message	
+***   save-excursion

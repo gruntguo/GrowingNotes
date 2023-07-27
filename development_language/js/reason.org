@@ -1,0 +1,169 @@
+* reason
+
+** basic
+
+*** primitives
+
+	
+**** bit	
+	 [[http://graphics.stanford.edu/~seander/bithacks.html][bithacks]]
+   
+*** function
+
+	Partially applying out of order
+      let half = divide(_, 2); half(10); // 5
+
+	Optional arguments with default
+      let divide = (~a=100, ~b) => a / b;
+
+	Function chaining (pipe)
+      32 |> half |> half; // 8
+
+
+**** function type
+
+	 Inline typing
+	   let divide = (a: int, b: int): int => a / b;
+
+	 Standalone type
+	   type intFn = (int, int) => int;
+
+	 Using standalone type
+	   let divide: intFn = (a, b) => a / b;
+	  
+	 Typing optional arguments
+	   let print = (~prefix: option(string)=?, text) => {...};
+
+*** Basic Structures
+
+	List: immutable [1, 2, 3]
+	List add to front	[a1, a2, ...theRest]
+	List concat	[a1, a2] @ theRest
+	Array (Mutable)	[|1, 2, 3|]
+	Array access	let arr = [|1, 2, 3|]; arr[1];
+	Tuples	(1, "hello")
+
+**** List
+
+	 add to list is slow
+
+**** array
+
+	 let first = arrayA[0]
+
+*** type
+
+**** type annotations
+
+**** type parameters
+
+	 Type parameters	type pair('a, 'b) = ('a, 'b);
+	 Annotation with parameters	let x: pair(int, string) = (10, "ten");
+	 String list	let x: list(string) = ["Hello", "World"];
+
+	 type list('item) = ...
+	 let x: list(int) = [1, 2, 3];
+	 let y: list(string) = ["one", "two", "three"]
+
+	 multiyle parameters and be nested:
+	 #+begin_src 
+
+	 type pair('a, 'b) = ('a, 'b);
+	 
+	 let x: pair(int, string) = (1, "one");
+	 let y: pair(string, list(int)) = ("123", [1, 2, 3]);
+
+	 #+end_src
+
+**** opaque types
+	 
+	 
+*** records
+
+	Record definition	type t = {foo: int, bar: string};
+	Record creation	let x = {foo: 10, bar: "hello"};
+	Record access	x.foo;
+	Record spread	let y = {...x, bar: "world"};
+	Destructuring	let {foo, bar} = x;
+	Mutable record fields	type t = {mutable baz: int}; let z = {baz: 10};
+	Mutable record updates	z.baz = 23;
+	With type parameters	 type t('a) = {foo: 'a, bar: string};
+
+**** update
+
+	 #+begin_src
+	 let happyBirthday = (person) => {
+	   {...person, age: person.age + 1};
+	 };
+
+	 #+end_src
+	
+*** variants
+
+	Variant definition	type t = | Foo | Bar;
+	Variants with args	type t = | Foo(string) | Bar(int);
+	With type parameters	type t('a) = | One('a) | Two('a, 'a);
+	Using a variant	let x = Two("Hello", "World");
+
+*** pattern matching
+
+	#+begin_src reason
+
+	switch (foo) {
+	| Some(value) => doSomething(value)
+    | None => error()
+
+	#+end_src
+
+*** Refs
+
+	Type (already defined)	type ref('a) = {mutable contents: 'a};
+	Ref creation	let x = ref(10); or let x = {contents: 10};
+	Ref access	x^; or x.contents;
+	Ref update	x := 20; or x.contents = 20;
+
+*** loops
+
+	Loops are discouraged in most case.
+
+	While	while (condition) {...}
+	For (incrementing)	for (i in 0 to 9) {...} (inclusive)
+	For (decrementing)	for (i in 9 downto 0) {...} (inclusive)
+
+*** modules
+
+	Module creation	module Foo = { let bar = 10; };
+	Module member access	Foo.bar;
+	Module types	module type Foo = { let bar: int; };
+   
+
+*** functors
+
+	#+begin_src reason
+
+	module type Stringable = {
+	  type t;
+	  let toString: (t) => string;
+	};
+
+	module Printer = (Item: Stringable) => {
+	  let print = (t: Item.t) => {
+	    print_endline(Item.toString(t));
+	  };
+
+	  let printList = (list: list(Item.t)) => {
+	    list
+	    |> List.map(Item.toString)
+	    |> String.concat(", ")
+	    |> print_endline;
+	  };
+	};
+
+	module IntPrinter = Printer({
+	  type t = int;
+	  let toString = string_of_int;
+	});
+
+	IntPrinter.print(10); // 10
+	IntPrinter.printList([1, 2, 3]); // 1, 2, 3
+	#+end_src

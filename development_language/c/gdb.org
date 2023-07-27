@@ -1,0 +1,134 @@
+* gdb
+
+** 执行
+   
+    n ：执行下一行程序
+    s ：执行下一行程序，如果遇到函数 直接跳入函数，跳出该函数使用fin/return
+
+	C（continue），不能是r，r代表restart，从头开始执行
+	
+	restart/r
+
+	jump number(行号)， 跳过的不执行
+
+	until/u， 跳出循环;  until num, 跳到指定行数
+
+	return, 返回
+	finish, 返回后停止
+	
+** 断点
+
+   breakpoint/b
+
+   watch expr if cond
+   break expr if cond
+   
+** 查看	
+
+*** 查看信息
+
+	info/i
+	
+	info registers        ：查看当前寄存器的值
+	info args               ：查有当前函数参教的值
+	info locals             ：查看当前局部变量的值
+	info frame             ：查看当前栈的详细信息
+	info variables        ：查看程序中的变量符号
+	info functionscsd   ： 查看程序中的函数符号
+	info line
+	info args
+   
+*** 查看变量
+
+   print/p
+
+   print num = x, 修改调试变量的值
+   
+   display
+   和print 命令一样，display 命令也用于调试阶段查看某个变量或表达式的值，
+   它们的区别是，使用 display 命令查看变量或表达式的值，
+   每当程序暂停执行（例如单步执行）时，GDB 调试器都会自动帮我们打印出来，而 print 命令则不会。
+   查看display的变量数：info display
+
+   undisplay num...
+
+*** 查看变量类型
+
+	whatis
+   
+*** 内存
+
+	打印内存地址值，格式如下：
+	x/[ number][ format] < addr>
+	其中number,format都是可选参数
+
+	addr：
+	  为查看变量的内存地址
+
+	number: 一个正整数，表示从当前地址向后显示几个地址的内容，如
+	x/24 0x400c90
+	  表示查看0x400c90到向后0x400c90+24的内容
+
+	format：显示的格式不是查看的格式。和c语言中的格式缩写一样，如
+	  d:整数integer
+	  s:字符串string
+	  c:字符char
+	  u:无符号整数 unsigned integer
+	  o:八进制格式显示变量
+	  x:十六进制格式
+	  f: 浮点数格式float
+
+   
+** 线程
+
+   info threads
+
+   查看所有线程调用栈
+   thread apply all bt
+
+** 执行shell指令
+
+   shell command | !command
+
+** 自动化
+
+   comands <break_number>
+     > ...command_list...
+     > end
+     break_numer：是断点号
+     end: 结束commands 命令
+
+   #+begin_src
+     举例： 遇到断点，自动打印调用栈
+        (gdb) b free（第一个断点，使用commands时，可以省略1断点号）
+                Breakpoint 1 at 0x7fba758d54 (3 locations)
+        (gdb) commands
+                Type commands for breakpoint(s) 1, one per line.
+                End with a line saying just "end".
+                >bt
+                >c
+                >end
+   #+end_src
+   
+** 调试已运行
+
+   以下三种方式皆可：
+   1) gdb attach PID
+   2) gdb 文件名 PID
+   3) gdb -p PID
+   结束方式：
+     执行 detach 指令，使 GDB 调试器和程序分离；
+     执行 quit（或 q）指令，退出 GDB 调试。
+
+** 反汇编
+
+   disassemble/disass  
+   当在oops里看到汇编指令偏移，如下图红色方框里的数值，
+   其代表汇编指令偏移的数值，可以利用gdb的dissemble指令，
+   看到反汇编，然后逐行找到编译个命令，定位到大概在函数的多少行。   
+
+** 符号表
+
+   symbol-file
+
+   

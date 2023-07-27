@@ -1,0 +1,48 @@
+* esy build
+  
+** cheat sheet
+
+
+   #+begin_src shell
+	 # install
+	 esy install
+	 esy i
+	 esy
+	 
+	 # build
+	 esy build
+	 esy b
+	 esy
+	 
+	 #
+	 esy b dune exec ./hello.exe
+	 
+	 # run 
+	 esy x Hello
+   #+end_src
+
+*** 环境
+	
+   #+begin_src shell
+	 esy echo '#{self.install}'
+   #+end_src
+
+   #+begin_src shell
+	   # add dep
+	   esy add <dependency>
+   #+end_src
+
+*** 其他   
+   #+begin_src shell
+	 # invoke command from sandbox
+	 esy make test
+	 
+	 # run command 
+	 esy COMMAND
+	 
+	 # to shell into de project's dev env
+	 esy shell
+	 
+	 #
+	 esy help
+   #+end_src

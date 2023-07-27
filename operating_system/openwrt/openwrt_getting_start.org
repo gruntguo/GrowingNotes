@@ -2,11 +2,35 @@
 
 ** installation
 
+   检查 sha256sums 文件，
+     pg --status-fd 1 --with-fingerprint --verify sha256sums.asc sha256sums
+   check sum,
+     sha256sum --ignore-missing -c sha256sums，
+     
+
+   
 ** 服务
+
+*** uhttpd
+
+**** httpd.conf
+	 为了向下兼容， 老的 busybox 中的httpd，  默认配置在 /etc/httpd.conf
+	 主要是auth认证相关的配置。
+	 #+begin_src
+
+	/dashboard/:admin:$1$$ysVNzQc4CTMkp5daOdZ.3/
+	/:root:$p$root
+	/:alice:P@$$w0rd
+
+	 #+end_src
+
+	 https://openwrt.org/docs/guide-user/services/webserver/uhttpd
 
 *** ubus
 
    curl -d '{ "jsonrpc": "2.0", "id": 1, "method": "call", "params": [ "00000000000000000000000000000000", "session", "login", { "username": "root", "password": "xxxxxx"  } ] }'  http://<ip>/ubus
+
+   ubus call session list
 
 
 *** ash
@@ -14,7 +38,6 @@
 	https://www.in-ulm.de/~mascheck/various/ash/#busybox
 
 *** procd
-
 
 *** ssh
 
@@ -32,13 +55,11 @@
 
 	TODO, research the code
 
-
 ** uci
 
    uci: Unified Configuration Interface
 
    仍有写配置文件， 与uci 不兼容，不受管控， 例如： /etc/crontabs
-
 
 *** uci default
    /etc/uci-default , run by /etc/init.d/boot
@@ -76,7 +97,6 @@
 
    [[file:img/jffs2.png][mtd]]
 
-
 ** package
 
 *** sqm
@@ -92,4 +112,625 @@
 
 	 github.com/sirpdboy/netspeedtest
 
+
 *** netspeedtest
+
+
+*** statistical
+https://openwrt.org/docs/guide-user/perf_and_log/statistical.data.overview
+
+** build
+
+*** build process
+	ref:
+	https://openwrt.org/docs/guide-developer/toolchain/use-buildsystem
+
+
+**** build
+
+	./scripts/feeds update -a
+	./scripts/feeds install -a
+	make menuconfig
+	make kernel_menuconfig
+
+	make toolchain/install
+
+**** package
+
+	 make tool/install
+	 make toolchain/install
+
+	 make package/ncursese/compile
+	 make package/ncursese/host/compile    # host version
+
+	 make package/nano/compile
+	 make package/index
+
+**** kennel
+
+	 make target/linux/compile
+	 make package/kernel/linux/compile
+
+	 make kernel_menuconfig CONFIG_TARGET=subtarget
+
+
+**** config
+
+	 ./scripts/diffconfig.sh > diffconfig
+
+**** elf
+
+	 elf tools, ELFkickers
+	 http://www.muppetlabs.com/~breadbox/software/elfkickers.html
+
+**** make tips
+
+	 make -j$(nproc) download world
+
+	 use only idle I/O and CPU capacity (like 4 core, 8 thread),
+	 make download
+	 ionice -c 3 chrt --idle 0 nice -n19 make -j9
+
+	 build single packages,
+	 make package/utils/jsonpath/compile V=s
+	 make package/utils/jsonpath/{clean,compile} V=s
+
+	 find build error,
+	 make V=s 2>&1 | tee build.log | grep -i -E "^make.*(error|[12345]...Entering dir)"
+ 	 make V=s 2>&1 | tee build.log | grep -i '[^_-"a-z]error[^_-.a-z]'
+
+	 ionice -c 3 nice -n 20 make -j 2 V=s CONFIG_DEBUG_SECTION_MISMATCH=y 2>&1 | tee build.log
+
+	 clean,
+	 make clean
+	 make targetclean
+	 make dirclean
+	 make config-clean
+	 make disclean
+
+	 * means package is in the image and M, means not
+	 _*_ means something else depends on it , can not uncheck
+
+**** samples
+	 3 menuconfig example:
+	 https://github.com/mwarning/openwrt-examples
+
+	 backfire sample:
+	 https://forum.archive.openwrt.org/viewtopic.php?id=28766&p=1#p129319
+
+**** env
+
+	 ./scripts/env help
+	 ./scripts/env new current
+	 ./scripts/env new save
+	 ./scripts/env revert
+	 ./scripts/env switch test1
+	 ./scripts/env rename test2
+	 ./scripts/env clear
+
+*** some core package
+   libubox
+   luci
+   ubox
+   ubus
+   uci
+   ustream-ssl
+   ucode
+   json-c
+
+*** libubox
+
+**** uloop
+
+***** 主要框架
+	 #+begin_src c
+	   /**
+		,* 初始化事件循环
+		,*/
+	   int uloop_init(void)
+
+	   /**
+		,* 事件循环主处理入口
+		,*/
+		 void uloop_run(void)
+
+	   /**
+		,* 销毁事件循环
+		,*/
+		 void uloop_done(void)
+	   //----------------------------------------------
+	   // 文件描述符事件
+	   //----------------------------------------------
+	   /**
+		,* 注册一个新描述符到事件处理循环
+		,*/
+		 int uloop_fd_add(struct uloop_fd *sock, unsigned int flags)
+
+	   /**
+		,* 从事件处理循环中销毁指定描述符
+		,*/
+		 int uloop_fd_delete(struct uloop_fd *sock)
+
+	   //----------------------------------------------
+	   // 定时器事件
+	   //----------------------------------------------
+	   /**
+		,* 注册一个新定时器
+		,*/
+		 int uloop_timeout_add(struct uloop_timeout *timeout)
+
+	   /**
+		,* 设置定时器超时时间(毫秒)，并添加
+		,*/
+		 int uloop_timeout_set(struct uloop_timeout *timeout, int msecs)
+
+	   /**
+		,* 销毁指定定时器
+		,*/
+		 int uloop_timeout_cancel(struct uloop_timeout *timeout)
+
+	   /**
+		,* 获取定时器还剩多长时间超时
+		,*/
+		 int uloop_timeout_remaining(struct uloop_timeout *timeout)
+
+	   //----------------------------------------------
+	   // 定时器事件
+	   //----------------------------------------------
+
+	   /**
+		,* 注册新进程到事件处理循环
+		,*/
+		 int uloop_process_add(struct uloop_process *p)
+
+	   /**
+		,* 从事件处理循环中销毁指定进程
+		,*/
+	   int uloop_process_delete(struct uloop_process *p)
+
+	 #+end_src
+
+***** 数据结构
+
+	 #+begin_src c
+			  struct uloop_fd {
+				uloop_fd_handler cb;
+				int fd;
+				bool eof;
+				bool error;
+				bool registered;
+				uint8_t flags;
+			  };
+
+			  struct uloop_timeout {
+				struct list_head list;
+				bool pending;
+				uloop_timeout_handler cb;
+				struct timeval time;
+			  };
+
+			  struct uloop_process {
+				struct list_head list;
+				bool pending;
+				uloop_process_handler cb;
+				pid_t pid;
+			  };
+	   // 事件的一些标志
+	   #define ULOOP_READ          (1 << 0)
+	   #define ULOOP_WRITE         (1 << 1)
+	   #define ULOOP_EDGE_TRIGGER  (1 << 2)
+	   #define ULOOP_BLOCKING      (1 << 3)
+	   #define ULOOP_EVENT_MASK    (ULOOP_READ | ULOOP_WRITE)
+	 #+end_src
+
+***** 事件回调
+
+	  #+begin_src c
+		typedef void (*uloop_fd_handler)(struct uloop_fd *u, unsigned int events) // 描述符
+		typedef void (*uloop_timeout_handler)(struct uloop_timeout *t) // 定时器
+		typedef void (*uloop_process_handler)(struct uloop_process *c, int ret)  // 进程
+	  #+end_src
+
+
+
+
+**** blogmsg
+
+	 二进制数据， 由 TLV （type-len-value）描述
+	 blobmsg用于二进制对象网络序列化。嵌套在blob数据结构（blob_attr）的data区。
+	 [[https://www.cnblogs.com/embedded-linux/p/6792359.html][blogmsg]]
+
+	 blob_attr--------------------------------------------------data(payload)
+	 -----------------------------------------------------------blomsg_hdr-----------------------msgdata----
+	 extended(1Bit)----ID(7Bit)----len(3Byte)----Data(4Byte)----Namelen(2byte)----Name(4Byte)----keyname----value
+
+
+*** Luci
+	LuCI with embedded Lua interpreter
+	opkg install uhttpd-mod-lua luci-sgi-uhttpd
+
+**** util
+
+	 threadlocal
+
+	 class
+
+
+
+**** lua dispatcher
+
+	 主流程：
+
+	 uhttpd -> handle request -> coroutine.create ( luci.dispatcher.httpdispatch ) -> util.coxpcall( dispatch )
+
+	 通过 node 进行路由定义
+
+	 path:
+         {"admin", "test", "test_view"},  /admin/test/test_view,  test为一级菜单， test_view 为二级
+	 target:
+	     即 menu 中， action 的 type： alias、firstchild、call、template、cbi、form、arcombine
+
+
+		 firstchild： 自动指向该节点的第一个子节点（order最小的）
+		 call(fun_name)： 调用该文件下的指定函数
+		 template(tpl_name): 根据HTM模板名称访问HTML页面， 对应 luci/view下的文件：
+		                     例如： template('admin_system/hello'),  对应 view/admin_system/hello.htm
+		 cbi(model, config): 根据给定的model文件名， 渲染一个CBI模型， 对应 luci/model/cbi 下面的文件
+		                     config为传入的配置信息， 例如 {nofooter：不显示cbi_footer, noheader: 不显示cbi_header}
+							 在dispatcher.lua 的 _cbi 方法中查找
+	     form(model): 与cbi类似， 不过渲染的是一个表单cbi模型
+		 arcombine(trg1, trg2): 当需要访问一个路由， 而这个路由有参无参目标不一样时，使用arcombine把两个target连起来
+		                        有参时， 调用trg2, 无参时， trg1
+         alias(Path)：重定向到Path上
+		 form:
+
+	 title：该节点上显示的名称， 非必填; 国际化时， _("Router") 表示英文Router,中文路由;
+	        如果不填， 就不会显示在菜单上， 但是可以通过url访问
+	 order： 菜单上显示的顺序
+
+	 节点属性（TO）：
+	 i18n :定义了在请求页面时应自动加载哪个翻译文件
+	 dependent :保护插件在父节点丢失时从上下文中调用
+	 leaf :停止在此节点处解析请求，并且在调度树中不再进一步
+	 sysauth :要求用户使用指定的帐户进行身份验证
+	 sysauth_authenticator :验证时手动指定验证方法
+	 setgroup ：设置当前进程的组ID
+	 setuser：设置当前进程的用户ID
+
+
+***** dispatch
+	 dispatch：
+	 -> menu_json -> resolve_page -> return node, ctx
+	 -> init_template_engine
+	    -> tpl.Template themes/xxx/header
+		-> tpl.context.viewns (object)-> return tpl
+	 -> auth stuff
+	 -> arcombine 逻辑
+	 -> cors & OPTIONS, (TODO)
+	 -> security check -> post check
+	 -> setuser & group
+	 -> handle by type
+
+***** menu
+	  sample menu:
+	  /usr/share/luci/menu.d/luci-base.json
+	 #+begin_src
+root@OpenWrt:/usr/lib/lua/luci/controller/admin# cat /usr/share/luci/menu.d/luci-base.json
+{
+	"admin": {
+		"title": "Administration",
+		"order": 10,
+		"action": {
+			"type": "firstchild",
+			"recurse": true
+		},
+		"auth": {
+			"methods": [ "cookie:sysauth_https", "cookie:sysauth_http" ],
+			"login": true
+		}
+	},
+
+	"admin/status": {
+		"title": "Status",
+		"order": 10,
+		"action": {
+			"type": "firstchild",
+			"preferred": "overview",
+			"recurse": true
+		}
+	},
+
+	"admin/system": {
+		"title": "System",
+		"order": 20,
+		"action": {
+			"type": "firstchild",
+			"preferred": "system",
+			"recurse": true
+		}
+	},
+
+	 #+end_src
+
+
+***** template
+
+
+	  context = util.threadlocal()
+
+	  tpl.context.viewns =
+
+	  Template = util.class()
+	  util.class: The class object can be instantiated by calling itself.
+
+
+
+**** po
+	 翻译：
+	 https://github.com/openwrt/luci/blob/master/docs/i18n.md
+
+	 determine_request_language -> i18n
+
+***** luci i18n
+
+***** LMO
+	 本地语言支持的一种格式。
+	 https://github.com/openwrt/luci/blob/master/docs/LMO.md
+
+**** context
+
+	 context = threadlocal
+
+**** plugins
+
+	 HAVE_LUA:    uhttpd_lua.so
+	 HAVE_UCODE:  uhttpd_ucode.so
+	 HAVE_UBUS:   uhttpd_ubus.so
+
+	 plugin.c: 通过 dlopen 和 dlsym, 获取 uhttpd_plugin 结构体
+
+	 struct uhttpd_plugin:  listhead, init, post_init
+
+***** lua plugin
+
+	  path: ./?.lua;/usr/share/lua/?.lua;/usr/share/lua/?/init.lua;/usr/lib/lua/?.lua;/usr/lib/lua/?/init.lua
+
+****** init
+
+	   创建table, uhttpd：
+
+	   - send
+	   - sendc
+	   - recv
+	   - urldecode
+	   - urlencode
+	   - docroot
+
+	   导入lua handler：
+
+	   list lua_prefix '/cgi-bin/luci=/usr/lib/lua/luci/sgi/uhttpd.lua'
+
+	   运行加载的lua文件：
+
+	   lua_pcall(L,0,0,0)
+
+	   lua_pcall(IntPtr luaState, int nArgs, int nResults, int errfunc)
+	   （L,参数个数，返回值个数， 错误处理函数在栈中的索引）
+
+
+**** uhttpd
+
+***** cgi_main
+
+	  fork 子进程时， 调用的cb;
+
+***** dispatch
+
+	  cgi_dispatch
+	  -> check_path = check_cgi_path
+	  -> handle_request = cgi_handle_request
+
+	  lua_dispatch
+	  -> lua.c
+	  -->
+	  ubus_dispatch
+
+***** client
+ struct client
+ -> uloop_timeout timeout
+ -> ustream *us
+ -> ustream_fd sfd
+ -> ustream_ssl ssl,  when HAVE_TLS
+
+
+ uh_accept_client
+ -> ustream  set,  notify_read, notify_write, notify_state
+ -> ustream_fd_init
+ -> uh_poll_connection
+ --> timeout.cb = uh_keepalive_poll_cb
+ ---> uh_set_client_timeout
+ -----> timeout.cb = client_timeout
+ ---> notify_read
+
+ 读:
+ cl->us->notify_read = client_ustream_read_cb;
+ -> uh_client_read_cb
+ --> ustream_get_read_buf
+ --->  cl-state = client_parse_request(cl, buf),  状态机-根据data的状态确定下一步的操作，
+     static read_cb_t read_cbs[] = {
+	 [CLIENT_STATE_INIT] = client_init_cb,
+	 [CLIENT_STATE_HEADER] = client_header_cb,
+	 [CLIENT_STATE_DATA] = client_data_cb,
+ };
+
+ -----> client_init_cb 何时调用？
+
+ cl->us->notify_write = client_ustream_write_cb;
+
+ cl->us->notify_state = client_notify_state;
+
+***** ustream_buf_list
+
+ struct ustream_buf {
+	 struct ustream_buf *next;
+
+	 char *data;
+	 char *tail;
+	 char *end;
+
+	 char head[];
+ };
+
+ struct ustream_buf_list {
+	 struct ustream_buf *head;
+	 struct ustream_buf *data_tail;
+	 struct ustream_buf *tail;
+
+	 int (*alloc)(struct ustream *s, struct ustream_buf_list *l);
+
+	 int data_bytes;
+
+	 int min_buffers;
+	 int max_buffers;
+	 int buffer_len;
+
+	 int buffers;
+ };
+
+
+ ustream r w;
+ -> ustream_buf_list(head, data_tail, tail)
+ --> ustream_buf (head, data, tail, end)
+ ---> [had read/write] [didn't read/write] [not used space]
+      head-----------data----------------tail--------------end
+ ---> [not used space                 ]
+      head-data-tail--------------end
+***** uloop & ustream
+
+ ustream_fd
+ ->uloop_fd
+ -->file(int) fd
+ -->uloop_fd_handler cb
+ ->ustream stream
+ -->ustream_buf_list r, w;
+ --> notify_read
+ --> notify_write
+ --> notify_notify_state,
+         called by , read side of stream is closed or there was a write error
+		 called again, after the write buffer has been emptied when readside has hit EOF
+
+
+ ustream_fd_init
+ -> ustream_uloop_cb
+ --> __ustream_fd_poll(ustream_fd sf, unsigned int events)
+
+ ---> event == read
+ ----> ustream_fd_read_pending
+ -----> ustream_fd_read_pending(struct ustream_fd *sf, bool *more)
+
+ ---> event == write
+ ----> ustream_write_pending
+
+ 其他 init
+	 sf->fd.fd = fd;
+	 sf->fd.cb = ustream_uloop_cb;
+	 s->set_read_blocked = ustream_fd_set_read_blocked;
+	 s->write = ustream_fd_write;
+	 s->free = ustream_fd_free;
+	 s->poll = ustream_fd_poll;
+
+
+***** HTTP
+
+****** client_parse_request
+
+	  解析
+	  取不到 version 时，默认使用1.0？状态机置为 CLIENT_STATE_DONE
+	  当状态为DONE 时，返回 http-400
+
+	  解析成功后， 状态机置为 CLIENT_STATE_HEADER
+
+****** 操作
+
+ static const struct uhttpd_ops ops = {
+	 .dispatch_add = uh_dispatch_add,
+	 .path_match = uh_path_match,
+	 .create_process = uh_create_process,
+	 .get_process_vars = uh_get_process_vars,
+	 .http_header = uh_http_header,
+	 .client_error = uh_client_error,
+	 .request_done = uh_request_done,
+	 .chunk_write = uh_chunk_write,
+	 .chunk_printf = uh_chunk_printf,
+	 .urlencode = uh_urlencode,
+	 .urldecode = uh_urldecode,
+ };
+
+***** proc
+	  创建进程处理请求
+
+	  子进程通过 pipe 与主进程通讯， 标准输入和输出（0,1）分别对应wfd[0] 和 rfd[0]
+
+
+** 一些有用的包
+*** luci
+**** acl
+**** adblock
+**** vnstat
+
+	 https://github.com/vergoh/vnstat
+**** nlbwmon
+**** hd-idle
+**** diag-core
+**** watchcat
+	 description:
+	 Restart network interfaces or reboot if pings to hosts fail, or set up periodic reboots
+**** wireguard
+	 fast, modern, secure vpn tunnel
+
+
+** 一些工具
+
+*** Finnix
+	Finnix is the original utility live Linux distribution.
+	Write it to a USB flash drive or burn it to a CD, boot it,
+	and you're seconds from a root prompt with hundreds of utilities available for recovery,
+	maintenance, testing and more.
+	https://www.finnix.org/
+
+*** backup
+
+**** list changed
+
+	 #+begin_src bash
+	 # Automatically detected modifications
+	 opkg list-changed-conffiles
+
+	 # System configurations supplied by individual packages
+	 grep -r -e . /lib/upgrade/keep.d
+
+	 # User configuration to edit if necessary
+	 grep -e . /etc/sysupgrade.conf
+	 #+end_src
+
+*** utils & tools
+
+**** hdparm 
+	 hdparm /dev/sda
+	 hdparm -T /dev/sda, 测速
+	 hdparm -C /dev/sda, 检测硬盘的电源管理模式
+	 hdparm -m /dev/sda, 查询并设置多重扇区存取的扇区数
+
+**** 坏道修复？
+	 检查：smartctl -l selftest /dev/sda
+	 卸载：umount /dev/sda*
+	 修复：badblocks /dev/sda
+
+**** lvm2
+	 pvcreate
+	 vgextend
+	 vgcreate
+	 vgdisplay
+	 lvs
+	 lvextend
+	 e2fsck

@@ -3,6 +3,7 @@
 ** 产生
 
    生成key:
+   gpg --gen-key
    gpg --full-generate-key
    
    生成撤销证书:
@@ -23,6 +24,7 @@
 
    发送到服务器
    gpg --send-keys --keyserver kering.debian.org
+   gpg --send-keys gg --keyserver hkp://subkeys.pgp.net
 
    指纹
    gpg --fingerprint <id>
@@ -46,7 +48,9 @@
    gpg --output demo.dn.txt --decrypt demo.en.txt
 
    签名:
+   不用加密时， 只需要签名     
    gpg --sign demo.txt
+   gpg --clearsign demo.txt
    gpg --local-user <id> --sign demo.txt
 
    gpg --detach-sign demo.txt
@@ -54,7 +58,9 @@
 ** 验证
 
    gpg --verify log.txt.asc log.txt
-
+   gpg --keyserver hkp://pgp.mit.edu --recv-keys xxx
+   
+   
 ** 参考
 
    https://wiki.debian.org/Keysigning

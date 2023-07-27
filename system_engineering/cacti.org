@@ -1,0 +1,72 @@
+* cacti
+
+** plugins
+
+   先安装 PIA
+   
+   
+*** thold   
+	告警
+
+*** reports	
+
+	生成报告
+	
+*** Notice
+
+	在已知绘制好的图形里，接入文字
+
+*** Minitor
+
+	监控主机状态
+
+*** nmidcreatepdf
+
+	产生pdf报告
+
+*** caMM
+	与syslog功能差不多
+	
+*** weathermap
+	拓扑图
+
+*** clog
+	在 cacti页面上新建一个链接区， 在这个链接区上，可以查看cacti的日至
+
+*** cycle
+	多张图轮播
+
+*** discovery
+	在自定的网段，自动发现主机设备，并自动应用模板
+
+*** docs
+	记录cacti 日常所要记录的内容，相当于记事本
+
+*** nectar
+	自动产生图形和文字， 并把他们发送给指定的邮件
+
+*** routerconfigs
+	自动备份路由器的配置信息， 思科设备等
+
+*** setting
+	应用邮件， 并产生邮件， 发送的管理员
+
+*** syslog
+	把cacti当作syslog服务器， 然后可以在cacti中查看syslog
+
+*** superlinks
+	增加一些链接，例如，多个web 监控平台， 通过该插件，建立这些链接， 以便访问这个监控软件
+	
+	
+*** Host MIB Audit Tool
+	主机
+
+** install
+   admin admin
+   
+    $ >>>>>>>> mysql_tzinfo_to_sql /usr/share/zoneinfo | mysql -u root -p123456 mysql
+
+	
+    php -q input_whitelist.php --audit - This script option will search for any Data Input Methods that are currently banned and provide details as to why.
+    php -q input_whitelist.php --update - This script option un-ban the Data Input Methods that are currently banned.
+    php -q input_whitelist.php --push - This script option will re-enable any disabled Data Sources.

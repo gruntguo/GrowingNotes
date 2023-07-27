@@ -1,0 +1,244 @@
+* tips
+
+** include
+   <a.out.h>：a.out头文件，定义了a.out执行文件格式和一些宏。 
+   <const.h>：常数符号头文件，目前仅定义了i节点中i_mode字段的各标志位。 
+   <ctype.h>：字符类型头文件，定义了一些有关字符类型判断和转换的宏。 
+   <errno.h>：错误号头文件，包含系统中各种出错号。(Linus从minix中引进的)。 
+   <fcntl.h>：文件控制头文件，用于文件及其描述符的操作控制常数符号的定义。 
+   <signal.h>：信号头文件，定义信号符号常量，信号结构以及信号操作函数原型。 
+   <stdarg.h>：标准参数头文件，以宏的形式定义变量参数列表。主要说明了一个类型（va_list）和3个宏（va_start, va_arg和va_end），用于vsprintf、vprintf、vfprintf函数。 
+   <stddef.h>：标准定义头文件，定义了NULL, offsetof(TYPE, MEMBER)。 
+   <string.h>：字符串头文件，主要定义了一些有关字符串操作的嵌入函数。 
+   <termios.h>：终端输入输出函数头文件，主要定义控制异步通信口的终端接口。 
+   <time.h>：时间类型头文件，主要定义了tm结构和一些有关时间的函数原形。 
+   <unistd.h>：Linux标准头文件，定义了各种符号常数和类型，并声明了各种函数。如，定义了__LIBRARY__，则还包括系统调用号和内嵌汇编_syscall0()等。 
+   <utime.h>：用户时间头文件，定义了访问和修改时间结构以及utime()原型。
+
+   （1）体系结构相关头文件子目录include/asm
+
+   这些头文件主要定义了一些与CPU体系结构密切相关的数据结构、宏函数和变量。共4个文件。
+
+   <asm/io.h>：I/O头文件，以宏的嵌入汇编程序形式定义对I/O端口操作的函数。 
+   <asm/memory.h>：内存拷贝头文件，含有memcpy()嵌入式汇编宏函数。 
+   <asm/segment.h>：段操作头文件，定义了有关段寄存器操作的嵌入式汇编函数。 
+   <asm/system.h>：系统头文件，定义了设置或修改描述符/中断门等的嵌入式汇编宏。
+
+   （2）Linux内核专用头文件子目录include/linux
+
+   <linux/config.h>：内核配置头文件，定义键盘语言和硬盘类型（HD_TYPE）可选项。 
+   <linux/fdreg.h>：软驱头文件，含有软盘控制器参数的一些定义。 
+   <linux/fs.h>：文件系统头文件，定义文件表结构（file,buffer_head,m_inode等）。
+   <linux/hdreg.h>：硬盘参数头文件，定义访问硬盘寄存器端口、状态码和分区表等信息。 
+   <linux/head.h>：head头文件，定义了段描述符的简单结构，和几个选择符常量。 
+   <linux/kernel.h>：内核头文件，含有一些内核常用函数的原形定义。 
+   <linux/mm.h>：内存管理头文件，含有页面大小定义和一些页面释放函数原型。 
+   <linux/sched.h>： 调度程序头文件，定义了任务结构task_struct、初始任务0的数据， 
+   以及一些有关描述符参数设置和获取的嵌入式汇编函数宏语句。 
+   <linux/sys.h>：系统调用头文件，含有72个系统调用C函数处理程序,以"sys_"开头。 
+   <linux/tty.h>：tty头文件，定义了有关tty_io，串行通信方面的参数、常数。
+
+   （3）系统专用数据结构子目录include/sys
+
+   <sys/stat.h>： 文件状态头文件，含有文件或文件系统状态结构stat{}和常量。 
+   <sys/times.h>：定义了进程中运行时间结构tms以及times()函数原型。 
+   <sys/types.h>：类型头文件，定义了基本的系统数据类型。 
+   <sys/utsname.h>：系统名称结构头文件。 
+   <sys/wait.h>：等待调用头文件，定义系统调用wait()和waitpid()及相关常数符号。
+
+   linux常用头文件如下：
+
+   　　POSIX标准定义的头文件
+
+   　　<dirent.h>        目录项
+   　　<fcntl.h>         文件控制
+   　　<fnmatch.h>    文件名匹配类型
+   　　<glob.h>    路径名模式匹配类型
+   　　<grp.h>        组文件
+   　　<netdb.h>    网络数据库操作
+   　　<pwd.h>        口令文件
+   　　<regex.h>    正则表达式
+   　　<tar.h>        TAR归档值
+   　　<termios.h>    终端I/O
+   　　<unistd.h>    符号常量
+   　　<utime.h>    文件时间
+   　　<wordexp.h>    字符扩展类型
+
+   <arpa/inet.h>    INTERNET定义
+   <net/if.h>    套接字本地接口
+   <netinet/in.h>    INTERNET地址族
+   <netinet/tcp.h>    传输控制协议定义
+
+   <sys/mman.h>    内存管理声明
+   <sys/select.h>    Select函数
+   <sys/socket.h>    套接字借口
+   <sys/stat.h>    文件状态
+   <sys/times.h>    进程时间
+   <sys/types.h>    基本系统数据类型
+   <sys/un.h>    UNIX域套接字定义
+   <sys/utsname.h>    系统名
+   <sys/wait.h>    进程控制
+
+   POSIX定义的XSI扩展头文件
+   <cpio.h>    cpio归档值
+   <dlfcn.h>    动态链接
+   <fmtmsg.h>    消息显示结构
+   <ftw.h>        文件树漫游
+   <iconv.h>    代码集转换使用程序
+   <langinfo.h>    语言信息常量
+   <libgen.h>    模式匹配函数定义
+   <monetary.h>    货币类型
+   <ndbm.h>    数据库操作
+   <nl_types.h>    消息类别
+   <poll.h>    轮询函数
+   <search.h>    搜索表
+   <strings.h>    字符串操作
+   <syslog.h>    系统出错日志记录
+   <ucontext.h>    用户上下文
+   <ulimit.h>    用户限制
+   <utmpx.h>    用户帐户数据库
+   <sys/ipc.h>    IPC(命名管道)
+   <sys/msg.h>    消息队列
+   <sys/resource.h>资源操作
+   <sys/sem.h>    信号量
+   <sys/shm.h>    共享存储
+   <sys/statvfs.h>    文件系统信息
+   <sys/time.h>    时间类型
+   <sys/timeb.h>    附加的日期和时间定义
+   <sys/uio.h>    矢量I/O操作
+   POSIX定义的可选头文件
+   <aio.h>        异步I/O
+   <mqueue.h>    消息队列
+   <pthread.h>    线程
+   <sched.h>    执行调度
+   <semaphore.h>    信号量
+   <spawn.h>     实时spawn接口
+   <stropts.h>    XSI STREAMS接口
+   <trace.h>     事件跟踪
+
+   3、 C/C++头文件一览
+　　C
+　　＃include <assert.h>　　　　//设定插入点
+　　＃include <ctype.h>　　　　 //字符处理
+　　＃include <errno.h>　　　　 //定义错误码
+　　＃include <float.h>　　　　 //浮点数处理
+　　＃include <iso646.h>        //对应各种运算符的宏
+　　＃include <limits.h>　　　　//定义各种数据类型最值的常量
+　　＃include <locale.h>　　　　//定义本地化C函数
+　　＃include <math.h>　　　　　//定义数学函数
+　　＃include <setjmp.h>        //异常处理支持
+　　＃include <signal.h>        //信号机制支持
+　　＃include <stdarg.h>        //不定参数列表支持
+　　＃include <stddef.h>        //常用常量
+　　＃include <stdio.h>　　　　 //定义输入／输出函数
+　　＃include <stdlib.h>　　　　//定义杂项函数及内存分配函数
+　　＃include <string.h>　　　　//字符串处理
+　　＃include <time.h>　　　　　//定义关于时间的函数
+　　＃include <wchar.h>　　　　 //宽字符处理及输入／输出
+　　＃include <wctype.h>　　　　//宽字符分类
+
+   传统C++
+　　＃i nclude <fstream.h>　　　 //改用<fstream>
+　　＃i nclude <iomanip.h>　　　 //改用<iomainip>
+　　＃i nclude <iostream.h>　　　//改用<iostream>
+　　＃i nclude <strstrea.h>　　　//该类不再支持，改用<sstream>中的stringstream
+
+   标准C++
+　　＃i nclude <algorithm>　　　 //STL 通用算法
+　　＃i nclude <bitset>　　　　　//STL 位集容器
+　　＃i nclude <cctype>          //字符处理
+　　＃i nclude <cerrno> 　　　　 //定义错误码
+　　＃i nclude <cfloat>　　　　 //浮点数处理
+　　＃i nclude <ciso646>         //对应各种运算符的宏
+　　＃i nclude <climits> 　　　　//定义各种数据类型最值的常量
+　　＃i nclude <clocale> 　　　　//定义本地化函数
+　　＃i nclude <cmath> 　　　　　//定义数学函数
+　　＃i nclude <complex>　　　　 //复数类
+　　＃i nclude <csignal>         //信号机制支持
+　　＃i nclude <csetjmp>         //异常处理支持
+　　＃i nclude <cstdarg>         //不定参数列表支持
+　　＃i nclude <cstddef>         //常用常量
+　　＃i nclude <cstdio> 　　　　 //定义输入／输出函数
+　　＃i nclude <cstdlib> 　　　　//定义杂项函数及内存分配函数
+　　＃i nclude <cstring> 　　　　//字符串处理
+　　＃i nclude <ctime> 　　　　　//定义关于时间的函数
+　　＃i nclude <cwchar> 　　　　 //宽字符处理及输入／输出
+　　＃i nclude <cwctype> 　　　　//宽字符分类
+　　＃i nclude <deque>　　　　　 //STL 双端队列容器
+　　＃i nclude <exception>　　　 //异常处理类
+　　＃i nclude <fstream> 　　　 //文件输入／输出
+　　＃i nclude <al>　　　//STL 定义运算函数（代替运算符）
+　　＃i nclude <limits> 　　　　 //定义各种数据类型最值常量
+　　＃i nclude <list>　　　　　　//STL 线性列表容器
+　　＃i nclude <locale>          //本地化特定信息
+　　＃i nclude <map>　　　　　　 //STL 映射容器
+　　＃i nclude <memory>          //STL通过分配器进行的内存分配
+　　＃i nclude <new>             //动态内存分配
+　　＃i nclude <numeric>         //STL常用的数字操作
+　　＃i nclude <iomanip> 　　　 //参数化输入／输出
+　　＃i nclude <ios>　　　　　　 //基本输入／输出支持
+　　＃i nclude <iosfwd>　　　　　//输入／输出系统使用的前置声明
+　　＃i nclude <iostream> 　　 　//数据流输入／输出
+　　＃i nclude <istream>　　　　 //基本输入流
+　　＃i nclude <iterator>        //STL迭代器
+　　＃i nclude <ostream>　　　　 //基本输出流
+　　＃i nclude <queue>　　　　　 //STL 队列容器
+　　＃i nclude <set>　　　　　　 //STL 集合容器
+　　＃i nclude <sstream>　　　　 //基于字符串的流
+　　＃i nclude <stack>　　　　　 //STL 堆栈容器
+　　＃i nclude <stdexcept>　　　 //标准异常类
+　　＃i nclude <streambuf>　　　 //底层输入／输出支持
+　　＃i nclude <string>　　　　　//字符串类
+　　＃i nclude <typeinfo>        //运行期间类型信息
+　　＃i nclude <utility>　　　　 //STL 通用模板类
+　　＃i nclude <valarray>        //对包含值的数组的操作
+　　＃i nclude <vector>　　　　　//STL 动态数组容器
+
+　　C99增加的部分
+
+　　＃i nclude <complex.h>　　 //复数处理
+　　＃i nclude <fenv.h>　　　　//浮点环境
+　　＃i nclude <inttypes.h>　　//整数格式转换
+　　＃i nclude <stdbool.h>　　 //布尔环境
+　　＃i nclude <stdint.h>　　　//整型环境
+　　＃i nclude <tgmath.h>　　　//通用类型数学宏   
+  
+** build
+
+*** 编译时报错， 反断言
+   #+begin_src 
+     #define __BUILD_BUG_ON(condition) ((void)sizeof(char[1 - 2*!!(condition)]))
+   #+end_src
+
+   相当于编译时发出错误。
+   void应该是防优化掉这一行。
+   如果没有那个void，可能被编译器优化。
+
+    typedef int xxx[(condition)? 1: -1]  最给力
+
+** struct
+
+*** buffer
+
+	结构体最后申请空数组， 常用来申请buffer
+
+
+** general fun&lib
+
+*** strncpy
+
+	- 目标dest 应该足够大， 否则会导致未定义行为
+	- 如果src前n字节没有 \0, 则dest不会以 \0结束， 需要的话要手工添加
+
+	
+** gcc
+
+*** diagnostic
+
+	参考： https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#Warning-Options
+	
+	#pragma GCC diagnostic push
+	#pragma GCC diagnostic ignored "-Wstringop-overflow"
+	#pragma GCC diagnostic ignored "-Wreturn-type"
+	#pragma GCC diagnostic ignored "-Wunused-function"
+	#pragma GCC diagnostic pop
