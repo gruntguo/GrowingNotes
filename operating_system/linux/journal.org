@@ -1,0 +1,6 @@
+* journal
+
+** journalctl
+
+*** Delete log   
+   journalctl --vacuum-time=1w

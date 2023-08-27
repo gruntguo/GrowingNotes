@@ -196,13 +196,22 @@
 
 　　C99增加的部分
 
-　　＃i nclude <complex.h>　　 //复数处理
-　　＃i nclude <fenv.h>　　　　//浮点环境
-　　＃i nclude <inttypes.h>　　//整数格式转换
-　　＃i nclude <stdbool.h>　　 //布尔环境
-　　＃i nclude <stdint.h>　　　//整型环境
-　　＃i nclude <tgmath.h>　　　//通用类型数学宏   
-  
+　　＃include <complex.h>　　 //复数处理
+　　＃include <fenv.h>　　　　//浮点环境
+　　＃include <inttypes.h>　　//整数格式转换
+　　＃include <stdbool.h>　　 //布尔环境
+　　＃include <stdint.h>　　　//整型环境
+　　＃include <tgmath.h>　　　//通用类型数学宏   
+
+*** stdint.h
+	64 机器上：
+      intptr_t -> long int
+      uintprt_t -> unsigned long int
+	32 机器上：
+      intptr_t -> int
+      uintprt_t -> unsigned int
+	   
+
 ** build
 
 *** 编译时报错， 反断言
@@ -216,6 +225,38 @@
 
     typedef int xxx[(condition)? 1: -1]  最给力
 
+** alignment
+
+   编译器倾向于根据变量大小（size）将其放置在与其大小对其的偶数地址上
+
+   例如：
+   unit32_t(4字节），对齐到4字节地址上，0x0,0x4,0x8, 对齐到字，word aligned
+   unit16_t(2字节），对齐到2字节地址上，0x0,0x2,0x4, 对齐到半字，half-word aligned
+   unit64_t(8字节），对齐到8字节地址上，0x0,0x8...，, 对齐到双字，double word aligned
+
+   arm的栈帧（stack frame）在 cortex-m3时，要求最好对齐到双字，后面 cortex-m4, cortex-m0/m0 以及 cortex-m7,要求对齐到双字
+   因为 Cortex-M 的硬件架构把处理器（processor）对总线的访问，分为两种：
+   - 对齐访问， Aligened Access
+   - 非对齐访问, Unaligened access
+
+   ARM Cortex-M 是一个 Load/Store 架构， 所有算术逻辑运算，只使用寄存器页中（R0-R15），
+   外部存储器上的变量，必须通过 Load/Store 指令在存储器和寄存器之间进行搬运。
+
+   支持的指令：
+   LDR, Load word to Register
+   STR, Store word to Memory From Register
+   LDRH/STRH, Half-word 版本
+   LDRB/STRB, Byte 版本
+   LDRD/STRD, Double-word版本
+   LDM/STM, 加强版， 可搬运多个数据
+
+   涉及到指针强制类型转换的地方，都是在“蒙蔽”编译器，有可能受到对齐潜规则的惩罚。
+#+begin_src
+   extern void word_access( uint32_t __packed *pwTarget);
+#+end_src
+
+
+   
 ** struct
 
 *** buffer
