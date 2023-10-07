@@ -1,0 +1,111 @@
+* CSS
+
+** 简介
+
+*** 语法
+
+	CSS是一门基于规则的语言 —— 你能定义用于你的网页中特定元素样式的一组规则.
+
+	#+begin_src css
+	  h1 {
+		color: red;
+		font-size: 5em;
+	  }
+	  
+	#+end_src
+
+	大括号内部定义一个或多个形式为
+	  属性(property):值(value); 的 声明(declarations)。
+
+
+**** 使用类名
+
+	 使用class，在选择器的开头加个西文句点（.）
+
+	 .special {
+	 color: orange;
+	 font-weight: bold;
+	 }
+
+	 li.special {
+	 color: orange;
+	 font-weight: bold;
+	 }
+
+	 选中每个 special 类的 li 元素，
+
+**** 根据位置
+	 li em {
+	 color: rebeccapurple;
+	 }
+
+	 没有逗号：
+       该选择器将选择<li>内部的任何<em>元素（<li>的后代）
+
+	 h1 + p {
+	 font-size: 200%;
+	 }
+
+	  + 号 (成为 相邻选择符)
+
+**** 根据状态确定样式
+
+	 a:link {
+	 color: pink;
+	 }
+
+	 a:visited {
+	 color: green;
+	 }
+
+	 a:hover {
+	 text-decoration: none;
+	 }
+
+** 构建css
+
+   - 外部样式
+   - 内部样式
+   - 内联样式
+
+*** 函数
+
+	calc 可以在css中进行简单计算
+
+*** @规则
+	at-rules
+
+*** 速记属性
+	font, background, padding, border, and margin 等属性称为速记属性
+	因为它们允许您在一行中设置多个属性值，从而节省时间并使代码更整洁。
+
+	#+begin_src css
+	  padding: 10px 15px 15px 5px;
+	  
+	  /* 等同于 */
+	  
+	  padding-top: 10px;
+	  padding-right: 15px;
+	  padding-bottom: 15px;
+	  padding-left: 5px;
+	  
+	  background: red url(bg-graphic.png) 10px 10px repeat-x fixed;
+	  
+	  /* 等同于 */
+	  
+	  background-color: red;
+	  background-image: url(bg-graphic.png);
+	  background-position: 10px 10px;
+	  background-repeat: repeat-x;
+	  background-attachment: fixed;
+	#+end_src
+
+** css 如何运行
+
+*** 关于DOM
+	一个DOM有一个树形结构，
+	每一个元素、属性以及文字都对应着结构树中的节点（Node/DOM或DOM node）。
+	节点由节点本身和其他DOM节点的关系定义，
+	有些节点有父节点，有些节点有兄弟节点（同级节点）。
+
+

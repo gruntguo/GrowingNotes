@@ -1,0 +1,50 @@
+* image build
+
+** debian
+
+   lb config
+   lb build
+
+** loop device
+
+   用dd命令创建一个文件，文件大小即为你的新设备的大小
+
+   dd if=/dev/zero of=sd1 bs=4M count=1000
+   
+   要在一个目录下 mount 一个包含有磁盘镜像的文件，需要分 2 步走：
+   
+   losetup /dev/loop0 disk.img
+
+   #使磁盘镜像文件与循环设备连结起来
+
+   mount /dev/loop0 /home/groad/disk_test
+
+   其实上面的两个步骤可以写成一个步骤：
+
+   mount -t minix -o loop ./disk.img ./disk_test
+   
+** my img
+
+
+   xorriso -as mkisofs -o ../testbios.iso -b isolinux.bin -c boot.cat -no-emul-boot -boot-load-size 4 -boot-info-table ./
+
+
+   sudo /usr/local/bin/qemu-system-x86_64 -name guest=bsd\
+   -boot d  -nographic \
+   -bios OVMF.fd \
+   --enable-kvm -m 4G -smp 2 \
+   
+   -cdrom /home/guo/working/dev/iso-build/qemu-start/testbios.iso 
+
+   -netdev tap,ifname=tap0,id=net0,script=no,downscript=no \
+   -device rtl8139,netdev=net0,id=net0
+
+   -drive file=./debian.qcow2,if=virtio,format=qcow2  \
+   -cdrom /home/guo/working/iso/debian-11.0.0-amd64-DVD-1.iso \
+-boot d
+
+** tool
+*** findmnt
+
+*** mknod
+

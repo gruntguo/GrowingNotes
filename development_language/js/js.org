@@ -1,0 +1,21 @@
+* es
+
+** 箭头函数
+
+   https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Functions/Arrow_functions
+
+** note
+   
+*** 不可变
+
+	#+begin_src javascript
+	
+	var player = {score: 1, name: 'Jeff'};
+
+	var newPlayer = Object.assign({}, player, {score: 2});
+	// player 的值没有改变, 但是 newPlayer 的值是 {score: 2, name: 'Jeff'}
+	
+	// 使用对象展开语法，就可以写成：
+	// var newPlayer = {...player, score: 2};
+
+    #+end_src

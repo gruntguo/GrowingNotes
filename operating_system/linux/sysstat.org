@@ -1,0 +1,29 @@
+* sysstat
+
+** iostat
+
+** mpstat
+  
+** sar
+
+   - sar，
+   - sadc, backend of sar, 
+   - sa1, sadc的前端
+   - sa2，总结性报告， 
+
+*** sar
+
+**** cpu
+     sar -p, 查看全天
+
+**** mem     
+     sar -r, 查看全天
+
+**** disk
+     sar -d ， 查看全天
+     
+**** net    
+    sar -n DEV 2 5,  DEV 是网络收发
+    sar -n ETCP 1 , 网络错误
+    sar -n EDEV 1,  网络错误
+    

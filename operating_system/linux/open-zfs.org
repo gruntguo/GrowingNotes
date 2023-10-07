@@ -47,6 +47,8 @@
      $ make -j1 deb-utils deb-dkms
      $ for file in *.deb; do sudo gdebi -q --non-interactive $file; done
     #+end_src
+
+****   liebiao
     
 *** test
     sudo apt install ksh bc fio
